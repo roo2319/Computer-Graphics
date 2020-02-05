@@ -16,6 +16,9 @@ vector<float> interpolate(float from, float to, int numberOfValues);
 vector<vec3> interpolate3(vec3 from, vec3 to, int numberOfValues);
 vector<vector<vec3>> interpolate2d(vec3 top_left, vec3 top_right, vec3 bottom_left, vec3 bottom_right, int width, int height);
 void four_colour();
+void stroked(CanvasPoint first, CanvasPoint second, CanvasPoint third, Colour c);
+void filled(CanvasPoint first, CanvasPoint second, CanvasPoint third, Colour c);
+void line(CanvasPoint to, CanvasPoint from, Colour c);
 void draw();
 void redNoise();
 void greyscale();
@@ -43,9 +46,9 @@ int main(int argc, char* argv[])
 
 void draw()
 {
-  window.clearPixels();
-  // redNoise();
-  four_colour();
+}
+
+void drawPPM(){
 
 }
 
@@ -87,6 +90,45 @@ void four_colour()
       window.setPixelColour(x, y, colour);
     }
   }
+}
+
+void line(CanvasPoint to, CanvasPoint from, Colour c){
+  float xDiff = to.x - from.x;
+  float yDiff = to.y - from.y;
+  int numberOfSteps =  ceil(std::max(abs(xDiff), abs(yDiff)));
+  vector<float> X = interpolate(from.x,to.x, numberOfSteps);
+  vector<float> Y = interpolate(from.y,to.y, numberOfSteps);
+  for (int i = 0; i < numberOfSteps; i++)  window.setPixelColour(X.at(i), Y.at(i), c.pack());
+
+}
+
+void stroked(CanvasPoint first, CanvasPoint second, CanvasPoint third, Colour c){
+  line(first,second,c);
+  line(second,third,c);
+  line(first,third,c);
+}
+
+void filled(CanvasPoint first, CanvasPoint second, CanvasPoint third, Colour c){
+  if (first.y < second.y) swap(first,second);
+  if (first.y < third.y ) swap(first,third );
+  if (second.y < third.y) swap(second,third); 
+  //First = top, Second = Middle, Third = Bottom;
+  //Next find the intersection of first->third and y=second
+  float scale = (first.y-second.y)/(first.y-third.y);
+  CanvasPoint extra = CanvasPoint(round(first.x - scale*(first.x-third.x)),second.y);
+  vector<float> firstToExtra = interpolate(first.x,extra.x,ceil(first.y-second.y));
+  vector<float> firstToSecond = interpolate(first.x,second.x,ceil(first.y-second.y));
+  vector<float> thirdToExtra = interpolate(third.x,extra.x,ceil(second.y-third.y));
+  vector<float> thirdToSecond = interpolate(third.x,second.x,ceil(second.y-third.y));
+  for (int i = 0; i <= first.y - second.y; i++){
+    line(CanvasPoint(firstToExtra[i],first.y-i),CanvasPoint(firstToSecond[i],first.y-i),c);
+  }
+  for (int i = 0; i <= second.y - third.y; i++){
+    line(CanvasPoint(thirdToExtra[i],third.y+i),CanvasPoint(thirdToSecond[i],third.y+i),c);
+  }
+  stroked(extra,second,third,c);
+  stroked(first,second,extra,c);
+
 
 }
 
@@ -136,6 +178,23 @@ void handleEvent(SDL_Event event)
     else if(event.key.keysym.sym == SDLK_RIGHT) cout << "RIGHT" << endl;
     else if(event.key.keysym.sym == SDLK_UP) cout << "UP" << endl;
     else if(event.key.keysym.sym == SDLK_DOWN) cout << "DOWN" << endl;
+    else if(event.key.keysym.sym == SDLK_j) {
+      stroked(CanvasPoint(rand()%WIDTH,rand()%HEIGHT),
+              CanvasPoint(rand()%WIDTH,rand()%HEIGHT),
+              CanvasPoint(rand()%WIDTH,rand()%HEIGHT),
+              Colour(rand()%255,rand()%255,rand()%255));
+      cout << "J" << endl;
+    }
+    else if(event.key.keysym.sym == SDLK_f) {
+      filled(CanvasPoint(rand()%WIDTH,rand()%HEIGHT),
+              CanvasPoint(rand()%WIDTH,rand()%HEIGHT),
+              CanvasPoint(rand()%WIDTH,rand()%HEIGHT),
+              Colour(rand()%255,rand()%255,rand()%255));
+      cout << "f" << endl;
+    }
+    else if(event.key.keysym.sym == SDLK_c){
+        window.clearPixels();
+    }
   }
   else if(event.type == SDL_MOUSEBUTTONDOWN) cout << "MOUSE CLICKED" << endl;
   else if(event.type == SDL_QUIT){
