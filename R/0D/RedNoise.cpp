@@ -5,6 +5,8 @@
 #include <glm/glm.hpp>
 #include <fstream>
 #include <vector>
+#include <string>
+#include <unordered_map>
 
 using namespace std;
 using namespace glm;
@@ -12,10 +14,14 @@ using namespace glm;
 #define WIDTH 640
 #define HEIGHT 480
 
-vector<vector<Colour>> readPPM(const char * filename);
+vector<vector<uint32_t>> readPPM(const char * filename);
+unordered_map<string,Colour> readMTL(const char* filename);
+vector<ModelTriangle> readOBJ(const char* filename,unordered_map<string,Colour> mtls, float scale);
+void drawWireframe(vector<ModelTriangle> model);
+void drawModel(vector<ModelTriangle> model);
 
 
-vector<float> interpolate(float from, float to, int numberOfValues);
+vector<int> interpolate(float from, float to, int numberOfValues);
 vector<CanvasPoint> interpolate(CanvasPoint from, CanvasPoint to, int numberOfValues);
 vector<vec3> interpolate(vec3 from, vec3 to, int numberOfValues);
 vector<vector<vec3>> interpolate2d(vec3 top_left, vec3 top_right, vec3 bottom_left, vec3 bottom_right, int width, int height);
@@ -31,7 +37,14 @@ void update();
 void handleEvent(SDL_Event event);
 
 
+unordered_map<string,Colour> materials = readMTL("cornell-box.mtl");
+vector<vector<uint32_t>> image = readPPM("texture.ppm");
+vector<ModelTriangle> model = readOBJ("cornell-box.obj",materials,100);
 DrawingWindow window = DrawingWindow(WIDTH, HEIGHT, false);
+vec3 camera = vec3(0,0,50);
+mat3 rotation = mat3(1.0f);
+float focal = 4;
+
 
 
 int main(int argc, char* argv[])
@@ -43,6 +56,7 @@ int main(int argc, char* argv[])
     // We MUST poll for events - otherwise the window will freeze !
     if(window.pollForInputEvents(&event)) handleEvent(event);
     update();
+    window.clearPixels();
     draw();
     // Need to render the frame at the end, or nothing actually gets shown on the screen !
     window.renderFrame();
@@ -51,12 +65,13 @@ int main(int argc, char* argv[])
 
 void draw()
 {
+  drawModel(model);
 }
 
-vector<vector<Colour>> readPPM(const char * filename){
+vector<vector<uint32_t>> readPPM(const char * filename){
   ifstream f;
   string line;
-  vector<vector<Colour>> image;
+  vector<vector<uint32_t>> image;
   f.open( filename, ios::binary);
   if (!f.is_open()){
     cout << "Failed to open ppm" << endl;
@@ -74,7 +89,7 @@ vector<vector<Colour>> readPPM(const char * filename){
   cout << maxval << endl;
   // int bytesPerPixel = maxval < 256 ? 1 : 2;
   for(int y = 0; y < height; y++){
-    vector<Colour> row;
+    vector<uint32_t> row;
     for (int x = 0; x < width; x++){
 
       Colour c;
@@ -85,12 +100,65 @@ vector<vector<Colour>> readPPM(const char * filename){
       //   val <<= 8;
       //   val += f.get();
       // }
-      row.push_back(c);
+      row.push_back(c.pack());
     }
     image.push_back(row);
   }
   f.close();
   return image;
+}
+
+unordered_map<string,Colour> readMTL(const char* filename){
+  ifstream f;
+  string line;
+  string name;
+  unordered_map<string,Colour> materials;
+  f.open( filename, ios::in);
+  while (getline(f,line)) {
+    if (line.find("newmtl") != string::npos) {
+      name = line.substr(line.find(' ')+1);
+    }
+    if (line.find("Kd") != string::npos){
+      string* c = split(line,' ');
+      int r = round(255 * stof(c[1]));
+      int g = round(255 * stof(c[2]));
+      int b = round(255 * stof(c[3]));
+      materials[name] = Colour(r,g,b);
+      cout << name << endl;
+      cout << materials[name] << endl;
+      // cout << materials[name] << endl;
+      } 
+    }
+  return materials;
+}
+
+vector<ModelTriangle> readOBJ(const char* filename,unordered_map<string,Colour> mtls, float scale){
+  vector<ModelTriangle> triangles;
+  vector<vec3> points;
+  ifstream f;
+  string line;
+  Colour current_colour;
+  f.open(filename, ios::in);
+  while (getline(f,line)) {
+    if (line.find("usemtl") != string::npos){
+      current_colour =  mtls[split(line, ' ')[1]];
+    }
+    else if (line[0] == 'v') {
+      string* toks = split(line,' ');
+      points.push_back(vec3(stof(toks[1])*scale,stof(toks[2])*scale,stof(toks[3])*scale));
+    }
+    else if (line[0] == 'f') {
+      string* toks = split(line,' ');
+      vec3 first = points.at(stoi(split(toks[1],'/')[0])-1);
+      vec3 second = points.at(stoi(split(toks[2],'/')[0])-1); 
+      vec3 third = points.at(stoi(split(toks[3],'/')[0])-1);
+      ModelTriangle triangle = ModelTriangle(first,second,third,current_colour);
+      triangles.push_back(triangle);
+      cout << triangle << endl;
+    }
+  }
+
+  return triangles; 
 }
 
 void redNoise(){
@@ -106,17 +174,59 @@ void redNoise(){
 }
 
 void drawppm(){
-  vector<vector<Colour>> image = readPPM("texture.ppm");
+  vector<vector<uint32_t>> image = readPPM("texture.ppm");
   for(unsigned int y = 0; y < image.size(); y++){
     for (unsigned int x = 0; x < image.at(0).size(); x++){
-      window.setPixelColour(x,y,image.at(y).at(x).pack());
+      window.setPixelColour(x,y,image.at(y).at(x));
+    }
+  }
+}
+//Fix the focal PLANE! (NOT POINT)
+CanvasPoint project(vec3 point, float focal, vec3 camera, mat3 rotation){
+  //
+  int x = round((point.x - camera.x) * focal)/(point.z - camera.z);
+  int y = round((point.y - camera.y) * focal) /(point.z - camera.z);
+  return CanvasPoint(x+WIDTH/2,y+HEIGHT/2);
+}
+
+void drawWireframe(vector<ModelTriangle> model){
+  //Image plane = 0,0,0
+  CanvasPoint first,second,third;
+  Colour white = Colour(255,255,255);
+  for(unsigned int i = 0; i<model.size();i++){
+    first = project(model[i].vertices[0],focal,camera,rotation);
+    second = project(model[i].vertices[1],focal,camera,rotation);
+    third = project(model[i].vertices[2],focal,camera,rotation);
+    stroked(first,second,third,white);
+  }
+}
+
+bool inPlane(CanvasPoint points[3]){
+  for(int i = 0; i<3; i++){
+    if (points[i].x < 0 || points[i].x > WIDTH) return false;
+    if (points[i].y < 0 || points[i].y > HEIGHT) return false;
+  }
+  return true;
+}
+
+void drawModel(vector<ModelTriangle> model){
+  //Image plane = 0,0,0
+  CanvasPoint first,second,third;
+  for(unsigned int i = 0; i<model.size();i++){
+    first = project(model[i].vertices[0],focal,camera,rotation);
+    second = project(model[i].vertices[1],focal,camera,rotation);
+    third = project(model[i].vertices[2],focal,camera,rotation);
+    CanvasPoint points[3] = {first, second, third};
+    if (inPlane(points)){
+      filled(first,second,third,model[i].colour);
     }
   }
 }
 
+
 void greyscale()
 {
-  vector<float> colour = interpolate(0,255,window.width);
+  vector<int> colour = interpolate(0,255,window.width);
   for(int y=0; y<window.height;y++) {
     for(int x=0; x<window.width;x++) {
       float red   = colour.at(x);
@@ -146,21 +256,21 @@ void line(CanvasPoint to, CanvasPoint from, Colour c){
   float xDiff = to.x - from.x;
   float yDiff = to.y - from.y;
   int numberOfSteps =  ceil(std::max(abs(xDiff), abs(yDiff)));
-  vector<float> X = interpolate(from.x,to.x, numberOfSteps);
-  vector<float> Y = interpolate(from.y,to.y, numberOfSteps);
+  vector<int> X = interpolate(from.x,to.x, numberOfSteps);
+  vector<int> Y = interpolate(from.y,to.y, numberOfSteps);
   for (int i = 0; i < numberOfSteps; i++)  window.setPixelColour(X.at(i), Y.at(i), c.pack());
 }
 
-void texturedLine(CanvasPoint to, CanvasPoint from, vector<vector<Colour>> texture){
+void texturedLine(CanvasPoint to, CanvasPoint from, vector<vector<uint32_t>> texture){
   float xDiff = to.x - from.x;
   float yDiff = to.y - from.y;
   int numberOfSteps =  ceil(std::max(abs(xDiff), abs(yDiff)));
-  vector<float> X = interpolate(from.x,to.x, numberOfSteps);
-  vector<float> Y = interpolate(from.y,to.y, numberOfSteps);
+  vector<int> X = interpolate(from.x,to.x, numberOfSteps);
+  vector<int> Y = interpolate(from.y,to.y, numberOfSteps);
   TexturePoint tStep = to.texturePoint - from.texturePoint;
   for (int i = 0; i < numberOfSteps; i++){
     TexturePoint t = from.texturePoint + (i * tStep/numberOfSteps);
-    window.setPixelColour(X.at(i), Y.at(i), texture.at(t.y).at(t.x).pack());
+    window.setPixelColour(X.at(i), Y.at(i), texture.at(t.y).at(t.x));
   }  
 }
 
@@ -185,7 +295,7 @@ void filled(CanvasPoint first, CanvasPoint second, CanvasPoint third, Colour c){
   vector<CanvasPoint> thirdToExtra = interpolate(third,extra,ceil(second.y-third.y)+1);
   vector<CanvasPoint> thirdToSecond = interpolate(third,second,ceil(second.y-third.y)+1);
 
-  for (int i = 0; i <= first.y - second.y; i++){
+  for (int i = 0; i <= first.y - second.y + 1; i++){
     line(firstToExtra[i],firstToSecond[i],c);
   }
   for (int i = 0; i <= second.y - third.y; i++){
@@ -195,12 +305,11 @@ void filled(CanvasPoint first, CanvasPoint second, CanvasPoint third, Colour c){
 }
 
 void texturedTriangle(CanvasPoint first, CanvasPoint second, CanvasPoint third){
-  vector<vector<Colour>> image = readPPM("texture.ppm");
-  first = CanvasPoint(160,10);
+  // first = CanvasPoint(160,10);
   first.texturePoint = TexturePoint(195,5);
-  second = CanvasPoint(300,230);
+  // second = CanvasPoint(300,230);
   second.texturePoint = TexturePoint(395,380);
-  third = CanvasPoint(10,150);
+  // third = CanvasPoint(10,150);
   third.texturePoint = TexturePoint(65,330);
 
   if (first.y < second.y) swap(first,second);
@@ -215,21 +324,21 @@ void texturedTriangle(CanvasPoint first, CanvasPoint second, CanvasPoint third){
   vector<CanvasPoint> thirdToExtra = interpolate(third,extra,ceil(second.y-third.y)+1);
   vector<CanvasPoint> thirdToSecond = interpolate(third,second,ceil(second.y-third.y)+1);
 
-  for (int i = 0; i <= first.y - second.y; i++){
+  for (int i = 0; i <= ceil(first.y - second.y) +1; i++){
     texturedLine(firstToExtra[i],firstToSecond[i],image);
   }
-  for (int i = 0; i <= second.y - third.y; i++){
+  for (int i = 0; i <= ceil(second.y - third.y)+1; i++){
     texturedLine(thirdToExtra[i],thirdToSecond[i],image);
   }
 
     
 }
 
-vector<float> interpolate(float from, float to, int numberOfValues)
+vector<int> interpolate(float from, float to, int numberOfValues)
 {
-  vector<float> interpolated;
+  vector<int> interpolated;
   for (int i = 0; i <= numberOfValues; i++){
-    interpolated.push_back(from + i*((to-from)/numberOfValues));
+    interpolated.push_back(round(from + i*((to-from)/numberOfValues)));
   }
   return interpolated;
 }
@@ -300,6 +409,26 @@ void handleEvent(SDL_Event event)
     }
     else if(event.key.keysym.sym == SDLK_c){
         window.clearPixels();
+    }
+    else if(event.key.keysym.sym == SDLK_w){
+      cout << "moving camera up" << endl;
+      camera.y++;
+    }
+    else if(event.key.keysym.sym == SDLK_s){
+      cout << "moving camera down" << endl;
+      camera.y--;
+    }
+    else if(event.key.keysym.sym == SDLK_a){
+      cout << "moving camera left" << endl;
+      camera.x--;
+    }
+    else if(event.key.keysym.sym == SDLK_d){
+      cout << "moving camera right" << endl;
+      camera.x++;
+    }
+    else if(event.key.keysym.sym == SDLK_q){
+      cout << "moving camera forward" << endl;
+      focal++;
     }
   }
   else if(event.type == SDL_MOUSEBUTTONDOWN) cout << "MOUSE CLICKED" << endl;
