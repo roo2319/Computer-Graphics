@@ -39,11 +39,11 @@ void handleEvent(SDL_Event event);
 
 unordered_map<string,Colour> materials = readMTL("cornell-box.mtl");
 vector<vector<uint32_t>> image = readPPM("texture.ppm");
-vector<ModelTriangle> model = readOBJ("cornell-box.obj",materials,100);
+vector<ModelTriangle> model = readOBJ("cornell-box.obj",materials,1);
 DrawingWindow window = DrawingWindow(WIDTH, HEIGHT, false);
-vec3 camera = vec3(0,0,50);
+vec3 camera = vec3(0,0,5);
 mat3 rotation = mat3(1.0f);
-float focal = 4;
+float focal = HEIGHT/2;
 
 
 
@@ -184,8 +184,9 @@ void drawppm(){
 //Fix the focal PLANE! (NOT POINT)
 CanvasPoint project(vec3 point, float focal, vec3 camera, mat3 rotation){
   //
-  int x = round((point.x - camera.x) * focal)/(point.z - camera.z);
-  int y = round((point.y - camera.y) * focal) /(point.z - camera.z);
+  vec3 d = point-camera;
+  int x = round(-focal * (d.x/d.z));
+  int y = round(focal * (d.y/d.z));
   return CanvasPoint(x+WIDTH/2,y+HEIGHT/2);
 }
 
@@ -428,7 +429,7 @@ void handleEvent(SDL_Event event)
     }
     else if(event.key.keysym.sym == SDLK_q){
       cout << "moving camera forward" << endl;
-      focal++;
+      camera.z--;
     }
   }
   else if(event.type == SDL_MOUSEBUTTONDOWN) cout << "MOUSE CLICKED" << endl;
