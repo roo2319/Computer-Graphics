@@ -1,5 +1,6 @@
 #include <ModelTriangle.h>
 #include <CanvasTriangle.h>
+#include <RayTriangleIntersection.h>
 #include <DrawingWindow.h>
 #include <Utils.h>
 #include <glm/glm.hpp>
@@ -18,7 +19,10 @@ vector<vector<uint32_t>> readPPM(const char * filename);
 unordered_map<string,Colour> readMTL(const char* filename);
 vector<ModelTriangle> readOBJ(const char* filename,unordered_map<string,Colour> mtls, float scale);
 void drawWireframe(vector<ModelTriangle> model);
-void drawModel(vector<ModelTriangle> model);
+void drawRasterised(vector<ModelTriangle> model);
+void drawRaytraced(vector<ModelTriangle> model);
+bool closestIntersection(vec3 start, vec3 dir, vector<ModelTriangle> triangles,RayTriangleIntersection* intersection);
+
 
 
 vector<int> interpolate(float from, float to, int numberOfValues);
@@ -41,7 +45,7 @@ unordered_map<string,Colour> materials = readMTL("cornell-box.mtl");
 vector<vector<uint32_t>> image = readPPM("texture.ppm");
 vector<ModelTriangle> model = readOBJ("cornell-box.obj",materials,1);
 DrawingWindow window = DrawingWindow(WIDTH, HEIGHT, false);
-vec3 camera = vec3(0,0,5);
+vec3 camera = vec3(0,0,-5);
 mat3 rotation = mat3(1.0f);
 float focal = HEIGHT/2;
 
@@ -65,7 +69,8 @@ int main(int argc, char* argv[])
 
 void draw()
 {
-  drawModel(model);
+  drawRaytraced(model);
+  cout << "frame" << endl;
 }
 
 vector<vector<uint32_t>> readPPM(const char * filename){
@@ -124,8 +129,6 @@ unordered_map<string,Colour> readMTL(const char* filename){
       int g = round(255 * stof(c[2]));
       int b = round(255 * stof(c[3]));
       materials[name] = Colour(r,g,b);
-      cout << name << endl;
-      cout << materials[name] << endl;
       // cout << materials[name] << endl;
       } 
     }
@@ -145,7 +148,8 @@ vector<ModelTriangle> readOBJ(const char* filename,unordered_map<string,Colour> 
     }
     else if (line[0] == 'v') {
       string* toks = split(line,' ');
-      points.push_back(vec3(stof(toks[1])*scale,stof(toks[2])*scale,stof(toks[3])*scale));
+      // Z is made negative so image is on positive side of Z, flip y aswell 
+      points.push_back(vec3(stof(toks[1])*scale,stof(toks[2])*-scale,stof(toks[3])*-scale));
     }
     else if (line[0] == 'f') {
       string* toks = split(line,' ');
@@ -154,7 +158,6 @@ vector<ModelTriangle> readOBJ(const char* filename,unordered_map<string,Colour> 
       vec3 third = points.at(stoi(split(toks[3],'/')[0])-1);
       ModelTriangle triangle = ModelTriangle(first,second,third,current_colour);
       triangles.push_back(triangle);
-      cout << triangle << endl;
     }
   }
 
@@ -210,7 +213,7 @@ bool inPlane(CanvasPoint points[3]){
   return true;
 }
 
-void drawModel(vector<ModelTriangle> model){
+void drawRasterised(vector<ModelTriangle> model){
   //Image plane = 0,0,0
   CanvasPoint first,second,third;
   for(unsigned int i = 0; i<model.size();i++){
@@ -222,6 +225,44 @@ void drawModel(vector<ModelTriangle> model){
       filled(first,second,third,model[i].colour);
     }
   }
+}
+
+void drawRaytraced(vector<ModelTriangle> model){
+  RayTriangleIntersection intersection;
+  vec3 dir;
+  for(int y=0; y<window.height ;y++) {
+    for(int x=0; x<window.width ;x++) {
+      dir = vec3(x-WIDTH/2,y-HEIGHT/2,focal);
+      if (closestIntersection(camera,dir,model,&intersection)){
+        window.setPixelColour(x,y,intersection.intersectedTriangle.colour.pack());
+      }
+    }
+  }
+
+}
+
+bool closestIntersection(vec3 start, vec3 dir,
+                         vector<ModelTriangle> triangles,
+                         RayTriangleIntersection* intersection){
+  float bestT = 1000;
+  for (unsigned int i = 0; i < triangles.size(); i++){
+    ModelTriangle triangle = triangles[i];
+    vec3 e1 = triangle.vertices[1] - triangle.vertices[0];
+    vec3 e2 = triangle.vertices[2] - triangle.vertices[0];
+    vec3  b = start - triangle.vertices[0];
+    mat3 A(-dir,e1,e2);
+    vec3 x = glm::inverse(A) * b; // distance , u , v
+    if(x.x > 0 && x.x < bestT && x.y > 0 && x.z > 0 && x.y+x.z < 1){
+      bestT = x.x;
+      *intersection = RayTriangleIntersection(start,x.x,triangle);
+    }
+  } 
+// std::ostream& operator<<(std::ostream& os, const RayTriangleIntersection& intersection)
+// {
+//     os << "Intersection is at " << intersection.intersectionPoint << " on triangle " << intersection.intersectedTriangle << " at a distance of " << intersection.distanceFromCamera << std::endl;
+//     return os;
+// }
+    return bestT < 1000;
 }
 
 
@@ -421,11 +462,11 @@ void handleEvent(SDL_Event event)
     }
     else if(event.key.keysym.sym == SDLK_a){
       cout << "moving camera left" << endl;
-      camera.x--;
+      camera.x++;
     }
     else if(event.key.keysym.sym == SDLK_d){
       cout << "moving camera right" << endl;
-      camera.x++;
+      camera.x--;
     }
     else if(event.key.keysym.sym == SDLK_q){
       cout << "moving camera forward" << endl;
