@@ -447,11 +447,11 @@ void handleEvent(SDL_Event event)
     }  
     else if(event.key.keysym.sym == SDLK_UP) {
       cout << "UP" << endl;
-      updateRotation(&rotation,0.2,0,0);
+      updateRotation(&rotation,-0.2,0,0);
     }  
     else if(event.key.keysym.sym == SDLK_DOWN) {
       cout << "DOWN" << endl;
-      updateRotation(&rotation,-0.2,0,0);
+      updateRotation(&rotation,0.2,0,0);
     }  
     else if(event.key.keysym.sym == SDLK_j) {
       stroked(CanvasPoint(rand()%WIDTH,rand()%HEIGHT),
