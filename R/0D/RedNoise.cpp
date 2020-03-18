@@ -12,8 +12,8 @@
 using namespace std;
 using namespace glm;
 
-#define WIDTH 640
-#define HEIGHT 480
+#define WIDTH 320
+#define HEIGHT 240
 
 vector<vector<uint32_t>> readPPM(const char * filename);
 unordered_map<string,Colour> readMTL(const char* filename);
@@ -22,7 +22,7 @@ void drawWireframe(vector<ModelTriangle> model);
 void drawRasterised(vector<ModelTriangle> model);
 void drawRaytraced(vector<ModelTriangle> model);
 bool closestIntersection(vec3 start, vec3 dir, vector<ModelTriangle> triangles,RayTriangleIntersection* intersection);
-
+bool inPlane(CanvasPoint points[3]);
 
 
 vector<int> interpolate(float from, float to, int numberOfValues);
@@ -49,6 +49,13 @@ vec3 camera = vec3(0,0,-5);
 mat3 rotation = mat3(1.0f);
 float focal = HEIGHT/2;
 
+
+void updateRotation(mat3* rotation, float X, float Y, float Z){
+  mat3 xrot = mat3(1,0,0,0,cos(X),sin(X),0,-sin(X),cos(X));
+  mat3 yrot = mat3(cos(Y),0,-sin(Y),0,1,0,sin(Y),0,cos(Y));
+  mat3 zrot = mat3(cos(Z),sin(Z),0,-sin(Z),cos(Z),0,0,0,1);
+  *rotation = *rotation * xrot * yrot * zrot;
+}
 
 
 int main(int argc, char* argv[])
@@ -140,11 +147,12 @@ vector<ModelTriangle> readOBJ(const char* filename,unordered_map<string,Colour> 
   vector<vec3> points;
   ifstream f;
   string line;
-  Colour current_colour;
+  Colour current_colour = Colour(255,255,255);
   f.open(filename, ios::in);
   while (getline(f,line)) {
     if (line.find("usemtl") != string::npos){
-      current_colour =  mtls[split(line, ' ')[1]];
+      string material = split(line, ' ')[1];
+      if (!(mtls.find(material) == mtls.end())) current_colour =  mtls[material];
     }
     else if (line[0] == 'v') {
       string* toks = split(line,' ');
@@ -153,9 +161,9 @@ vector<ModelTriangle> readOBJ(const char* filename,unordered_map<string,Colour> 
     }
     else if (line[0] == 'f') {
       string* toks = split(line,' ');
-      vec3 first = points.at(stoi(split(toks[1],'/')[0])-1);
-      vec3 second = points.at(stoi(split(toks[2],'/')[0])-1); 
-      vec3 third = points.at(stoi(split(toks[3],'/')[0])-1);
+      vec3 first = points.at(abs(stoi(split(toks[1],'/')[0])-1));
+      vec3 second = points.at(abs(stoi(split(toks[2],'/')[0])-1)); 
+      vec3 third = points.at(abs(stoi(split(toks[3],'/')[0])-1));
       ModelTriangle triangle = ModelTriangle(first,second,third,current_colour);
       triangles.push_back(triangle);
     }
@@ -201,7 +209,10 @@ void drawWireframe(vector<ModelTriangle> model){
     first = project(model[i].vertices[0],focal,camera,rotation);
     second = project(model[i].vertices[1],focal,camera,rotation);
     third = project(model[i].vertices[2],focal,camera,rotation);
-    stroked(first,second,third,white);
+    CanvasPoint points[3] = {first, second, third};
+    if (inPlane(points)){
+      stroked(first,second,third,white);
+    }
   }
 }
 
@@ -233,7 +244,7 @@ void drawRaytraced(vector<ModelTriangle> model){
   for(int y=0; y<window.height ;y++) {
     for(int x=0; x<window.width ;x++) {
       dir = vec3(x-WIDTH/2,y-HEIGHT/2,focal);
-      if (closestIntersection(camera,dir,model,&intersection)){
+      if (closestIntersection(camera,dir*rotation,model,&intersection)){
         window.setPixelColour(x,y,intersection.intersectedTriangle.colour.pack());
       }
     }
@@ -426,10 +437,22 @@ void update()
 void handleEvent(SDL_Event event)
 {
   if(event.type == SDL_KEYDOWN) {
-    if(event.key.keysym.sym == SDLK_LEFT) cout << "LEFT" << endl;
-    else if(event.key.keysym.sym == SDLK_RIGHT) cout << "RIGHT" << endl;
-    else if(event.key.keysym.sym == SDLK_UP) cout << "UP" << endl;
-    else if(event.key.keysym.sym == SDLK_DOWN) cout << "DOWN" << endl;
+    if(event.key.keysym.sym == SDLK_LEFT){
+      cout << "LEFT" << endl;
+      updateRotation(&rotation,0,0.2,0);
+    }  
+    else if(event.key.keysym.sym == SDLK_RIGHT) {
+      cout << "Right" << endl;
+      updateRotation(&rotation,0,-0.2,0);
+    }  
+    else if(event.key.keysym.sym == SDLK_UP) {
+      cout << "UP" << endl;
+      updateRotation(&rotation,0.2,0,0);
+    }  
+    else if(event.key.keysym.sym == SDLK_DOWN) {
+      cout << "DOWN" << endl;
+      updateRotation(&rotation,-0.2,0,0);
+    }  
     else if(event.key.keysym.sym == SDLK_j) {
       stroked(CanvasPoint(rand()%WIDTH,rand()%HEIGHT),
               CanvasPoint(rand()%WIDTH,rand()%HEIGHT),
@@ -454,23 +477,27 @@ void handleEvent(SDL_Event event)
     }
     else if(event.key.keysym.sym == SDLK_w){
       cout << "moving camera up" << endl;
-      camera.y++;
+      camera -= vec3(0,1,0) * rotation;
     }
     else if(event.key.keysym.sym == SDLK_s){
       cout << "moving camera down" << endl;
-      camera.y--;
+      camera += vec3(0,1,0) * rotation;
     }
     else if(event.key.keysym.sym == SDLK_a){
       cout << "moving camera left" << endl;
-      camera.x++;
+      camera -= vec3(1,0,0) * rotation;
     }
     else if(event.key.keysym.sym == SDLK_d){
       cout << "moving camera right" << endl;
-      camera.x--;
+      camera += vec3(1,0,0) * rotation;
     }
     else if(event.key.keysym.sym == SDLK_q){
       cout << "moving camera forward" << endl;
-      camera.z--;
+      camera += vec3(0,0,1)*rotation  ;
+    }
+    else if(event.key.keysym.sym == SDLK_e){
+      cout << "moving camera backward" << endl;
+      camera -= vec3(0,0,1)*rotation;
     }
   }
   else if(event.type == SDL_MOUSEBUTTONDOWN) cout << "MOUSE CLICKED" << endl;
