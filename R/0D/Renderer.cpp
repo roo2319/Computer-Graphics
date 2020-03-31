@@ -1,8 +1,8 @@
-#include <Utils.h>
-#include <ModelTriangle.h>
-#include <CanvasTriangle.h>
-#include <RayTriangleIntersection.h>
-#include <DrawingWindow.h>
+#include "Utils.h"
+#include "ModelTriangle.h"
+#include "CanvasTriangle.h"
+#include "RayTriangleIntersection.h"
+#include "DrawingWindow.h"
 #include <glm/glm.hpp>
 #include <fstream>
 #include <vector>
@@ -73,97 +73,7 @@ void draw()
   cout << "frame" << endl;
 }
 
-vector<vector<uint32_t>> readPPM(const char * filename){
-  ifstream f;
-  string line;
-  vector<vector<uint32_t>> image;
-  f.open( filename, ios::binary);
-  if (!f.is_open()){
-    cout << "Failed to open ppm" << endl;
-    return image;
-  }
-  while (getline(f,line)) if (line[0] == 'P' and line[1] == '6') break;
-  cout << "Read P6" << endl;
-  while (getline(f,line)) if (line[0] != '#') break;
-  int width  = stoi(line.substr(0,line.find(' ')));
-  int height = stoi(line.substr(line.find(' ')));
-  cout << width << endl;
-  cout << height << endl;
-  while (getline(f,line)) if (line[0] != '#') break;
-  int maxval = stoi(line);
-  cout << maxval << endl;
-  // int bytesPerPixel = maxval < 256 ? 1 : 2;
-  for(int y = 0; y < height; y++){
-    vector<uint32_t> row;
-    for (int x = 0; x < width; x++){
 
-      Colour c;
-      c.red   = f.get();
-      c.green = f.get(); 
-      c.blue  = f.get();
-      // for(int d = 0; d < bytesPerPixel; d++){
-      //   val <<= 8;
-      //   val += f.get();
-      // }
-      row.push_back(c.pack());
-    }
-    image.push_back(row);
-  }
-  f.close();
-  return image;
-}
-
-unordered_map<string,Colour> readMTL(const char* filename){
-  ifstream f;
-  string line;
-  string name;
-  unordered_map<string,Colour> materials;
-  f.open( filename, ios::in);
-  while (getline(f,line)) {
-    if (line.find("newmtl") != string::npos) {
-      name = line.substr(line.find(' ')+1);
-    }
-    if (line.find("Kd") != string::npos){
-      string* c = split(line,' ');
-      int r = round(255 * stof(c[1]));
-      int g = round(255 * stof(c[2]));
-      int b = round(255 * stof(c[3]));
-      materials[name] = Colour(r,g,b);
-      // cout << materials[name] << endl;
-      } 
-    }
-  return materials;
-}
-
-vector<ModelTriangle> readOBJ(const char* filename,unordered_map<string,Colour> mtls, float scale){
-  vector<ModelTriangle> triangles;
-  vector<vec3> points;
-  ifstream f;
-  string line;
-  Colour current_colour = Colour(255,255,255);
-  f.open(filename, ios::in);
-  while (getline(f,line)) {
-    if (line.find("usemtl") != string::npos){
-      string material = split(line, ' ')[1];
-      if (!(mtls.find(material) == mtls.end())) current_colour =  mtls[material];
-    }
-    else if (line[0] == 'v') {
-      string* toks = split(line,' ');
-      // Z is made negative so image is on positive side of Z, flip y aswell 
-      points.push_back(vec3(stof(toks[1])*scale,stof(toks[2])*-scale,stof(toks[3])*-scale));
-    }
-    else if (line[0] == 'f') {
-      string* toks = split(line,' ');
-      vec3 first = points.at(abs(stoi(split(toks[1],'/')[0])-1));
-      vec3 second = points.at(abs(stoi(split(toks[2],'/')[0])-1)); 
-      vec3 third = points.at(abs(stoi(split(toks[3],'/')[0])-1));
-      ModelTriangle triangle = ModelTriangle(first,second,third,current_colour);
-      triangles.push_back(triangle);
-    }
-  }
-
-  return triangles; 
-}
 
 void redNoise(){
   for(int y=0; y<window.height ;y++) {

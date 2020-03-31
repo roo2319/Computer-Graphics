@@ -15,6 +15,8 @@ CANVASPOINT_SOURCE = libs/sdw/CanvasPoint.cpp
 CANVASPOINT_OBJECT = libs/sdw/CanvasPoint.o
 TEXTUREPOINT_SOURCE = libs/sdw/TexturePoint.cpp
 TEXTUREPOINT_OBJECT = libs/sdw/TexturePoint.o
+MODELTRIANGLE_SOURCE = libs/sdw/ModelTriangle.cpp
+MODELTRIANGLE_OBJECT = libs/sdw/ModelTriangle.o
 
 # Build settings
 COMPILER = g++
@@ -32,7 +34,7 @@ GLM_COMPILER_FLAGS := -I./libs/glm
 SDL_COMPILER_FLAGS := $(shell sdl2-config --cflags)
 # If you have a manual install of SDL, you might not have sdl2-config. Linker flags should be something like: -L/usr/local/lib -lSDL2
 SDL_LINKER_FLAGS := $(shell sdl2-config --libs)
-SDW_LINKER_FLAGS := $(WINDOW_OBJECT) $(UTILS_OBJECT) $(CANVASPOINT_OBJECT) ${TEXTUREPOINT_OBJECT} $(COLOUR_OBJECT)
+SDW_LINKER_FLAGS := $(WINDOW_OBJECT) $(UTILS_OBJECT) $(CANVASPOINT_OBJECT) ${TEXTUREPOINT_OBJECT} $(COLOUR_OBJECT) ${MODELTRIANGLE_OBJECT}
 
 default: diagnostic
 
@@ -56,7 +58,7 @@ debug: window utils canvaspoint texturepoint
 	./$(EXECUTABLE)
 
 # Rule to build for high performance executable
-speedy: window utils canvaspoint texturepoint colour
+speedy: window utils canvaspoint texturepoint colour modeltriangle
 	$(COMPILER) $(COMPILER_OPTIONS) $(SPEEDY_OPTIONS) -o $(OBJECT_FILE) $(SOURCE_FILE) $(SDL_COMPILER_FLAGS) $(SDW_COMPILER_FLAGS) $(GLM_COMPILER_FLAGS)
 	$(COMPILER) $(LINKER_OPTIONS) $(SPEEDY_OPTIONS) -o $(EXECUTABLE) $(OBJECT_FILE) $(SDW_LINKER_FLAGS) $(SDL_LINKER_FLAGS)
 	./$(EXECUTABLE)
@@ -73,6 +75,10 @@ canvaspoint:
 
 texturepoint:
 	$(COMPILER) $(COMPILER_OPTIONS) -o $(TEXTUREPOINT_OBJECT) $(TEXTUREPOINT_SOURCE) $(SDL_COMPILER_FLAGS) $(GLM_COMPILER_FLAGS)
+
+modeltriangle:
+	$(COMPILER) $(COMPILER_OPTIONS) -o $(MODELTRIANGLE_OBJECT) $(MODELTRIANGLE_SOURCE) $(SDL_COMPILER_FLAGS) $(GLM_COMPILER_FLAGS)
+
 
 colour:
 	$(COMPILER) $(COMPILER_OPTIONS) -o $(COLOUR_OBJECT) $(COLOUR_SOURCE) $(SDL_COMPILER_FLAGS) $(GLM_COMPILER_FLAGS)

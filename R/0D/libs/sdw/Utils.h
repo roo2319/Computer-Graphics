@@ -3,8 +3,11 @@
 #include <algorithm>
 #include "CanvasPoint.h"
 #include "Colour.h"
+#include "ModelTriangle.h"
 #include <glm/glm.hpp>
 #include <vector>
+#include <unordered_map>
+#include <fstream>
 #include "DrawingWindow.h"
 
 using std::vector;
@@ -24,3 +27,6 @@ void filled(DrawingWindow window, CanvasPoint first, CanvasPoint second, CanvasP
 void texturedTriangle(DrawingWindow window, vector<vector<uint32_t>> image, CanvasPoint first, CanvasPoint second, CanvasPoint third);
 
 // Parsing
+vector<vector<uint32_t>> readPPM(const char * filename);
+std::unordered_map<std::string,Colour> readMTL(const char* filename);
+vector<ModelTriangle> readOBJ(const char* filename,std::unordered_map<std::string,Colour> mtls, float scale);

@@ -133,3 +133,93 @@ void texturedTriangle(DrawingWindow window, vector<vector<uint32_t>> image, Canv
   }   
 }
 
+vector<vector<uint32_t>> readPPM(const char * filename){
+  std::ifstream f;
+  std::string line;
+  vector<vector<uint32_t>> image;
+  f.open( filename, std::ios::binary);
+  if (!f.is_open()){
+    std::cout << "Failed to open ppm" << std::endl;
+    return image;
+  }
+  while (getline(f,line)) if (line[0] == 'P' and line[1] == '6') break;
+  std::cout << "Read P6" << std::endl;
+  while (getline(f,line)) if (line[0] != '#') break;
+  int width  = stoi(line.substr(0,line.find(' ')));
+  int height = stoi(line.substr(line.find(' ')));
+  std::cout << width << std::endl;
+  std::cout << height << std::endl;
+  while (getline(f,line)) if (line[0] != '#') break;
+  int maxval = stoi(line);
+  std::cout << maxval << std::endl;
+  // int bytesPerPixel = maxval < 256 ? 1 : 2;
+  for(int y = 0; y < height; y++){
+    vector<uint32_t> row;
+    for (int x = 0; x < width; x++){
+
+      Colour c;
+      c.red   = f.get();
+      c.green = f.get(); 
+      c.blue  = f.get();
+      // for(int d = 0; d < bytesPerPixel; d++){
+      //   val <<= 8;
+      //   val += f.get();
+      // }
+      row.push_back(c.pack());
+    }
+    image.push_back(row);
+  }
+  f.close();
+  return image;
+}
+
+std::unordered_map<std::string,Colour> readMTL(const char* filename){
+  std::ifstream f;
+  std::string line;
+  std::string name;
+  std::unordered_map<std::string,Colour> materials;
+  f.open( filename, std::ios::in);
+  while (getline(f,line)) {
+    if (line.find("newmtl") != std::string::npos) {
+      name = line.substr(line.find(' ')+1);
+    }
+    if (line.find("Kd") != std::string::npos){
+      std::string* c = split(line,' ');
+      int r = round(255 * stof(c[1]));
+      int g = round(255 * stof(c[2]));
+      int b = round(255 * stof(c[3]));
+      materials[name] = Colour(r,g,b);
+      } 
+    }
+  return materials;
+}
+
+vector<ModelTriangle> readOBJ(const char* filename,std::unordered_map<std::string,Colour> mtls, float scale){
+  vector<ModelTriangle> triangles;
+  vector<glm::vec3> points;
+  std::ifstream f;
+  std::string line;
+  Colour current_colour = Colour(255,255,255);
+  f.open(filename, std::ios::in);
+  while (getline(f,line)) {
+    if (line.find("usemtl") != std::string::npos){
+      std::string material = split(line, ' ')[1];
+      if (!(mtls.find(material) == mtls.end())) current_colour =  mtls[material];
+    }
+    else if (line[0] == 'v') {
+      std::string* toks = split(line,' ');
+      // Z is made negative so image is on positive side of Z, flip y aswell 
+      points.push_back(glm::vec3(stof(toks[1])*scale,stof(toks[2])*-scale,stof(toks[3])*-scale));
+    }
+    else if (line[0] == 'f') {
+      std::string* toks = split(line,' ');
+      glm::vec3 first = points.at(abs(stoi(split(toks[1],'/')[0])-1));
+      glm::vec3 second = points.at(abs(stoi(split(toks[2],'/')[0])-1)); 
+      glm::vec3 third = points.at(abs(stoi(split(toks[3],'/')[0])-1));
+      ModelTriangle triangle = ModelTriangle(first,second,third,current_colour);
+      triangles.push_back(triangle);
+    }
+  }
+
+  return triangles; 
+}
