@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 
 class TexturePoint
@@ -6,36 +8,17 @@ class TexturePoint
     float x;
     float y;
 
-    TexturePoint()
-    {
-    }
+    TexturePoint();
 
-    TexturePoint(float xPos, float yPos)
-    {
-      x = xPos;
-      y = yPos;
-    }
+    TexturePoint(float xPos, float yPos);
 
-    void print()
-    {
-    }
-    TexturePoint operator-(const TexturePoint& t){
-      return TexturePoint(this->x-t.x, this->y-t.y);
-    }
 
-    TexturePoint operator+(const TexturePoint& t){
-      return TexturePoint(this->x+t.x, this->y+t.y);
-    }
-    TexturePoint operator/(const float f){
-      return TexturePoint(this->x/f,this->y/f);
-    }
+    TexturePoint operator-(const TexturePoint& t);
+
+    TexturePoint operator+(const TexturePoint& t);
+
+    TexturePoint operator/(const float f);
 };
 
-std::ostream& operator<<(std::ostream& os, const TexturePoint& point)
-{
-    os << "(" << point.x << ", " << point.y << ")" << std::endl;
-    return os;
-}
-TexturePoint operator*(float f, TexturePoint t){
-  return TexturePoint(t.x * f, t.y*f);
-}
+std::ostream& operator<<(std::ostream& os, const TexturePoint& point);
+TexturePoint operator*(float f, TexturePoint t);

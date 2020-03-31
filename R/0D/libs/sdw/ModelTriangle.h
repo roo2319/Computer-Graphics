@@ -1,3 +1,5 @@
+#pragma once
+
 #include <glm/glm.hpp>
 #include "Colour.h"
 #include <string>
@@ -20,6 +22,7 @@ class ModelTriangle
       vertices[2] = v2;
       colour = trigColour;
     }
+
 };
 
 std::ostream& operator<<(std::ostream& os, const ModelTriangle& triangle)

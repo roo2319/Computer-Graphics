@@ -1,8 +1,8 @@
+#include <Utils.h>
 #include <ModelTriangle.h>
 #include <CanvasTriangle.h>
 #include <RayTriangleIntersection.h>
 #include <DrawingWindow.h>
-#include <Utils.h>
 #include <glm/glm.hpp>
 #include <fstream>
 #include <vector>
@@ -25,15 +25,8 @@ bool closestIntersection(vec3 start, vec3 dir, vector<ModelTriangle> triangles,R
 bool inPlane(CanvasPoint points[3]);
 
 
-vector<int> interpolate(float from, float to, int numberOfValues);
-vector<CanvasPoint> interpolate(CanvasPoint from, CanvasPoint to, int numberOfValues);
-vector<vec3> interpolate(vec3 from, vec3 to, int numberOfValues);
-vector<vector<vec3>> interpolate2d(vec3 top_left, vec3 top_right, vec3 bottom_left, vec3 bottom_right, int width, int height);
 void four_colour();
 void drawppm();
-void stroked(CanvasPoint first, CanvasPoint second, CanvasPoint third, Colour c);
-void filled(CanvasPoint first, CanvasPoint second, CanvasPoint third, Colour c);
-void line(CanvasPoint to, CanvasPoint from, Colour c);
 void draw();
 void redNoise();
 void greyscale();
@@ -211,7 +204,7 @@ void drawWireframe(vector<ModelTriangle> model){
     third = project(model[i].vertices[2],focal,camera,rotation);
     CanvasPoint points[3] = {first, second, third};
     if (inPlane(points)){
-      stroked(first,second,third,white);
+      stroked(window, first, second, third, white);
     }
   }
 }
@@ -233,7 +226,7 @@ void drawRasterised(vector<ModelTriangle> model){
     third = project(model[i].vertices[2],focal,camera,rotation);
     CanvasPoint points[3] = {first, second, third};
     if (inPlane(points)){
-      filled(first,second,third,model[i].colour);
+      filled(window,first,second,third,model[i].colour);
     }
   }
 }
@@ -268,11 +261,6 @@ bool closestIntersection(vec3 start, vec3 dir,
       *intersection = RayTriangleIntersection(start,x.x,triangle);
     }
   } 
-// std::ostream& operator<<(std::ostream& os, const RayTriangleIntersection& intersection)
-// {
-//     os << "Intersection is at " << intersection.intersectionPoint << " on triangle " << intersection.intersectedTriangle << " at a distance of " << intersection.distanceFromCamera << std::endl;
-//     return os;
-// }
     return bestT < 1000;
 }
 
@@ -305,129 +293,6 @@ void four_colour()
   }
 }
 
-void line(CanvasPoint to, CanvasPoint from, Colour c){
-  float xDiff = to.x - from.x;
-  float yDiff = to.y - from.y;
-  int numberOfSteps =  ceil(std::max(abs(xDiff), abs(yDiff)));
-  vector<int> X = interpolate(from.x,to.x, numberOfSteps);
-  vector<int> Y = interpolate(from.y,to.y, numberOfSteps);
-  for (int i = 0; i < numberOfSteps; i++)  window.setPixelColour(X.at(i), Y.at(i), c.pack());
-}
-
-void texturedLine(CanvasPoint to, CanvasPoint from, vector<vector<uint32_t>> texture){
-  float xDiff = to.x - from.x;
-  float yDiff = to.y - from.y;
-  int numberOfSteps =  ceil(std::max(abs(xDiff), abs(yDiff)));
-  vector<int> X = interpolate(from.x,to.x, numberOfSteps);
-  vector<int> Y = interpolate(from.y,to.y, numberOfSteps);
-  TexturePoint tStep = to.texturePoint - from.texturePoint;
-  for (int i = 0; i < numberOfSteps; i++){
-    TexturePoint t = from.texturePoint + (i * tStep/numberOfSteps);
-    window.setPixelColour(X.at(i), Y.at(i), texture.at(t.y).at(t.x));
-  }  
-}
-
-void stroked(CanvasPoint first, CanvasPoint second, CanvasPoint third, Colour c){
-  line(first,second,c);
-  line(second,third,c);
-  line(first,third,c);
-}
-
-void filled(CanvasPoint first, CanvasPoint second, CanvasPoint third, Colour c){
-  if (first.y < second.y) swap(first,second);
-  if (first.y < third.y ) swap(first,third );
-  if (second.y < third.y) swap(second,third); 
-  //First = top, Second = Middle, Third = Bottom;
-  //Next find the intersection of first->third and y=second
-  float scale = (first.y-second.y)/(first.y-third.y);
-  CanvasPoint extra = CanvasPoint(first - scale*(first-third));
-
-  //Interpolate X values for each Y value
-  vector<CanvasPoint> firstToExtra = interpolate(first,extra,ceil(first.y-second.y)+1);
-  vector<CanvasPoint> firstToSecond = interpolate(first,second,ceil(first.y-second.y)+1);
-  vector<CanvasPoint> thirdToExtra = interpolate(third,extra,ceil(second.y-third.y)+1);
-  vector<CanvasPoint> thirdToSecond = interpolate(third,second,ceil(second.y-third.y)+1);
-
-  for (int i = 0; i <= first.y - second.y + 1; i++){
-    line(firstToExtra[i],firstToSecond[i],c);
-  }
-  for (int i = 0; i <= second.y - third.y; i++){
-    line(thirdToExtra[i],thirdToSecond[i],c);
-  }
-  stroked(first,second,third,c);
-}
-
-void texturedTriangle(CanvasPoint first, CanvasPoint second, CanvasPoint third){
-  // first = CanvasPoint(160,10);
-  first.texturePoint = TexturePoint(195,5);
-  // second = CanvasPoint(300,230);
-  second.texturePoint = TexturePoint(395,380);
-  // third = CanvasPoint(10,150);
-  third.texturePoint = TexturePoint(65,330);
-
-  if (first.y < second.y) swap(first,second);
-  if (first.y < third.y ) swap(first,third );
-  if (second.y < third.y) swap(second,third); 
-
-  float scale = (first.y-second.y)/(first.y-third.y);
-  CanvasPoint extra = CanvasPoint(first - scale*(first-third));
-
-  vector<CanvasPoint> firstToExtra = interpolate(first,extra,ceil(first.y-second.y)+1);
-  vector<CanvasPoint> firstToSecond = interpolate(first,second,ceil(first.y-second.y)+1);
-  vector<CanvasPoint> thirdToExtra = interpolate(third,extra,ceil(second.y-third.y)+1);
-  vector<CanvasPoint> thirdToSecond = interpolate(third,second,ceil(second.y-third.y)+1);
-
-  for (int i = 0; i <= ceil(first.y - second.y) +1; i++){
-    texturedLine(firstToExtra[i],firstToSecond[i],image);
-  }
-  for (int i = 0; i <= ceil(second.y - third.y)+1; i++){
-    texturedLine(thirdToExtra[i],thirdToSecond[i],image);
-  }
-
-    
-}
-
-vector<int> interpolate(float from, float to, int numberOfValues)
-{
-  vector<int> interpolated;
-  for (int i = 0; i <= numberOfValues; i++){
-    interpolated.push_back(round(from + i*((to-from)/numberOfValues)));
-  }
-  return interpolated;
-}
-
-vector<CanvasPoint> interpolate(CanvasPoint from, CanvasPoint to, int numberOfValues){
-  vector<CanvasPoint> interpolated;
-  for (int i = 0; i <= numberOfValues; i++){
-    interpolated.push_back(from + (i * (to - from)/numberOfValues));
-  }
-  return interpolated;
-}
-
-vector<vec3> interpolate(vec3 from, vec3 to, int numberOfValues)
-{
-  vector<vec3> interpolated;
-  vec3 step = ((float)1/numberOfValues) * (to - from);
-  for (int  i = 0; i <= numberOfValues; i++){
-    interpolated.push_back(from + (float(i) * step));
-  }
-  return interpolated;
-
-}
-
-vector<vector<vec3>> interpolate2d(vec3 top_left, vec3 top_right, vec3 bottom_left, vec3 bottom_right, int width, int height)
-{
-  vector<vec3> left = interpolate(top_left,bottom_left,height);
-  vector<vec3> right = interpolate(top_right, bottom_right, height);
-  vector<vector<vec3>> interpolated;
-  for (int x = 0; x <= height; x++){
-    interpolated.push_back(interpolate(left.at(x),right.at(x),width));
-  }
-  return interpolated;
-
-}
-
-
 
 void update()
 {
@@ -454,23 +319,25 @@ void handleEvent(SDL_Event event)
       updateRotation(&rotation,0.2,0,0);
     }  
     else if(event.key.keysym.sym == SDLK_j) {
-      stroked(CanvasPoint(rand()%WIDTH,rand()%HEIGHT),
+      stroked(window, CanvasPoint(rand()%WIDTH,rand()%HEIGHT),
               CanvasPoint(rand()%WIDTH,rand()%HEIGHT),
               CanvasPoint(rand()%WIDTH,rand()%HEIGHT),
               Colour(rand()%255,rand()%255,rand()%255));
       cout << "J" << endl;
     }
     else if(event.key.keysym.sym == SDLK_f) {
-      filled(CanvasPoint(rand()%WIDTH,rand()%HEIGHT),
+      filled(window,CanvasPoint(rand()%WIDTH,rand()%HEIGHT),
               CanvasPoint(rand()%WIDTH,rand()%HEIGHT),
               CanvasPoint(rand()%WIDTH,rand()%HEIGHT),
               Colour(rand()%255,rand()%255,rand()%255));
       cout << "f" << endl;
     }
     else if (event.key.keysym.sym == SDLK_t){
-      texturedTriangle(CanvasPoint(rand()%WIDTH,rand()%HEIGHT),
+      texturedTriangle(window,image,CanvasPoint(rand()%WIDTH,rand()%HEIGHT),
               CanvasPoint(rand()%WIDTH,rand()%HEIGHT),
               CanvasPoint(rand()%WIDTH,rand()%HEIGHT));
+      cout << "t" << endl;
+
     }
     else if(event.key.keysym.sym == SDLK_c){
         window.clearPixels();

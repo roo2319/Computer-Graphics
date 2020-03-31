@@ -1,11 +1,20 @@
-PROJECT_NAME = RedNoise
+PROJECT_NAME = Renderer
 
 # Define the names of key files
 SOURCE_FILE = $(PROJECT_NAME).cpp
 OBJECT_FILE = $(PROJECT_NAME).o
 EXECUTABLE = $(PROJECT_NAME)
+# There is definitely a better way than this
 WINDOW_SOURCE = libs/sdw/DrawingWindow.cpp
 WINDOW_OBJECT = libs/sdw/DrawingWindow.o
+UTILS_SOURCE = libs/sdw/Utils.cpp
+UTILS_OBJECT = libs/sdw/Utils.o
+COLOUR_SOURCE = libs/sdw/Colour.cpp
+COLOUR_OBJECT = libs/sdw/Colour.o
+CANVASPOINT_SOURCE = libs/sdw/CanvasPoint.cpp
+CANVASPOINT_OBJECT = libs/sdw/CanvasPoint.o
+TEXTUREPOINT_SOURCE = libs/sdw/TexturePoint.cpp
+TEXTUREPOINT_OBJECT = libs/sdw/TexturePoint.o
 
 # Build settings
 COMPILER = g++
@@ -23,31 +32,31 @@ GLM_COMPILER_FLAGS := -I./libs/glm
 SDL_COMPILER_FLAGS := $(shell sdl2-config --cflags)
 # If you have a manual install of SDL, you might not have sdl2-config. Linker flags should be something like: -L/usr/local/lib -lSDL2
 SDL_LINKER_FLAGS := $(shell sdl2-config --libs)
-SDW_LINKER_FLAGS := $(WINDOW_OBJECT)
+SDW_LINKER_FLAGS := $(WINDOW_OBJECT) $(UTILS_OBJECT) $(CANVASPOINT_OBJECT) ${TEXTUREPOINT_OBJECT} $(COLOUR_OBJECT)
 
 default: diagnostic
 
 # Rule to help find errors (when you get a segmentation fault)
 # NOTE: Needs the "Address Sanitizer" library to be installed in order to work (might not work on lab machines !)
-diagnostic: window
+diagnostic: window utils canvaspoint texturepoint
 	$(COMPILER) $(COMPILER_OPTIONS) $(FUSSY_OPTIONS) $(SANITIZER_OPTIONS) -o $(OBJECT_FILE) $(SOURCE_FILE) $(SDL_COMPILER_FLAGS) $(SDW_COMPILER_FLAGS) $(GLM_COMPILER_FLAGS)
 	$(COMPILER) $(LINKER_OPTIONS) $(FUSSY_OPTIONS) $(SANITIZER_OPTIONS) -o $(EXECUTABLE) $(OBJECT_FILE) $(SDW_LINKER_FLAGS) $(SDL_LINKER_FLAGS)
 	./$(EXECUTABLE)
 
 # Rule to compile and link for production release
-production: window
+production: window utils canvaspoint texturepoint
 	$(COMPILER) $(COMPILER_OPTIONS) -o $(OBJECT_FILE) $(SOURCE_FILE) $(SDL_COMPILER_FLAGS) $(SDW_COMPILER_FLAGS) $(GLM_COMPILER_FLAGS)
 	$(COMPILER) $(LINKER_OPTIONS) -o $(EXECUTABLE) $(OBJECT_FILE) $(SDW_LINKER_FLAGS) $(SDL_LINKER_FLAGS)
 	./$(EXECUTABLE)
 
 # Rule to compile and link for use with a debugger
-debug: window
+debug: window utils canvaspoint texturepoint
 	$(COMPILER) $(COMPILER_OPTIONS) $(DEBUG_OPTIONS) -o $(OBJECT_FILE) $(SOURCE_FILE) $(SDL_COMPILER_FLAGS) $(SDW_COMPILER_FLAGS) $(GLM_COMPILER_FLAGS)
 	$(COMPILER) $(LINKER_OPTIONS) $(DEBUG_OPTIONS) -o $(EXECUTABLE) $(OBJECT_FILE) $(SDW_LINKER_FLAGS) $(SDL_LINKER_FLAGS)
 	./$(EXECUTABLE)
 
 # Rule to build for high performance executable
-speedy: window
+speedy: window utils canvaspoint texturepoint colour
 	$(COMPILER) $(COMPILER_OPTIONS) $(SPEEDY_OPTIONS) -o $(OBJECT_FILE) $(SOURCE_FILE) $(SDL_COMPILER_FLAGS) $(SDW_COMPILER_FLAGS) $(GLM_COMPILER_FLAGS)
 	$(COMPILER) $(LINKER_OPTIONS) $(SPEEDY_OPTIONS) -o $(EXECUTABLE) $(OBJECT_FILE) $(SDW_LINKER_FLAGS) $(SDL_LINKER_FLAGS)
 	./$(EXECUTABLE)
@@ -56,6 +65,17 @@ speedy: window
 window:
 	$(COMPILER) $(COMPILER_OPTIONS) -o $(WINDOW_OBJECT) $(WINDOW_SOURCE) $(SDL_COMPILER_FLAGS) $(GLM_COMPILER_FLAGS)
 
+utils:
+	$(COMPILER) $(COMPILER_OPTIONS) -o $(UTILS_OBJECT) $(UTILS_SOURCE) $(SDL_COMPILER_FLAGS) $(GLM_COMPILER_FLAGS)
+
+canvaspoint:
+	$(COMPILER) $(COMPILER_OPTIONS) -o $(CANVASPOINT_OBJECT) $(CANVASPOINT_SOURCE) $(SDL_COMPILER_FLAGS) $(GLM_COMPILER_FLAGS)
+
+texturepoint:
+	$(COMPILER) $(COMPILER_OPTIONS) -o $(TEXTUREPOINT_OBJECT) $(TEXTUREPOINT_SOURCE) $(SDL_COMPILER_FLAGS) $(GLM_COMPILER_FLAGS)
+
+colour:
+	$(COMPILER) $(COMPILER_OPTIONS) -o $(COLOUR_OBJECT) $(COLOUR_SOURCE) $(SDL_COMPILER_FLAGS) $(GLM_COMPILER_FLAGS)
 # Files to remove during clean
 clean:
 	rm $(OBJECT_FILE)
