@@ -6,6 +6,7 @@
 #include "DrawingWindow.h"
 #include "Camera.h"
 #include "Raytracer.h"
+#include "Rasteriser.h"
 #include <glm/glm.hpp>
 #include <fstream>
 #include <vector>
@@ -58,105 +59,13 @@ int main(int argc, char* argv[])
 void draw()
 {
   drawRaytraced(model,window,camera);
+  // drawRasterised(model,window,camera);
   cout << "frame" << endl;
 }
 
 
 
-void redNoise(){
-  for(int y=0; y<window.height ;y++) {
-    for(int x=0; x<window.width ;x++) {
-      float red   = rand() % 255;
-      float green = 0.0;
-      float blue  = 0.0;
-      uint32_t colour = (255<<24) + (int(red)<<16) + (int(green)<<8) + int(blue);
-      window.setPixelColour(x, y, colour);
-    }
-  }
-}
 
-void drawppm(){
-  vector<vector<uint32_t>> image = readPPM("texture.ppm");
-  for(unsigned int y = 0; y < image.size(); y++){
-    for (unsigned int x = 0; x < image.at(0).size(); x++){
-      window.setPixelColour(x,y,image.at(y).at(x));
-    }
-  }
-}
-
-CanvasPoint project(vec3 point, Camera camera){
-  
-  vec3 d = point-camera.position;
-  int x = round(-camera.focal * (d.x/d.z));
-  int y = round(camera.focal * (d.y/d.z));
-  return CanvasPoint(x+WIDTH/2,y+HEIGHT/2);
-}
-
-void drawWireframe(vector<ModelTriangle> model){
-  //Image plane = 0,0,0
-  CanvasPoint first,second,third;
-  Colour white = Colour(255,255,255);
-  for(unsigned int i = 0; i<model.size();i++){
-    first = project(model[i].vertices[0],camera);
-    second = project(model[i].vertices[1],camera);
-    third = project(model[i].vertices[2],camera);
-    CanvasPoint points[3] = {first, second, third};
-    if (inPlane(points)){
-      stroked(window, first, second, third, white);
-    }
-  }
-}
-
-bool inPlane(CanvasPoint points[3]){
-  for(int i = 0; i<3; i++){
-    if (points[i].x < 0 || points[i].x > WIDTH) return false;
-    if (points[i].y < 0 || points[i].y > HEIGHT) return false;
-  }
-  return true;
-}
-
-void drawRasterised(vector<ModelTriangle> model){
-  //Image plane = 0,0,0
-  CanvasPoint first,second,third;
-  for(unsigned int i = 0; i<model.size();i++){
-    first = project(model[i].vertices[0],camera);
-    second = project(model[i].vertices[1],camera);
-    third = project(model[i].vertices[2],camera);
-    CanvasPoint points[3] = {first, second, third};
-    if (inPlane(points)){
-      filled(window,first,second,third,model[i].colour);
-    }
-  }
-}
-
-
-void greyscale()
-{
-  vector<int> colour = interpolate(0,255,window.width);
-  for(int y=0; y<window.height;y++) {
-    for(int x=0; x<window.width;x++) {
-      float red   = colour.at(x);
-      float green = colour.at(x);
-      float blue  = colour.at(x);
-      uint32_t colour = (255<<24) + (int(red)<<16) + (int(green)<<8) + int(blue);
-      window.setPixelColour(x, y, colour);
-    }
-  }
-} 
-
-void four_colour()
-{
-  vector<vector<vec3>> colour = interpolate2d(vec3(255,0,0),vec3(0,0,255),vec3(255,255,0),vec3(0,255,0),window.width,window.height);
-  for(int y=0; y<window.height;y++) {
-    for(int x=0; x<window.width;x++) {
-      float red   = colour.at(y).at(x).x;
-      float green = colour.at(y).at(x).y;
-      float blue  = colour.at(y).at(x).z;
-      uint32_t colour = (255<<24) + (int(red)<<16) + (int(green)<<8) + int(blue);
-      window.setPixelColour(x, y, colour);
-    }
-  }
-}
 
 
 void update()

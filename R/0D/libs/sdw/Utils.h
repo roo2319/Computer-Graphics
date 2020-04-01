@@ -30,3 +30,9 @@ void texturedTriangle(DrawingWindow window, vector<vector<uint32_t>> image, Canv
 vector<vector<uint32_t>> readPPM(const char * filename);
 std::unordered_map<std::string,Colour> readMTL(const char* filename);
 vector<ModelTriangle> readOBJ(const char* filename,std::unordered_map<std::string,Colour> mtls, float scale);
+
+// Test images
+void redNoise(DrawingWindow window);
+void drawppm(DrawingWindow window);
+void greyscale(DrawingWindow window);
+void four_colour(DrawingWindow window);

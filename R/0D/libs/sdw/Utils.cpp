@@ -13,26 +13,26 @@ std::string* split(std::string line, char delim)
     }
     return tokens;
 }
-std::vector<int> interpolate(float from, float to, int numberOfValues)
+vector<int> interpolate(float from, float to, int numberOfValues)
 {
-std::vector<int> interpolated;
+vector<int> interpolated;
 for (int i = 0; i <= numberOfValues; i++){
     interpolated.push_back(round(from + i*((to-from)/numberOfValues)));
 }
 return interpolated;
 }
 
-std::vector<CanvasPoint> interpolate(CanvasPoint from, CanvasPoint to, int numberOfValues){
-std::vector<CanvasPoint> interpolated;
+vector<CanvasPoint> interpolate(CanvasPoint from, CanvasPoint to, int numberOfValues){
+vector<CanvasPoint> interpolated;
 for (int i = 0; i <= numberOfValues; i++){
     interpolated.push_back(from + (i * (to - from)/numberOfValues));
 }
 return interpolated;
 }
 
-std::vector<glm::vec3> interpolate(glm::vec3 from, glm::vec3 to, int numberOfValues)
+vector<glm::vec3> interpolate(glm::vec3 from, glm::vec3 to, int numberOfValues)
 {
-std::vector<glm::vec3> interpolated;
+vector<glm::vec3> interpolated;
 glm::vec3 step = ((float)1/numberOfValues) * (to - from);
 for (int  i = 0; i <= numberOfValues; i++){
     interpolated.push_back(from + (float(i) * step));
@@ -41,11 +41,11 @@ return interpolated;
 
 }
 
-std::vector<std::vector<glm::vec3>> interpolate2d(glm::vec3 top_left, glm::vec3 top_right, glm::vec3 bottom_left, glm::vec3 bottom_right, int width, int height)
+vector<vector<glm::vec3>> interpolate2d(glm::vec3 top_left, glm::vec3 top_right, glm::vec3 bottom_left, glm::vec3 bottom_right, int width, int height)
 {
-std::vector<glm::vec3> left = interpolate(top_left,bottom_left,height);
-std::vector<glm::vec3> right = interpolate(top_right, bottom_right, height);
-std::vector<std::vector<glm::vec3>> interpolated;
+vector<glm::vec3> left = interpolate(top_left,bottom_left,height);
+vector<glm::vec3> right = interpolate(top_right, bottom_right, height);
+vector<vector<glm::vec3>> interpolated;
 for (int x = 0; x <= height; x++){
     interpolated.push_back(interpolate(left.at(x),right.at(x),width));
 }
@@ -222,4 +222,54 @@ vector<ModelTriangle> readOBJ(const char* filename,std::unordered_map<std::strin
   }
 
   return triangles; 
+}
+
+void redNoise(DrawingWindow window){
+  for(int y=0; y<window.height ;y++) {
+    for(int x=0; x<window.width ;x++) {
+      float red   = rand() % 255;
+      float green = 0.0;
+      float blue  = 0.0;
+      uint32_t colour = (255<<24) + (int(red)<<16) + (int(green)<<8) + int(blue);
+      window.setPixelColour(x, y, colour);
+    }
+  }
+}
+
+void drawppm(DrawingWindow window){
+  vector<vector<uint32_t>> image = readPPM("texture.ppm");
+  for(unsigned int y = 0; y < image.size(); y++){
+    for (unsigned int x = 0; x < image.at(0).size(); x++){
+      window.setPixelColour(x,y,image.at(y).at(x));
+    }
+  }
+}
+
+
+void greyscale(DrawingWindow window)
+{
+  vector<int> colour = interpolate(0,255,window.width);
+  for(int y=0; y<window.height;y++) {
+    for(int x=0; x<window.width;x++) {
+      float red   = colour.at(x);
+      float green = colour.at(x);
+      float blue  = colour.at(x);
+      uint32_t colour = (255<<24) + (int(red)<<16) + (int(green)<<8) + int(blue);
+      window.setPixelColour(x, y, colour);
+    }
+  }
+} 
+
+void four_colour(DrawingWindow window)
+{
+  vector<vector<glm::vec3>> colour = interpolate2d(glm::vec3(255,0,0),glm::vec3(0,0,255),glm::vec3(255,255,0),glm::vec3(0,255,0),window.width,window.height);
+  for(int y=0; y<window.height;y++) {
+    for(int x=0; x<window.width;x++) {
+      float red   = colour.at(y).at(x).x;
+      float green = colour.at(y).at(x).y;
+      float blue  = colour.at(y).at(x).z;
+      uint32_t colour = (255<<24) + (int(red)<<16) + (int(green)<<8) + int(blue);
+      window.setPixelColour(x, y, colour);
+    }
+  }
 }
