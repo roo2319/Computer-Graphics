@@ -1,6 +1,7 @@
 #include "Utils.h"
 #include "ModelTriangle.h"
 #include "CanvasTriangle.h"
+#include "EventHandler.h"
 #include "RayTriangleIntersection.h"
 #include "DrawingWindow.h"
 #include "Camera.h"
@@ -28,7 +29,6 @@ void draw();
 void redNoise();
 void greyscale();
 void update();
-void handleEvent(SDL_Event event);
 
 
 unordered_map<string,Colour> materials = readMTL("cornell-box.mtl");
@@ -46,7 +46,7 @@ int main(int argc, char* argv[])
   {
     
     // We MUST poll for events - otherwise the window will freeze !
-    if(window.pollForInputEvents(&event)) handleEvent(event);
+    if(window.pollForInputEvents(&event)) handleEvent(event,window,camera,image);
     update();
     window.clearPixels();
     draw();
@@ -164,76 +164,3 @@ void update()
   // Function for performing animation (shifting artifacts or moving the camera)
 }
 
-void handleEvent(SDL_Event event)
-{
-  if(event.type == SDL_KEYDOWN) {
-    if(event.key.keysym.sym == SDLK_LEFT){
-      cout << "LEFT" << endl;
-      camera.updateRotation(0,0.2,0);
-    }  
-    else if(event.key.keysym.sym == SDLK_RIGHT) {
-      cout << "Right" << endl;
-      camera.updateRotation(0,-0.2,0);
-    }  
-    else if(event.key.keysym.sym == SDLK_UP) {
-      cout << "UP" << endl;
-      camera.updateRotation(-0.2,0,0);
-    }  
-    else if(event.key.keysym.sym == SDLK_DOWN) {
-      cout << "DOWN" << endl;
-      camera.updateRotation(0.2,0,0);
-    }  
-    else if(event.key.keysym.sym == SDLK_j) {
-      stroked(window, CanvasPoint(rand()%WIDTH,rand()%HEIGHT),
-              CanvasPoint(rand()%WIDTH,rand()%HEIGHT),
-              CanvasPoint(rand()%WIDTH,rand()%HEIGHT),
-              Colour(rand()%255,rand()%255,rand()%255));
-      cout << "J" << endl;
-    }
-    else if(event.key.keysym.sym == SDLK_f) {
-      filled(window,CanvasPoint(rand()%WIDTH,rand()%HEIGHT),
-              CanvasPoint(rand()%WIDTH,rand()%HEIGHT),
-              CanvasPoint(rand()%WIDTH,rand()%HEIGHT),
-              Colour(rand()%255,rand()%255,rand()%255));
-      cout << "f" << endl;
-    }
-    else if (event.key.keysym.sym == SDLK_t){
-      texturedTriangle(window,image,CanvasPoint(rand()%WIDTH,rand()%HEIGHT),
-              CanvasPoint(rand()%WIDTH,rand()%HEIGHT),
-              CanvasPoint(rand()%WIDTH,rand()%HEIGHT));
-      cout << "t" << endl;
-
-    }
-    else if(event.key.keysym.sym == SDLK_c){
-        window.clearPixels();
-    }
-    else if(event.key.keysym.sym == SDLK_w){
-      cout << "moving camera up" << endl;
-      camera.position -= vec3(0,1,0) * camera.rotation;
-    }
-    else if(event.key.keysym.sym == SDLK_s){
-      cout << "moving camera down" << endl;
-      camera.position += vec3(0,1,0) * camera.rotation;
-    }
-    else if(event.key.keysym.sym == SDLK_a){
-      cout << "moving camera left" << endl;
-      camera.position -= vec3(1,0,0) * camera.rotation;
-    }
-    else if(event.key.keysym.sym == SDLK_d){
-      cout << "moving camera right" << endl;
-      camera.position += vec3(1,0,0) * camera.rotation;
-    }
-    else if(event.key.keysym.sym == SDLK_q){
-      cout << "moving camera forward" << endl;
-      camera.position += vec3(0,0,1) * camera.rotation  ;
-    }
-    else if(event.key.keysym.sym == SDLK_e){
-      cout << "moving camera backward" << endl;
-      camera.position -= vec3(0,0,1) * camera.rotation;
-    }
-  }
-  else if(event.type == SDL_MOUSEBUTTONDOWN) cout << "MOUSE CLICKED" << endl;
-  else if(event.type == SDL_QUIT){
-	exit(1);
-  }
-}

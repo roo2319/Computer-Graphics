@@ -21,6 +21,8 @@ MODELTRIANGLE_OBJECT = build/ModelTriangle.o
 # Project Objects
 CAMERA_SOURCE = Camera.cpp
 CAMERA_OBJECT = build/Camera.o
+EVENTHANDLER_SOURCE = EventHandler.cpp
+EVENTHANDLER_OBJECT = build/EventHandler.o
 RAYTRACER_SOURCE = Raytracer.cpp
 RAYTRACER_OBJECT = build/Raytracer.o
 
@@ -41,7 +43,7 @@ SDL_COMPILER_FLAGS := $(shell sdl2-config --cflags)
 # If you have a manual install of SDL, you might not have sdl2-config. Linker flags should be something like: -L/usr/local/lib -lSDL2
 SDL_LINKER_FLAGS := $(shell sdl2-config --libs)
 SDW_LINKER_FLAGS := $(WINDOW_OBJECT) $(UTILS_OBJECT) $(CANVASPOINT_OBJECT) ${TEXTUREPOINT_OBJECT} $(COLOUR_OBJECT) ${MODELTRIANGLE_OBJECT} 
-PROJECT_LINKER_FLAGS := $(RAYTRACER_OBJECT) $(CAMERA_OBJECT)
+PROJECT_LINKER_FLAGS := $(RAYTRACER_OBJECT) $(CAMERA_OBJECT) $(EVENTHANDLER_OBJECT)
 default: diagnostic
 
 # Rule to help find errors (when you get a segmentation fault)
@@ -64,7 +66,7 @@ debug: window utils canvaspoint texturepoint
 	./$(EXECUTABLE)
 
 # Rule to build for high performance executable
-speedy: window utils canvaspoint texturepoint colour modeltriangle raytracer camera
+speedy: window utils canvaspoint texturepoint colour modeltriangle raytracer camera event
 	$(COMPILER) $(COMPILER_OPTIONS) $(SPEEDY_OPTIONS) -o $(OBJECT_FILE) $(SOURCE_FILE) $(SDL_COMPILER_FLAGS) $(SDW_COMPILER_FLAGS) $(GLM_COMPILER_FLAGS)
 	$(COMPILER) $(LINKER_OPTIONS) $(SPEEDY_OPTIONS) -o $(EXECUTABLE) $(OBJECT_FILE) $(SDW_LINKER_FLAGS) $(SDL_LINKER_FLAGS) $(PROJECT_LINKER_FLAGS)
 	./$(EXECUTABLE)
@@ -93,6 +95,9 @@ colour:
 
 camera:
 	$(COMPILER) $(COMPILER_OPTIONS) -o $(CAMERA_OBJECT) $(CAMERA_SOURCE) $(SDL_COMPILER_FLAGS) $(GLM_COMPILER_FLAGS)
+
+event:
+	$(COMPILER) $(COMPILER_OPTIONS) -o $(EVENTHANDLER_OBJECT) $(EVENTHANDLER_SOURCE) $(SDL_COMPILER_FLAGS) $(GLM_COMPILER_FLAGS) $(SDW_COMPILER_FLAGS)
 
 # Files to remove during clean
 clean:
