@@ -3,6 +3,8 @@
 #include "CanvasTriangle.h"
 #include "RayTriangleIntersection.h"
 #include "DrawingWindow.h"
+#include "Camera.h"
+#include "Raytracer.h"
 #include <glm/glm.hpp>
 #include <fstream>
 #include <vector>
@@ -15,13 +17,8 @@ using namespace glm;
 #define WIDTH 320
 #define HEIGHT 240
 
-vector<vector<uint32_t>> readPPM(const char * filename);
-unordered_map<string,Colour> readMTL(const char* filename);
-vector<ModelTriangle> readOBJ(const char* filename,unordered_map<string,Colour> mtls, float scale);
 void drawWireframe(vector<ModelTriangle> model);
 void drawRasterised(vector<ModelTriangle> model);
-void drawRaytraced(vector<ModelTriangle> model);
-bool closestIntersection(vec3 start, vec3 dir, vector<ModelTriangle> triangles,RayTriangleIntersection* intersection);
 bool inPlane(CanvasPoint points[3]);
 
 
@@ -38,17 +35,8 @@ unordered_map<string,Colour> materials = readMTL("cornell-box.mtl");
 vector<vector<uint32_t>> image = readPPM("texture.ppm");
 vector<ModelTriangle> model = readOBJ("cornell-box.obj",materials,1);
 DrawingWindow window = DrawingWindow(WIDTH, HEIGHT, false);
-vec3 camera = vec3(0,0,-5);
-mat3 rotation = mat3(1.0f);
-float focal = HEIGHT/2;
 
-
-void updateRotation(mat3* rotation, float X, float Y, float Z){
-  mat3 xrot = mat3(1,0,0,0,cos(X),sin(X),0,-sin(X),cos(X));
-  mat3 yrot = mat3(cos(Y),0,-sin(Y),0,1,0,sin(Y),0,cos(Y));
-  mat3 zrot = mat3(cos(Z),sin(Z),0,-sin(Z),cos(Z),0,0,0,1);
-  *rotation = *rotation * xrot * yrot * zrot;
-}
+Camera camera = Camera(vec3(0,0,-5),mat3(1.0f),HEIGHT/2);
 
 
 int main(int argc, char* argv[])
@@ -69,7 +57,7 @@ int main(int argc, char* argv[])
 
 void draw()
 {
-  drawRaytraced(model);
+  drawRaytraced(model,window,camera);
   cout << "frame" << endl;
 }
 
@@ -95,12 +83,12 @@ void drawppm(){
     }
   }
 }
-//Fix the focal PLANE! (NOT POINT)
-CanvasPoint project(vec3 point, float focal, vec3 camera, mat3 rotation){
-  //
-  vec3 d = point-camera;
-  int x = round(-focal * (d.x/d.z));
-  int y = round(focal * (d.y/d.z));
+
+CanvasPoint project(vec3 point, Camera camera){
+  
+  vec3 d = point-camera.position;
+  int x = round(-camera.focal * (d.x/d.z));
+  int y = round(camera.focal * (d.y/d.z));
   return CanvasPoint(x+WIDTH/2,y+HEIGHT/2);
 }
 
@@ -109,9 +97,9 @@ void drawWireframe(vector<ModelTriangle> model){
   CanvasPoint first,second,third;
   Colour white = Colour(255,255,255);
   for(unsigned int i = 0; i<model.size();i++){
-    first = project(model[i].vertices[0],focal,camera,rotation);
-    second = project(model[i].vertices[1],focal,camera,rotation);
-    third = project(model[i].vertices[2],focal,camera,rotation);
+    first = project(model[i].vertices[0],camera);
+    second = project(model[i].vertices[1],camera);
+    third = project(model[i].vertices[2],camera);
     CanvasPoint points[3] = {first, second, third};
     if (inPlane(points)){
       stroked(window, first, second, third, white);
@@ -131,47 +119,14 @@ void drawRasterised(vector<ModelTriangle> model){
   //Image plane = 0,0,0
   CanvasPoint first,second,third;
   for(unsigned int i = 0; i<model.size();i++){
-    first = project(model[i].vertices[0],focal,camera,rotation);
-    second = project(model[i].vertices[1],focal,camera,rotation);
-    third = project(model[i].vertices[2],focal,camera,rotation);
+    first = project(model[i].vertices[0],camera);
+    second = project(model[i].vertices[1],camera);
+    third = project(model[i].vertices[2],camera);
     CanvasPoint points[3] = {first, second, third};
     if (inPlane(points)){
       filled(window,first,second,third,model[i].colour);
     }
   }
-}
-
-void drawRaytraced(vector<ModelTriangle> model){
-  RayTriangleIntersection intersection;
-  vec3 dir;
-  for(int y=0; y<window.height ;y++) {
-    for(int x=0; x<window.width ;x++) {
-      dir = vec3(x-WIDTH/2,y-HEIGHT/2,focal);
-      if (closestIntersection(camera,dir*rotation,model,&intersection)){
-        window.setPixelColour(x,y,intersection.intersectedTriangle.colour.pack());
-      }
-    }
-  }
-
-}
-
-bool closestIntersection(vec3 start, vec3 dir,
-                         vector<ModelTriangle> triangles,
-                         RayTriangleIntersection* intersection){
-  float bestT = 1000;
-  for (unsigned int i = 0; i < triangles.size(); i++){
-    ModelTriangle triangle = triangles[i];
-    vec3 e1 = triangle.vertices[1] - triangle.vertices[0];
-    vec3 e2 = triangle.vertices[2] - triangle.vertices[0];
-    vec3  b = start - triangle.vertices[0];
-    mat3 A(-dir,e1,e2);
-    vec3 x = glm::inverse(A) * b; // distance , u , v
-    if(x.x > 0 && x.x < bestT && x.y > 0 && x.z > 0 && x.y+x.z < 1){
-      bestT = x.x;
-      *intersection = RayTriangleIntersection(start,x.x,triangle);
-    }
-  } 
-    return bestT < 1000;
 }
 
 
@@ -214,19 +169,19 @@ void handleEvent(SDL_Event event)
   if(event.type == SDL_KEYDOWN) {
     if(event.key.keysym.sym == SDLK_LEFT){
       cout << "LEFT" << endl;
-      updateRotation(&rotation,0,0.2,0);
+      camera.updateRotation(0,0.2,0);
     }  
     else if(event.key.keysym.sym == SDLK_RIGHT) {
       cout << "Right" << endl;
-      updateRotation(&rotation,0,-0.2,0);
+      camera.updateRotation(0,-0.2,0);
     }  
     else if(event.key.keysym.sym == SDLK_UP) {
       cout << "UP" << endl;
-      updateRotation(&rotation,-0.2,0,0);
+      camera.updateRotation(-0.2,0,0);
     }  
     else if(event.key.keysym.sym == SDLK_DOWN) {
       cout << "DOWN" << endl;
-      updateRotation(&rotation,0.2,0,0);
+      camera.updateRotation(0.2,0,0);
     }  
     else if(event.key.keysym.sym == SDLK_j) {
       stroked(window, CanvasPoint(rand()%WIDTH,rand()%HEIGHT),
@@ -254,27 +209,27 @@ void handleEvent(SDL_Event event)
     }
     else if(event.key.keysym.sym == SDLK_w){
       cout << "moving camera up" << endl;
-      camera -= vec3(0,1,0) * rotation;
+      camera.position -= vec3(0,1,0) * camera.rotation;
     }
     else if(event.key.keysym.sym == SDLK_s){
       cout << "moving camera down" << endl;
-      camera += vec3(0,1,0) * rotation;
+      camera.position += vec3(0,1,0) * camera.rotation;
     }
     else if(event.key.keysym.sym == SDLK_a){
       cout << "moving camera left" << endl;
-      camera -= vec3(1,0,0) * rotation;
+      camera.position -= vec3(1,0,0) * camera.rotation;
     }
     else if(event.key.keysym.sym == SDLK_d){
       cout << "moving camera right" << endl;
-      camera += vec3(1,0,0) * rotation;
+      camera.position += vec3(1,0,0) * camera.rotation;
     }
     else if(event.key.keysym.sym == SDLK_q){
       cout << "moving camera forward" << endl;
-      camera += vec3(0,0,1)*rotation  ;
+      camera.position += vec3(0,0,1) * camera.rotation  ;
     }
     else if(event.key.keysym.sym == SDLK_e){
       cout << "moving camera backward" << endl;
-      camera -= vec3(0,0,1)*rotation;
+      camera.position -= vec3(0,0,1) * camera.rotation;
     }
   }
   else if(event.type == SDL_MOUSEBUTTONDOWN) cout << "MOUSE CLICKED" << endl;
