@@ -16,7 +16,10 @@ class Colour
 
     Colour(std::string n, int r, int g, int b);
 
+    Colour(uint32_t packed);
+
     uint32_t pack();
+
 };
 
 std::ostream& operator<<(std::ostream& os, const Colour& colour);

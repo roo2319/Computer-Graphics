@@ -27,8 +27,11 @@ vector<vector<uint32_t>> image = readPPM("texture.ppm");
 vector<ModelTriangle> model = readOBJ("cornell-box.obj",materials,1);
 DrawingWindow window = DrawingWindow(WIDTH, HEIGHT, false);
 
+void orbit();
+
 Camera camera = Camera(vec3(0,2,-4),mat3(1.0f),HEIGHT/2);
 
+int fna = 1;
 
 int main(int argc, char* argv[])
 {
@@ -48,8 +51,18 @@ int main(int argc, char* argv[])
 
 void draw()
 {
-  drawRaytraced(model,window,camera);
+  orbit();
   // drawRasterised(model,window,camera);
+}
+
+void orbit(){
+  drawRaytraced(model,window,camera);
+  camera.lookat(glm::vec3(0,2,1));
+  camera.right(1);
+  char filename[50];
+  sprintf(filename,"captures/%d.ppm",fna);
+  writePPM(filename, window);
+  fna++;
 }
 
 void update()

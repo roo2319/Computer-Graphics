@@ -161,16 +161,33 @@ vector<vector<uint32_t>> readPPM(const char * filename){
       c.red   = f.get();
       c.green = f.get(); 
       c.blue  = f.get();
-      // for(int d = 0; d < bytesPerPixel; d++){
-      //   val <<= 8;
-      //   val += f.get();
-      // }
       row.push_back(c.pack());
     }
     image.push_back(row);
   }
   f.close();
   return image;
+}
+
+void writePPM(const char * filename,DrawingWindow window){
+  std::ofstream f;
+  std::string line;
+  f.open( filename, std::ios::binary);
+  if (!f.is_open()){
+    std::cout << "Failed to open ppm" << std::endl;
+  }
+  f << "P6" << std::endl;
+  f << window.width << " " << window.height << std::endl;
+  f << "255" << std::endl;
+  for(int y = 0; y < window.height; y++){
+    for (int x = 0; x < window.width; x++){
+      Colour pixel = Colour(window.getPixelColour(x,y));
+      f.write((const char*)(&pixel.red),1 );
+      f.write((const char*)(&pixel.green),1 );
+      f.write((const char*)(&pixel.blue),1 );
+    }
+  }
+  
 }
 
 std::unordered_map<std::string,Colour> readMTL(const char* filename){

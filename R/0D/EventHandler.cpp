@@ -1,5 +1,7 @@
 #include "EventHandler.h"
 
+int counter = 1;
+
 void handleEvent(SDL_Event event, DrawingWindow window, Camera& camera, vector<vector<uint32_t>> image)
 {
   if(event.type == SDL_KEYDOWN) {
@@ -74,6 +76,15 @@ void handleEvent(SDL_Event event, DrawingWindow window, Camera& camera, vector<v
     }
     else if(event.key.keysym.sym == SDLK_p){
       std::cout << "Camera at " << camera.position.x << " " << camera.position.y << " " << camera.position.z << std::endl;
+    }
+
+    else if(event.key.keysym.sym == SDLK_RETURN){
+      std::cout << "Writing to file" << std::endl;
+      char filename[50];
+      sprintf(filename,"captures/%d.ppm",counter);
+      writePPM(filename, window);
+      counter++;
+      std::cout << "Done" << std::endl;
     }
   }
   else if(event.type == SDL_MOUSEBUTTONDOWN) std::cout << "MOUSE CLICKED" << std::endl;
