@@ -30,6 +30,8 @@ DrawingWindow window = DrawingWindow(WIDTH, HEIGHT, false);
 void orbit();
 
 Camera camera = Camera(vec3(0,2,-6),mat3(1.0f),HEIGHT/2);
+// Distance from centre of orbit
+float orbitDist =  length(camera.position - vec3(0,2,1));
 
 int fna = 1;
 
@@ -59,6 +61,13 @@ void orbit(){
   drawRaytraced(model,window,camera);
   camera.lookat(glm::vec3(0,2,1));
   camera.right(0.1);
+  
+  // Ensures we have an orbit rather than spiral
+  float distfromcentre = length(camera.position - vec3(0,2,1));
+  float scale = distfromcentre/orbitDist;
+  camera.forward(scale - 1);
+
+  // Write output
   char filename[50];
   sprintf(filename,"captures/%d.ppm",fna);
   writePPM(filename, window);
