@@ -1,0 +1,1 @@
+ffmpeg -framerate 60 -i captures/%d.ppm -c:v mpeg4 -q 5 out.mp4

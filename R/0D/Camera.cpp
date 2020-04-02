@@ -36,12 +36,12 @@ void Camera::lookat(glm::vec3 point){
 
 }
 
-void Camera::forward(int amount){
-  position += glm::normalize(glm::vec3(0,0,amount) * rotation);
+void Camera::forward(float amount){
+  position += (glm::vec3(0,0,amount) * rotation);
 }
-void Camera::right(int amount){
-  position += glm::normalize(glm::vec3(amount,0,0) * rotation);
+void Camera::right(float amount){
+  position += (glm::vec3(amount,0,0) * rotation);
 }
-void Camera::up(int amount){
-  position += glm::normalize(glm::vec3(0,amount,0) * rotation);
+void Camera::up(float amount){
+  position += (glm::vec3(0,amount,0) * rotation);
 }

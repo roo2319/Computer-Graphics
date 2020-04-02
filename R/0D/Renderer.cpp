@@ -29,7 +29,7 @@ DrawingWindow window = DrawingWindow(WIDTH, HEIGHT, false);
 
 void orbit();
 
-Camera camera = Camera(vec3(0,2,-4),mat3(1.0f),HEIGHT/2);
+Camera camera = Camera(vec3(0,2,-6),mat3(1.0f),HEIGHT/2);
 
 int fna = 1;
 
@@ -58,7 +58,7 @@ void draw()
 void orbit(){
   drawRaytraced(model,window,camera);
   camera.lookat(glm::vec3(0,2,1));
-  camera.right(1);
+  camera.right(0.1);
   char filename[50];
   sprintf(filename,"captures/%d.ppm",fna);
   writePPM(filename, window);
