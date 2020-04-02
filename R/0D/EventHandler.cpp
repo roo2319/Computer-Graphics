@@ -13,11 +13,11 @@ void handleEvent(SDL_Event event, DrawingWindow window, Camera& camera, vector<v
     }  
     else if(event.key.keysym.sym == SDLK_UP) {
       std::cout << "UP" << std::endl;
-      camera.updateRotation(-0.2,0,0);
+      camera.updateRotation(0.2,0,0);
     }  
     else if(event.key.keysym.sym == SDLK_DOWN) {
       std::cout << "DOWN" << std::endl;
-      camera.updateRotation(0.2,0,0);
+      camera.updateRotation(-0.2,0,0);
     }  
     else if(event.key.keysym.sym == SDLK_j) {
       stroked(window, CanvasPoint(rand()%window.width,rand()%window.height),
@@ -45,27 +45,35 @@ void handleEvent(SDL_Event event, DrawingWindow window, Camera& camera, vector<v
     }
     else if(event.key.keysym.sym == SDLK_q){
       std::cout << "moving camera up" << std::endl;
-      camera.position -= glm::vec3(0,1,0) * camera.rotation;
+      camera.up(1);
     }
     else if(event.key.keysym.sym == SDLK_e){
       std::cout << "moving camera down" << std::endl;
-      camera.position += glm::vec3(0,1,0) * camera.rotation;
+      camera.up(-1);
     }
     else if(event.key.keysym.sym == SDLK_a){
       std::cout << "moving camera left" << std::endl;
-      camera.position -= glm::vec3(1,0,0) * camera.rotation;
+      camera.right(-1);
     }
     else if(event.key.keysym.sym == SDLK_d){
       std::cout << "moving camera right" << std::endl;
-      camera.position += glm::vec3(1,0,0) * camera.rotation;
+      camera.right(1);
     }
     else if(event.key.keysym.sym == SDLK_w){
       std::cout << "moving camera forward" << std::endl;
-      camera.position += glm::vec3(0,0,1) * camera.rotation  ;
+      camera.forward(1);
     }
     else if(event.key.keysym.sym == SDLK_s){
       std::cout << "moving camera backward" << std::endl;
-      camera.position -= glm::vec3(0,0,1) * camera.rotation;
+      camera.forward(-1);
+    }
+    // l for look :)
+    else if(event.key.keysym.sym == SDLK_l){
+      std::cout << "looking at point" << std::endl;
+      camera.lookat(glm::vec3(0,2,1));
+    }
+    else if(event.key.keysym.sym == SDLK_p){
+      std::cout << "Camera at " << camera.position.x << " " << camera.position.y << " " << camera.position.z << std::endl;
     }
   }
   else if(event.type == SDL_MOUSEBUTTONDOWN) std::cout << "MOUSE CLICKED" << std::endl;

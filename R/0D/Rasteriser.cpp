@@ -3,9 +3,9 @@
 CanvasPoint project(glm::vec3 point, Camera camera, int width, int height){
 //   THIS SHOULD SUPPORT ROTATION
   glm::vec3 d = point-camera.position;
-  int x = round(-camera.focal * (d.x/d.z));
+  int x = round(camera.focal * (d.x/d.z));
   int y = round(camera.focal * (d.y/d.z));
-  return CanvasPoint(x+width/2,y+height/2);
+  return CanvasPoint(x+width/2,height/2-y);
 }
 
 bool inPlane(CanvasPoint points[3],int width,int height){

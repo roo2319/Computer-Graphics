@@ -25,7 +25,7 @@ void drawRaytraced(std::vector<ModelTriangle> model, DrawingWindow window, Camer
   #pragma omp parallel for private(intersection, dir)
   for(int y=0; y<window.height ;y++) {
     for(int x=0; x<window.width ;x++) {
-      dir = glm::vec3(x-window.width/2,y-window.height/2,camera.focal);
+      dir = glm::vec3(x-window.width/2,window.height/2-y,camera.focal);
       if (closestIntersection(camera.position,dir*camera.rotation,model,&intersection)){
         window.setPixelColour(x,y,intersection.intersectedTriangle.colour.pack());
       }

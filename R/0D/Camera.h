@@ -13,5 +13,9 @@ class Camera
   Camera();
   Camera(glm::vec3 p, glm::mat3 r, float f);
   void updateRotation(float X, float Y, float Z);
-   
+  void lookat(glm::vec3 point);
+  void forward(int amount);
+  void right(int amount);
+  void up(int amount);
+
 };

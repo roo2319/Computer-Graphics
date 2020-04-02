@@ -19,25 +19,15 @@ using namespace glm;
 #define WIDTH 320
 #define HEIGHT 240
 
-void drawWireframe(vector<ModelTriangle> model);
-void drawRasterised(vector<ModelTriangle> model);
-bool inPlane(CanvasPoint points[3]);
-
-
-void four_colour();
-void drawppm();
 void draw();
-void redNoise();
-void greyscale();
 void update();
-
 
 unordered_map<string,Colour> materials = readMTL("cornell-box.mtl");
 vector<vector<uint32_t>> image = readPPM("texture.ppm");
 vector<ModelTriangle> model = readOBJ("cornell-box.obj",materials,1);
 DrawingWindow window = DrawingWindow(WIDTH, HEIGHT, false);
 
-Camera camera = Camera(vec3(0,0,-5),mat3(1.0f),HEIGHT/2);
+Camera camera = Camera(vec3(0,2,-4),mat3(1.0f),HEIGHT/2);
 
 
 int main(int argc, char* argv[])
@@ -60,16 +50,9 @@ void draw()
 {
   drawRaytraced(model,window,camera);
   // drawRasterised(model,window,camera);
-  cout << "frame" << endl;
 }
-
-
-
-
-
 
 void update()
 {
   // Function for performing animation (shifting artifacts or moving the camera)
 }
-

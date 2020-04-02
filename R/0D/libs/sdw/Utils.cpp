@@ -208,8 +208,7 @@ vector<ModelTriangle> readOBJ(const char* filename,std::unordered_map<std::strin
     }
     else if (line[0] == 'v') {
       std::string* toks = split(line,' ');
-      // Z is made negative so image is on positive side of Z, flip y aswell 
-      points.push_back(glm::vec3(stof(toks[1])*scale,stof(toks[2])*-scale,stof(toks[3])*-scale));
+      points.push_back(glm::vec3(stof(toks[1])*scale,stof(toks[2])*scale,stof(toks[3])*-scale));
     }
     else if (line[0] == 'f') {
       std::string* toks = split(line,' ');
