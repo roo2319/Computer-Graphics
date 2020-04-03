@@ -7,17 +7,17 @@ class RayTriangleIntersection
 {
   public:
     glm::vec3 intersectionPoint;
-    float distanceFromCamera;
+    float distance;
     ModelTriangle intersectedTriangle;
 
     RayTriangleIntersection()
     {
     }
 
-    RayTriangleIntersection(glm::vec3 point, float distance, ModelTriangle triangle)
+    RayTriangleIntersection(glm::vec3 point, float d, ModelTriangle triangle)
     {
         intersectionPoint = point;
-        distanceFromCamera = distance;
+        distance = d;
         intersectedTriangle = triangle;
     }
 };

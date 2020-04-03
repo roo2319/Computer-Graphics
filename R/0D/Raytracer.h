@@ -5,6 +5,7 @@
 #include "ModelTriangle.h"
 #include "RayTriangleIntersection.h"
 #include "Camera.h"
+#include <algorithm>
 #include "libs/sdw/DrawingWindow.h"
 
 

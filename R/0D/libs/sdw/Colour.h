@@ -1,6 +1,8 @@
 #pragma once
 
 #include <iostream>
+#include <glm/glm.hpp>
+#include <algorithm>
 
 class Colour
 {
@@ -19,6 +21,7 @@ class Colour
     Colour(uint32_t packed);
 
     uint32_t pack();
+    uint32_t pack(glm::vec3 brightness);
 
 };
 

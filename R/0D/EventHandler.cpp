@@ -22,12 +22,12 @@ void handleEvent(SDL_Event event, DrawingWindow window, Camera& camera, vector<v
       camera.updateRotation(-0.2,0,0);
     }  
 
-    else if(event.key.keysym.sym == SDLK_LSHIFT){
+    else if(event.key.keysym.sym == SDLK_q){
       std::cout << "Q" << std::endl;
       camera.updateRotation(0,0,-0.2);    
       }
-    else if(event.key.keysym.sym == SDLK_RSHIFT){
-      std::cout << "Q" << std::endl;
+    else if(event.key.keysym.sym == SDLK_e){
+      std::cout << "E" << std::endl;
       camera.updateRotation(0,0,0.2);    
       }
     else if(event.key.keysym.sym == SDLK_j) {
@@ -54,11 +54,11 @@ void handleEvent(SDL_Event event, DrawingWindow window, Camera& camera, vector<v
     else if(event.key.keysym.sym == SDLK_c){
         window.clearPixels();
     }
-    else if(event.key.keysym.sym == SDLK_q){
+    else if(event.key.keysym.sym == SDLK_SPACE){
       std::cout << "moving camera up" << std::endl;
       camera.up(1);
     }
-    else if(event.key.keysym.sym == SDLK_e){
+    else if(event.key.keysym.sym == SDLK_LCTRL){
       std::cout << "moving camera down" << std::endl;
       camera.up(-1);
     }
@@ -81,7 +81,7 @@ void handleEvent(SDL_Event event, DrawingWindow window, Camera& camera, vector<v
     // l for look :)
     else if(event.key.keysym.sym == SDLK_l){
       std::cout << "looking at point" << std::endl;
-      camera.lookat(glm::vec3(0,2,1));
+      camera.lookat(glm::vec3(0,3.5,2));
     }
     else if(event.key.keysym.sym == SDLK_p){
       std::cout << "Camera at " << camera.position.x << " " << camera.position.y << " " << camera.position.z << std::endl;

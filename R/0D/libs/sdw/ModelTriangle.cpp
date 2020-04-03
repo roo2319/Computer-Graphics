@@ -21,3 +21,9 @@ std::ostream& operator<<(std::ostream& os, const ModelTriangle& triangle)
     os << std::endl;
     return os;
 }
+
+bool operator==(ModelTriangle a, ModelTriangle b){
+  return (a.vertices[0] == b.vertices[0])
+      && (a.vertices[1] == b.vertices[1])
+      && (a.vertices[2] == b.vertices[2]);
+}
