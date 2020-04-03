@@ -15,11 +15,11 @@ void Camera::updateRotation(float X, float Y, float Z){
   glm::mat3 xrot = glm::mat3(1,0,0,0,cos(X),sin(X),0,-sin(X),cos(X));
   glm::mat3 yrot = glm::mat3(cos(Y),0,-sin(Y),0,1,0,sin(Y),0,cos(Y));
   glm::mat3 zrot = glm::mat3(cos(Z),sin(Z),0,-sin(Z),cos(Z),0,0,0,1);
-  rotation = rotation * xrot * yrot * zrot;
+  rotation = xrot * yrot * zrot * rotation;
 }
 
 void Camera::lookat(glm::vec3 point){
-  glm::vec3 forward = -glm::normalize(position-point);
+  glm::vec3 forward = glm::normalize(point-position);
   glm::vec3 right   = glm::cross(glm::vec3(0,1,0),forward);
   glm::vec3 up      = glm::cross(forward,right);
   
@@ -32,9 +32,9 @@ void Camera::lookat(glm::vec3 point){
   rotation[0][2] = forward.x; 
   rotation[1][2] = forward.y; 
   rotation[2][2] = forward.z; 
-
-
 }
+
+
 
 void Camera::forward(float amount){
   position += (glm::vec3(0,0,amount) * rotation);

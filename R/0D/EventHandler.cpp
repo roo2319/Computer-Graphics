@@ -21,6 +21,15 @@ void handleEvent(SDL_Event event, DrawingWindow window, Camera& camera, vector<v
       std::cout << "DOWN" << std::endl;
       camera.updateRotation(-0.2,0,0);
     }  
+
+    else if(event.key.keysym.sym == SDLK_LSHIFT){
+      std::cout << "Q" << std::endl;
+      camera.updateRotation(0,0,-0.2);    
+      }
+    else if(event.key.keysym.sym == SDLK_RSHIFT){
+      std::cout << "Q" << std::endl;
+      camera.updateRotation(0,0,0.2);    
+      }
     else if(event.key.keysym.sym == SDLK_j) {
       stroked(window, CanvasPoint(rand()%window.width,rand()%window.height),
               CanvasPoint(rand()%window.width,rand()%window.height),
