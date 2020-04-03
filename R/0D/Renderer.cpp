@@ -53,15 +53,15 @@ int main(int argc, char* argv[])
 
 void draw()
 {
-  orbit();
-  // drawRasterised(model,window,camera);
+  // orbit();
+  drawRasterised(model,window,camera);
 }
 
 void orbit(){
   drawRaytraced(model,window,camera);
   camera.lookat(glm::vec3(0,2,1));
   camera.right(0.1);
-  
+
   // Ensures we have an orbit rather than spiral
   float distfromcentre = length(camera.position - vec3(0,2,1));
   float scale = distfromcentre/orbitDist;
