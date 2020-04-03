@@ -2,7 +2,7 @@
 
 int counter = 1;
 
-void handleEvent(SDL_Event event, DrawingWindow window, Camera& camera, vector<vector<uint32_t>> image)
+void handleEvent(SDL_Event event, DrawingWindow window, Camera& camera, vector<vector<uint32_t>> image, int& renderer)
 {
   if(event.type == SDL_KEYDOWN) {
     if(event.key.keysym.sym == SDLK_LEFT){
@@ -76,6 +76,9 @@ void handleEvent(SDL_Event event, DrawingWindow window, Camera& camera, vector<v
     }
     else if(event.key.keysym.sym == SDLK_p){
       std::cout << "Camera at " << camera.position.x << " " << camera.position.y << " " << camera.position.z << std::endl;
+    }
+    else if(event.key.keysym.sym == SDLK_n){
+      renderer = (renderer + 1) % 3;
     }
 
     else if(event.key.keysym.sym == SDLK_RETURN){

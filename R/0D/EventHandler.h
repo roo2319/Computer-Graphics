@@ -7,4 +7,4 @@
 #include "glm/glm.hpp"
 
 // Camera is passed as a reference
-void handleEvent(SDL_Event event, DrawingWindow window, Camera& camera, vector<vector<uint32_t>> image);
+void handleEvent(SDL_Event event, DrawingWindow window, Camera& camera, vector<vector<uint32_t>> image, int& renderer);

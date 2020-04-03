@@ -32,7 +32,7 @@ void orbit();
 Camera camera = Camera(vec3(0,2,-6),mat3(1.0f),HEIGHT/2);
 // Distance from centre of orbit
 float orbitDist =  length(camera.position - vec3(0,2,1));
-
+int renderer = 0;
 int fna = 1;
 
 int main(int argc, char* argv[])
@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
   {
     
     // We MUST poll for events - otherwise the window will freeze !
-    if(window.pollForInputEvents(&event)) handleEvent(event,window,camera,image);
+    if(window.pollForInputEvents(&event)) handleEvent(event,window,camera,image,renderer);
     update();
     window.clearPixels();
     draw();
@@ -54,7 +54,20 @@ int main(int argc, char* argv[])
 void draw()
 {
   // orbit();
-  drawRasterised(model,window,camera);
+  switch (renderer){
+    case 0:
+      drawWireframe(model,window,camera);
+      break;
+
+    case 1:
+      drawRasterised(model,window,camera);
+      break;
+
+    case 2:
+      drawRaytraced(model,window,camera);
+      break;
+
+  }
 }
 
 void orbit(){
