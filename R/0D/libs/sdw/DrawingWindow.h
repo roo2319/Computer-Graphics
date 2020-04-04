@@ -11,6 +11,7 @@ private:
   SDL_Renderer *renderer;
   SDL_Texture *texture;
   uint32_t *pixelBuffer;
+  float *depthBuffer;
 
 public:
   int height;
@@ -23,8 +24,11 @@ public:
   void renderFrame();
   bool pollForInputEvents(SDL_Event *event);
   void setPixelColour(int x, int y, uint32_t colour);
+  void setDepth(int x, int y, float depth);
   uint32_t getPixelColour(int x, int y);
+  float getDepth(int x, int y);
   void clearPixels();
+  void clearDepth();
 
   void printMessageAndQuit(const char* message, const char* error)
   {

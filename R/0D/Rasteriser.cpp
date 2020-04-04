@@ -5,9 +5,13 @@ CanvasPoint project(glm::vec3 point, Camera camera, int width, int height){
   glm::vec3 d = camera.rotation * (point-camera.position);
   int x = round(camera.focal * (d.x/d.z));
   int y = round(camera.focal * (d.y/d.z));
-  return CanvasPoint(x+width/2,height/2-y);
+  CanvasPoint projected = CanvasPoint(x+width/2,height/2-y);
+  //passing depth of vertices
+  projected.depth = d.z;
+  return projected;
 }
 
+//just checks if point in inside image plane
 bool inPlane(CanvasPoint points[3],int width,int height){
   for(int i = 0; i<3; i++){
     if (points[i].x < 0 || points[i].x > width) return false;
@@ -28,7 +32,7 @@ void drawWireframe(std::vector<ModelTriangle> model,DrawingWindow window, Camera
     third = project(model[i].vertices[2],camera,width,height);
     CanvasPoint points[3] = {first, second, third};
     if (inPlane(points,width,height)){
-      stroked(window, first, second, third, white);
+      stroked(window, first, second, third, model[i].colour);
     }
   }
 }
