@@ -2,7 +2,7 @@
 
 #include "SDL.h"
 #include <iostream>
-
+#include "Colour.h"
 class DrawingWindow
 {
 
@@ -24,6 +24,13 @@ public:
   void renderFrame();
   bool pollForInputEvents(SDL_Event *event);
   void setPixelColour(int x, int y, uint32_t colour);
+  void addPixelColour(int x, int y, uint32_t colour);
+
+  //Set pixel with depth check
+  void setPixelColourDC(int x, int y, float depth, uint32_t colour);
+  void addPixelColourDC(int x, int y, float depth, uint32_t colour);
+
+
   void setDepth(int x, int y, float depth);
   uint32_t getPixelColour(int x, int y);
   float getDepth(int x, int y);

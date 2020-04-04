@@ -20,7 +20,8 @@ vector<glm::vec3> interpolate(glm::vec3 from, glm::vec3 to, int numberOfValues);
 vector<vector<glm::vec3>> interpolate2d(glm::vec3 top_left, glm::vec3 top_right, glm::vec3 bottom_left, glm::vec3 bottom_right, int width, int height);
 
 // Drawing
-void line(DrawingWindow window, CanvasPoint to, CanvasPoint from, Colour c);
+void edge(DrawingWindow window, CanvasPoint to, CanvasPoint from, Colour c);
+void fillLine(DrawingWindow window, CanvasPoint to, CanvasPoint from, Colour c);
 void texturedLine(DrawingWindow window, CanvasPoint to, CanvasPoint from, vector<vector<uint32_t>> texture);
 void stroked(DrawingWindow window, CanvasPoint first, CanvasPoint second, CanvasPoint third, Colour c);
 void filled(DrawingWindow window, CanvasPoint first, CanvasPoint second, CanvasPoint third, Colour c);

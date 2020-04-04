@@ -53,8 +53,8 @@ vector<vector<glm::vec3>> interpolate2d(glm::vec3 top_left, glm::vec3 top_right,
 
 }
 
-void line(DrawingWindow window, CanvasPoint to, CanvasPoint from, Colour c)
-{
+
+void line(DrawingWindow window, CanvasPoint to, CanvasPoint from, Colour c){
   float xDiff = to.x - from.x;
   float yDiff = to.y - from.y;
   int numberOfSteps =  ceil(std::max(abs(xDiff), abs(yDiff)));
@@ -62,18 +62,13 @@ void line(DrawingWindow window, CanvasPoint to, CanvasPoint from, Colour c)
   //vector<int> Y = interpolate(from.y,to.y, numberOfSteps);
   vector<CanvasPoint> cPt = interpolate(from,to, numberOfSteps);
   int X, Y;
-  float depth, buffDepth;
+  float depth;
   for (int i = 0; i < numberOfSteps; i++)
   {
     X = cPt.at(i).x;
     Y = cPt.at(i).y;
     depth = cPt.at(i).depth;
-    buffDepth = window.getDepth(X, Y);
-    if(depth < buffDepth)
-    {
-      window.setDepth(X, Y, depth);
-      window.setPixelColour(X, Y, c.pack());
-    }
+    window.setPixelColourDC(X,Y,depth,c.pack());
   }
 }
 

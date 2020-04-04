@@ -2,7 +2,7 @@
 
 int counter = 1;
 
-void handleEvent(SDL_Event event, DrawingWindow window, Camera& camera, vector<vector<uint32_t>> image, int& renderer)
+void handleEvent(SDL_Event event, DrawingWindow window, Camera& camera, vector<vector<uint32_t>> image, int& renderer,int& fna)
 {
   if(event.type == SDL_KEYDOWN) {
     if(event.key.keysym.sym == SDLK_LEFT){
@@ -93,7 +93,7 @@ void handleEvent(SDL_Event event, DrawingWindow window, Camera& camera, vector<v
     else if(event.key.keysym.sym == SDLK_RETURN){
       std::cout << "Writing to file" << std::endl;
       char filename[50];
-      sprintf(filename,"captures/%d.ppm",counter);
+      sprintf(filename,"captures/%d.ppm",fna);
       writePPM(filename, window);
       counter++;
       std::cout << "Done" << std::endl;

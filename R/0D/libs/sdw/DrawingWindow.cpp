@@ -76,6 +76,12 @@ void DrawingWindow::setPixelColour(int x, int y, uint32_t colour)
   else pixelBuffer[(y*width)+x] = colour;
 }
 
+void DrawingWindow::setPixelColourDC(int x, int y, float depth, uint32_t colour){
+  if (depth < getDepth(x,y)){
+    setPixelColour(x,y,colour);
+    setDepth(x,y,depth);
+  } 
+}
 uint32_t DrawingWindow::getPixelColour(int x, int y)
 {
   if((x<0) || (x>=width) || (y<0) || (y>=height)) {
