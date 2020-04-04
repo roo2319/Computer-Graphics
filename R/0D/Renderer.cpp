@@ -16,11 +16,11 @@
 using namespace std;
 using namespace glm;
 
-//#define WIDTH 320
-//#define HEIGHT 240
+#define WIDTH 320
+#define HEIGHT 240
 
-#define WIDTH 960
-#define HEIGHT 720
+// #define WIDTH 960
+// #define HEIGHT 720
 
 void draw();
 void update();
@@ -41,11 +41,9 @@ int fna = 1;
 int main(int argc, char* argv[])
 {
   SDL_Event event;
-  while(true)
-  {
-
+  while(true){
     // We MUST poll for events - otherwise the window will freeze !
-    if(window.pollForInputEvents(&event)) handleEvent(event,window,camera,image,renderer);
+    if(window.pollForInputEvents(&event)) handleEvent(event,window,camera,image,renderer,fna);
     update();
     window.clearPixels();
     window.clearDepth();
