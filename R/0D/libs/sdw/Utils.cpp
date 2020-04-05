@@ -53,23 +53,49 @@ vector<vector<glm::vec3>> interpolate2d(glm::vec3 top_left, glm::vec3 top_right,
 
 }
 
-
+// Bresenhams
 void line(DrawingWindow window, CanvasPoint to, CanvasPoint from, Colour c){
-  float xDiff = to.x - from.x;
-  float yDiff = to.y - from.y;
-  int numberOfSteps =  ceil(std::max(abs(xDiff), abs(yDiff)));
-  //vector<int> X = interpolate(from.x,to.x, numberOfSteps);
-  //vector<int> Y = interpolate(from.y,to.y, numberOfSteps);
-  vector<CanvasPoint> cPt = interpolate(from,to, numberOfSteps);
-  int X, Y;
-  float depth;
-  for (int i = 0; i < numberOfSteps; i++)
-  {
-    X = cPt.at(i).x;
-    Y = cPt.at(i).y;
-    depth = cPt.at(i).depth;
-    window.setPixelColourDC(X,Y,depth,c.pack());
+  float x0, x1, y0, y1, d0, d1;
+  x0 = from.x; y0 = from.y; x1 = to.x; y1 = to.y; d0 = from.depth; d1=to.depth;
+  bool steep = abs(y1-y0) > abs(x1-x0);
+  if (steep){
+    std::swap(x0,y0);
+    std::swap(x1,y1);
   }
+  
+  if (x0 > x1){
+    std::swap(x0,x1);
+    std::swap(y0,y1);
+    std::swap(d0,d1);
+  }
+
+  float dx = x1 - x0;
+  float dy = abs(y1 - y0);
+  // depth per step
+  float dps = (d1 - d0)/dx;
+  float d = d0;
+
+  float error = dx/2.0f;
+  int ystep = (y0 < y1) ? 1 : -1;
+  //Carefully consider rounding
+  int y = floor(y0); 
+  int maxX = ceil(x1);
+
+  for (int x = floor(x0); x <= maxX; x++){
+    if (steep) window.setPixelColourDC(y,x,d,c.pack());
+    else window.setPixelColourDC(x,y,d,c.pack());
+    d += dps;
+    error -= dy;
+    if (error<0){
+      y += ystep;
+      error += dx;
+    }
+  } 
+
+
+
+
+
 }
 
 void texturedLine(DrawingWindow window, CanvasPoint to, CanvasPoint from, vector<vector<uint32_t>> texture){

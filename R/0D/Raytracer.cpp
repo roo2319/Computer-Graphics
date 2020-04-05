@@ -1,8 +1,8 @@
 #include "Raytracer.h"
 
 glm::vec3 pointLight = glm::vec3(0,3.5,2);
-glm::vec3 lightColour = 200.f * glm::vec3(1,1,1);
-glm::vec3 indirectLighting = 0.5f * glm::vec3(1,1,1);
+glm::vec3 lightColour = 30.f * glm::vec3(1,1,1);
+glm::vec3 indirectLighting = 0.25f * glm::vec3(1,1,1);
 float pi = 3.1415f; //Approximation
 
 glm::vec3 Lighting(const RayTriangleIntersection& i,std::vector<ModelTriangle> triangles);
@@ -29,7 +29,6 @@ glm::vec3 Lighting(const RayTriangleIntersection& i,std::vector<ModelTriangle> t
 
 }
 
-  
 bool closestIntersection(glm::vec3 start, glm::vec3 dir,
                          std::vector<ModelTriangle> triangles,
                          RayTriangleIntersection& intersection){
