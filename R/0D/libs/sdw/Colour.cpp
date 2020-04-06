@@ -5,6 +5,7 @@ Colour::Colour()
 {
 }
 
+// THERE IS NOT CAP ON COLOUR VALUES, THIS IS INTENDED
 Colour::Colour(int r, int g, int b)
 {
   name = "";
@@ -33,10 +34,7 @@ uint32_t Colour::pack(){
 }
 // Changed
 uint32_t Colour::pack(glm::vec3 brightness){
-  int bred   = std::min((int) (red   *brightness.x),255);
-  int bgreen = std::min((int) (green *brightness.y),255);
-  int bblue  = std::min((int) (blue  *brightness.z),255);
-  return (255<<24) + (bred<<16) + (bgreen<<8) + bblue;
+  return (brightness * *this).pack();
 }
 
 uint32_t Colour::pack(float brightness){
@@ -49,17 +47,31 @@ uint32_t Colour::pack(float brightness){
 }
 
 
-
+//This function is used to add colours, although it may return too large values
 Colour Colour::operator+(const Colour& b){
-  return Colour(std::min(red+b.red,255),
-                std::min(green+b.green,255),
-                std::min(blue+b.blue,255));
+  return Colour(red+b.red,
+                green+b.green,
+                blue+b.blue);
 }
 
 std::ostream& operator<<(std::ostream& os, const Colour& colour)
 {
     os << colour.name << " [" << colour.red << ", " << colour.green << ", " << colour.blue << "]" << std::endl;
     return os;
+}
+
+// Int division for colours
+Colour operator/(Colour colour, int a){
+  return Colour(colour.red/a,
+                colour.green/a,
+                colour.blue/a);
+}
+
+Colour operator*(glm::vec3 brightness,Colour colour){
+  int bred   = std::min((int) (colour.red   *brightness.x),255);
+  int bgreen = std::min((int) (colour.green *brightness.y),255);
+  int bblue  = std::min((int) (colour.blue  *brightness.z),255);
+  return Colour(bred,bgreen,bblue);
 }
 
 uint32_t addColour(uint32_t a, uint32_t b){

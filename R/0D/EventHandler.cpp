@@ -1,8 +1,7 @@
 #include "EventHandler.h"
 
-int counter = 1;
 
-void handleEvent(SDL_Event event, DrawingWindow window, Camera& camera, vector<vector<uint32_t>> image, int& renderer,int& fna)
+void handleEvent(SDL_Event event, DrawingWindow window, Camera& camera, vector<vector<uint32_t>> image, int& renderer,int& SSMethod,int& fna)
 {
   if(event.type == SDL_KEYDOWN) {
     if(event.key.keysym.sym == SDLK_LEFT){
@@ -87,7 +86,12 @@ void handleEvent(SDL_Event event, DrawingWindow window, Camera& camera, vector<v
       std::cout << "Camera at " << camera.position.x << " " << camera.position.y << " " << camera.position.z << std::endl;
     }
     else if(event.key.keysym.sym == SDLK_n){
+      std::cout << "Switching renderer" << std::endl;
       renderer = (renderer + 1) % 3;
+    }
+    else if(event.key.keysym.sym == SDLK_m){
+      SSMethod = (SSMethod + 1) % 3;
+      std::cout << "Switching supersampling method to " << SSMethod << std::endl;
     }
 
     else if(event.key.keysym.sym == SDLK_RETURN){
@@ -95,7 +99,7 @@ void handleEvent(SDL_Event event, DrawingWindow window, Camera& camera, vector<v
       char filename[50];
       sprintf(filename,"captures/%d.ppm",fna);
       writePPM(filename, window);
-      counter++;
+      fna++;
       std::cout << "Done" << std::endl;
     }
   }

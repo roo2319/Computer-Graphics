@@ -28,4 +28,6 @@ class Colour
 };
 
 std::ostream& operator<<(std::ostream& os, const Colour& colour);
+Colour operator/(Colour colour,int a);
+Colour operator*(glm::vec3 brightness,Colour colour);
 uint32_t addColour(uint32_t a, uint32_t b);
