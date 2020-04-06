@@ -71,13 +71,12 @@ bool closestIntersection(glm::vec3 start, glm::vec3 dir,
 }
 
 bool calculateIntersectionWithBounces(DrawingWindow window,
-                         Camera camera, int x, int y,
+                         glm::vec3 start, glm::vec3 dir, int x, int y,
                          std::vector<ModelTriangle> triangles,
                          RayTriangleIntersection& intersection){
-  glm::vec3 dir = glm::vec3(x-window.width/2,window.height/2-y,camera.focal) * camera.rotation;
   glm::vec3 n;
-  if (closestIntersection(camera.position,dir,triangles,intersection)){
-    if (intersection.intersectedTriangle.colour.name == "Mirror"){
+  if (closestIntersection(start,dir,triangles,intersection)){
+    if (intersection.intersectedTriangle.colour.name == "Blue"){
       n = intersection.intersectedTriangle.normal;
       dir = glm::normalize(dir);                     
       dir = dir - 2*(glm::dot(dir,n))*n;
@@ -94,7 +93,8 @@ bool calculateIntersectionWithBounces(DrawingWindow window,
 
 void simple(DrawingWindow window,std::vector<ModelTriangle> model,int x, int y, Camera camera){
   RayTriangleIntersection intersection;
-  if (calculateIntersectionWithBounces(window,camera,x,y,model,intersection)){
+  glm::vec3 dir = glm::vec3(x-window.width/2,window.height/2-y,camera.focal) * camera.rotation;
+  if (calculateIntersectionWithBounces(window,camera.position,dir,x,y,model,intersection)){
     window.setPixelColour(x,y,intersection.intersectedTriangle.colour.pack(Lighting(intersection,model))); 
   }
 }
@@ -107,8 +107,8 @@ void NbyNGrid(DrawingWindow window,std::vector<ModelTriangle> model,int x, int y
   int count = 0;
   for (int i = 1; i<n; i++){
     for (int j = 1; j<n; j++){
-      dir = glm::vec3(x-window.width/2+(i * 1/n)-offset,window.height/2-y-(j*1/n)-offset,camera.focal);
-      if (calculateIntersectionWithBounces(window,camera,x,y,model,intersection)){
+      dir = glm::vec3(x-window.width/2+(i * 1/n)-offset,window.height/2-y-(j*1/n)-offset,camera.focal) * camera.rotation;
+      if (calculateIntersectionWithBounces(window,camera.position,dir,x,y,model,intersection)){
         colour = colour + Lighting(intersection,model) * intersection.intersectedTriangle.colour;
         count++;
       }

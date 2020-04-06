@@ -235,7 +235,6 @@ std::unordered_map<std::string,Colour> readMTL(const char* filename){
   while (getline(f,line)) {
     if (line.find("newmtl") != std::string::npos) {
       name = line.substr(line.find(' ')+1);
-      if (name == "Blue") name = "Mirror"; //Turn blue into a mirror!
     }
     if (line.find("Kd") != std::string::npos){
       std::string* c = split(line,' ');
@@ -258,7 +257,6 @@ vector<ModelTriangle> readOBJ(const char* filename,std::unordered_map<std::strin
   while (getline(f,line)) {
     if (line.find("usemtl") != std::string::npos){
       std::string material = split(line, ' ')[1];
-      if (material == "Blue") material = "Mirror"; //Read changed name
       if (!(mtls.find(material) == mtls.end())) current_colour =  mtls[material];
     }
     else if (line[0] == 'v') {
