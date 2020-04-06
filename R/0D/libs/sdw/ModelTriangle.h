@@ -8,6 +8,7 @@ class ModelTriangle
 {
   public:
     glm::vec3 vertices[3];
+    glm::vec3 normal;
     Colour colour;
     //for performance make it just accept a packed colour or pack in the constructors
 

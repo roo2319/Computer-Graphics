@@ -22,9 +22,8 @@ glm::vec3 Lighting(const RayTriangleIntersection& i,std::vector<ModelTriangle> t
     return 0.5f * indirectLighting; //Shadow
   }
   
-  glm::vec3 n = glm::cross(i.intersectedTriangle.vertices[0] - i.intersectedTriangle.vertices[1] ,
-                           i.intersectedTriangle.vertices[2] - i.intersectedTriangle.vertices[0]);
-  float percent = std::max(glm::dot(glm::normalize(r),glm::normalize(n)),0.f);
+  glm::vec3 n = i.intersectedTriangle.normal;
+  float percent = std::max(glm::dot(glm::normalize(r),n),0.f);
   return indirectLighting + (lightColour * (percent/(4*pi*glm::dot(r,r)))); 
 
 }
@@ -79,8 +78,7 @@ bool calculateIntersectionWithBounces(DrawingWindow window,
   glm::vec3 n;
   if (closestIntersection(camera.position,dir,triangles,intersection)){
     if (intersection.intersectedTriangle.colour.name == "Mirror"){
-      n = glm::normalize(glm::cross(intersection.intersectedTriangle.vertices[0] - intersection.intersectedTriangle.vertices[1] ,
-                           intersection.intersectedTriangle.vertices[2] - intersection.intersectedTriangle.vertices[0]));
+      n = intersection.intersectedTriangle.normal;
       dir = glm::normalize(dir);                     
       dir = dir - 2*(glm::dot(dir,n))*n;
       if (closestIntersection(intersection.intersectionPoint,dir,triangles,intersection,intersection.intersectedTriangle)){

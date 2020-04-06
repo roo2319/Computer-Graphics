@@ -10,6 +10,8 @@ ModelTriangle::ModelTriangle(glm::vec3 v0, glm::vec3 v1, glm::vec3 v2, Colour tr
   vertices[1] = v1;
   vertices[2] = v2;
   colour = trigColour;
+  normal = glm::normalize(glm::cross(vertices[0] - vertices[1] ,
+                           vertices[2] - vertices[0]));
 }
 
 
