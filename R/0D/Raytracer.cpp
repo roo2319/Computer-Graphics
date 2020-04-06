@@ -18,7 +18,7 @@ glm::vec3 Lighting(const RayTriangleIntersection& i,std::vector<ModelTriangle> t
   RayTriangleIntersection nearestSurface;
   glm::vec3 r = pointLight - i.intersectionPoint;
   bool found = closestIntersection(i.intersectionPoint,glm::normalize(r),triangles,nearestSurface,i.intersectedTriangle);
-  if ( found && nearestSurface.distance < glm::length(r)){
+  if ( found && nearestSurface.distance < glm::length(r) && !(nearestSurface.intersectedTriangle.colour.name == "Red")){
     return 0.5f * indirectLighting; //Shadow
   }
   
@@ -70,8 +70,14 @@ bool closestIntersection(glm::vec3 start, glm::vec3 dir,
     return bestT < 1000;
 }
 
+glm::vec3 refract(glm::vec3 dir, glm::vec3 n, float n1, float n2){
+  float cos1 = glm::dot(dir,n);
+  float nr = n1/n2;
+  return (nr * cos1 - sqrt(1-(nr*nr)*(1-(cos1*cos1))))*n -nr*dir;
+}
+
 bool calculateIntersectionWithBounces(DrawingWindow window,
-                         glm::vec3 start, glm::vec3 dir, int x, int y,
+                         glm::vec3 start, glm::vec3 dir,
                          std::vector<ModelTriangle> triangles,
                          RayTriangleIntersection& intersection){
   glm::vec3 n;
@@ -80,9 +86,26 @@ bool calculateIntersectionWithBounces(DrawingWindow window,
       n = intersection.intersectedTriangle.normal;
       dir = glm::normalize(dir);                     
       dir = dir - 2*(glm::dot(dir,n))*n;
+      // THIS NEEDS Multiple bounces
+      // if (calculateIntersectionWithBounces(window,intersection.intersectionPoint,dir,triangles,intersection)) return true;
       if (closestIntersection(intersection.intersectionPoint,dir,triangles,intersection,intersection.intersectedTriangle)){
         return true;
       }
+    }
+    else if (intersection.intersectedTriangle.colour.name == "Red"){
+      float r = 1.52f;
+      glm::vec3 n = intersection.intersectedTriangle.normal;
+      dir = glm::normalize(dir);
+      dir = refract(dir,n,1,r);
+      // std::cout << dir.x << dir.y << dir.z << std::endl;
+      closestIntersection(intersection.intersectionPoint,dir,triangles,intersection,intersection.intersectedTriangle);
+      dir = glm::normalize(dir);
+      dir = refract(dir,n,r,1);
+      while (intersection.intersectedTriangle.colour.name=="Red"){
+        closestIntersection(intersection.intersectionPoint,dir,triangles,intersection,intersection.intersectedTriangle);
+      }
+      return intersection.intersectedTriangle.colour.name!="Red";
+
     }
     else{
       return true;
@@ -94,7 +117,7 @@ bool calculateIntersectionWithBounces(DrawingWindow window,
 void simple(DrawingWindow window,std::vector<ModelTriangle> model,int x, int y, Camera camera){
   RayTriangleIntersection intersection;
   glm::vec3 dir = glm::vec3(x-window.width/2,window.height/2-y,camera.focal) * camera.rotation;
-  if (calculateIntersectionWithBounces(window,camera.position,dir,x,y,model,intersection)){
+  if (calculateIntersectionWithBounces(window,camera.position,dir,model,intersection)){
     window.setPixelColour(x,y,intersection.intersectedTriangle.colour.pack(Lighting(intersection,model))); 
   }
 }
@@ -108,7 +131,7 @@ void NbyNGrid(DrawingWindow window,std::vector<ModelTriangle> model,int x, int y
   for (int i = 1; i<n; i++){
     for (int j = 1; j<n; j++){
       dir = glm::vec3(x-window.width/2+(i * 1/n)-offset,window.height/2-y-(j*1/n)-offset,camera.focal) * camera.rotation;
-      if (calculateIntersectionWithBounces(window,camera.position,dir,x,y,model,intersection)){
+      if (calculateIntersectionWithBounces(window,camera.position,dir,model,intersection)){
         colour = colour + Lighting(intersection,model) * intersection.intersectedTriangle.colour;
         count++;
       }
