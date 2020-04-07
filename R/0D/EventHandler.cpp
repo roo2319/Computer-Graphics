@@ -90,7 +90,7 @@ void handleEvent(SDL_Event event, DrawingWindow window, Camera& camera, vector<v
       renderer = (renderer + 1) % 3;
     }
     else if(event.key.keysym.sym == SDLK_m){
-      SSMethod = (SSMethod + 1) % 3;
+      SSMethod = (SSMethod + 1) % 5;
       std::cout << "Switching supersampling method to " << SSMethod << std::endl;
     }
 
