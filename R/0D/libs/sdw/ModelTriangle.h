@@ -19,3 +19,4 @@ class ModelTriangle
 
 std::ostream& operator<<(std::ostream& os, const ModelTriangle& triangle);
 bool operator==(ModelTriangle a, ModelTriangle b);
+bool operator!=(ModelTriangle a, ModelTriangle b);

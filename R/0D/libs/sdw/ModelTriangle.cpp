@@ -29,3 +29,7 @@ bool operator==(ModelTriangle a, ModelTriangle b){
       && (a.vertices[1] == b.vertices[1])
       && (a.vertices[2] == b.vertices[2]);
 }
+
+bool operator!=(ModelTriangle a, ModelTriangle b){
+  return !(a==b);
+}
