@@ -115,6 +115,21 @@ bool glass(glm::vec3 dir,
   return intersection.intersectedTriangle.colour.name!=name;
 }
 
+bool portal(glm::vec3 dir,
+            std::vector<ModelTriangle>triangles,
+            RayTriangleIntersection& intersection,
+            char PortalNumber){
+  for (uint i=0; i<triangles.size(); i++){
+    if (triangles[i].colour.name[6] == PortalNumber && triangles[i] != intersection.intersectedTriangle){
+      //Assume a correspondence between points
+      glm::vec3 start = intersection.intersectionPoint + triangles[i].vertices[0] - intersection.intersectedTriangle.vertices[0];  
+      return closestIntersection(start,dir,triangles,intersection,triangles[i]);
+    }
+  }
+  return false;
+}
+
+
 bool calculateIntersectionWithBounces(DrawingWindow window,
                          glm::vec3 start, glm::vec3 dir,
                          std::vector<ModelTriangle> triangles,
@@ -126,6 +141,9 @@ bool calculateIntersectionWithBounces(DrawingWindow window,
     }
     else if (intersection.intersectedTriangle.colour.name == "Red"){
       return glass(dir,triangles,intersection,"Red");
+    }
+    else if (intersection.intersectedTriangle.colour.name.find("Portal") != std::string::npos ){
+      return portal(dir,triangles,intersection,intersection.intersectedTriangle.colour.name[6]);
     }
     else{
       return true;
