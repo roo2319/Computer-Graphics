@@ -25,7 +25,6 @@ void fillLine(DrawingWindow window, CanvasPoint to, CanvasPoint from, Colour c);
 void texturedLine(DrawingWindow window, CanvasPoint to, CanvasPoint from, vector<vector<uint32_t>> texture);
 void stroked(DrawingWindow window, CanvasPoint first, CanvasPoint second, CanvasPoint third, Colour c);
 void filled(DrawingWindow window, CanvasPoint first, CanvasPoint second, CanvasPoint third, Colour c);
-void texturedTriangle(DrawingWindow window, vector<vector<uint32_t>> image, CanvasPoint first, CanvasPoint second, CanvasPoint third);
 
 // Parsing
 vector<vector<uint32_t>> readPPM(const char * filename);
@@ -38,3 +37,34 @@ void redNoise(DrawingWindow window);
 void drawppm(DrawingWindow window);
 void greyscale(DrawingWindow window);
 void four_colour(DrawingWindow window);
+
+
+
+
+// Perspective Corrected Texture Mapping
+void star(DrawingWindow window, CanvasPoint star, Colour c);
+void guide(DrawingWindow window, CanvasPoint first, CanvasPoint second, CanvasPoint third, CanvasPoint extra);
+
+void texturedTriangle(DrawingWindow window, vector<vector<uint32_t>> image, CanvasPoint first, CanvasPoint second, CanvasPoint third, int triNo);
+CanvasPoint findTexture(CanvasPoint far, CanvasPoint close, CanvasPoint P);
+
+vector<CanvasPoint> interpolateT(CanvasPoint from, CanvasPoint to, int numberOfValues, int triNo);
+vector<float> interpolateF(float from, float to, int numberOfValues);
+vector<double> interpolateDepth(double from, double to, int numberOfValues);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//

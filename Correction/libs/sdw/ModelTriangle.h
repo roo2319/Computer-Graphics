@@ -2,6 +2,7 @@
 
 #include "glm/glm.hpp"
 #include "Colour.h"
+#include "TexturePoint.h"
 #include <string>
 
 class ModelTriangle
@@ -10,6 +11,7 @@ class ModelTriangle
     glm::vec3 vertices[3];
     glm::vec3 normal;
     Colour colour;
+    TexturePoint texture[3];
     //for performance make it just accept a packed colour or pack in the constructors
 
     ModelTriangle();
@@ -19,4 +21,3 @@ class ModelTriangle
 
 std::ostream& operator<<(std::ostream& os, const ModelTriangle& triangle);
 bool operator==(ModelTriangle a, ModelTriangle b);
-bool operator!=(ModelTriangle a, ModelTriangle b);

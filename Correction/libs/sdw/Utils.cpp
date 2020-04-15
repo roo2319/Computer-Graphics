@@ -21,7 +21,6 @@ vector<int> interpolate(float from, float to, int numberOfValues)
   }
   return interpolated;
 }
-
 vector<CanvasPoint> interpolate(CanvasPoint from, CanvasPoint to, int numberOfValues)
 {
   vector<CanvasPoint> interpolated;
@@ -52,7 +51,6 @@ vector<vector<glm::vec3>> interpolate2d(glm::vec3 top_left, glm::vec3 top_right,
   return interpolated;
 
 }
-
 // Bresenhams
 void line(DrawingWindow window, CanvasPoint to, CanvasPoint from, Colour c){
   float x0, x1, y0, y1, d0, d1;
@@ -62,7 +60,7 @@ void line(DrawingWindow window, CanvasPoint to, CanvasPoint from, Colour c){
     std::swap(x0,y0);
     std::swap(x1,y1);
   }
-  
+
   if (x0 > x1){
     std::swap(x0,x1);
     std::swap(y0,y1);
@@ -78,7 +76,7 @@ void line(DrawingWindow window, CanvasPoint to, CanvasPoint from, Colour c){
   float error = dx/2.0f;
   int ystep = (y0 < y1) ? 1 : -1;
   //Carefully consider rounding
-  int y = floor(y0); 
+  int y = floor(y0);
   int maxX = ceil(x1);
 
   for (int x = floor(x0); x <= maxX; x++){
@@ -90,25 +88,12 @@ void line(DrawingWindow window, CanvasPoint to, CanvasPoint from, Colour c){
       y += ystep;
       error += dx;
     }
-  } 
-
-
-
-
-
-}
-
-void texturedLine(DrawingWindow window, CanvasPoint to, CanvasPoint from, vector<vector<uint32_t>> texture){
-  float xDiff = to.x - from.x;
-  float yDiff = to.y - from.y;
-  int numberOfSteps =  ceil(std::max(abs(xDiff), abs(yDiff)));
-  vector<int> X = interpolate(from.x,to.x, numberOfSteps);
-  vector<int> Y = interpolate(from.y,to.y, numberOfSteps);
-  TexturePoint tStep = to.texturePoint - from.texturePoint;
-  for (int i = 0; i < numberOfSteps; i++){
-    TexturePoint t = from.texturePoint + (i * tStep/numberOfSteps);
-    window.setPixelColour(X.at(i), Y.at(i), texture.at(t.y).at(t.x));
   }
+
+
+
+
+
 }
 
 void stroked(DrawingWindow window, CanvasPoint first, CanvasPoint second, CanvasPoint third, Colour c){
@@ -138,37 +123,225 @@ void filled(DrawingWindow window, CanvasPoint first, CanvasPoint second, CanvasP
   for (int i = 0; i <= second.y - third.y; i++){
     line(window,thirdToExtra[i],thirdToSecond[i],c);
   }
-  stroked(window,first,second,third,c);
+  guide(window, first, second, third, extra);
+
+}
+void guide(DrawingWindow window, CanvasPoint first, CanvasPoint second, CanvasPoint third, CanvasPoint extra)
+{
+  stroked(window,CanvasPoint(first.x,first.y),CanvasPoint(second.x,second.y),CanvasPoint(third.x,third.y),Colour(0,255,255));
+  line (window, CanvasPoint(extra.x,extra.y),CanvasPoint(second.x,second.y),Colour(255,0,255));
+  // star(window, first,Colour(255,0,0));
+  // star(window, second,Colour(255,255,0));
+  // star(window, third,Colour(0,0,255));
+  // star(window, extra,Colour(255,0,255));
+}
+void star(DrawingWindow window, CanvasPoint star, Colour c)
+{
+  line (window, CanvasPoint(star.x-6,star.y),CanvasPoint(star.x+5,star.y),c);
+  line (window, CanvasPoint(star.x,star.y-6),CanvasPoint(star.x,star.y+5),c);
+  line (window, CanvasPoint(star.x-5,star.y-5),CanvasPoint(star.x+4,star.y+4),c);
+  line (window, CanvasPoint(star.x-5,star.y+5),CanvasPoint(star.x+4,star.y-4),c);
+
+}
+int findSteps(CanvasPoint from, CanvasPoint to)
+{
+  float xDiff = to.x - from.x;
+  float yDiff = to.y - from.y;
+  int numberOfSteps =  ceil(std::max(abs(xDiff), abs(yDiff)));
+  return numberOfSteps;
 }
 
-void texturedTriangle(DrawingWindow window, vector<vector<uint32_t>> image, CanvasPoint first, CanvasPoint second, CanvasPoint third){
-  // first = CanvasPoint(160,10);
-  first.texturePoint = TexturePoint(195,5);
-  // second = CanvasPoint(300,230);
-  second.texturePoint = TexturePoint(395,380);
-  // third = CanvasPoint(10,150);
-  third.texturePoint = TexturePoint(65,330);
 
-  if (first.y < second.y) std::swap(first,second);
-  if (first.y < third.y ) std::swap(first,third );
-  if (second.y < third.y) std::swap(second,third);
 
-  float scale = (first.y-second.y)/(first.y-third.y);
-  CanvasPoint extra = CanvasPoint(first - scale*(first-third));
 
-  vector<CanvasPoint> firstToExtra = interpolate(first,extra,ceil(first.y-second.y)+1);
-  vector<CanvasPoint> firstToSecond = interpolate(first,second,ceil(first.y-second.y)+1);
-  vector<CanvasPoint> thirdToExtra = interpolate(third,extra,ceil(second.y-third.y)+1);
-  vector<CanvasPoint> thirdToSecond = interpolate(third,second,ceil(second.y-third.y)+1);
 
-  for (int i = 0; i <= ceil(first.y - second.y) +1; i++){
+
+
+
+
+
+
+
+void texturedLine(DrawingWindow window, CanvasPoint to, CanvasPoint from, vector<vector<uint32_t>> texture){
+  float xDiff = to.x - from.x;
+  float yDiff = to.y - from.y;
+  int numberOfSteps =  ceil(std::max(abs(xDiff), abs(yDiff)));
+
+  vector<CanvasPoint> interpolated = interpolateT(from,to,numberOfSteps, 0);
+  CanvasPoint Pt ;TexturePoint t;
+  // TexturePoint tStep = to.texturePoint - from.texturePoint;
+
+  for (int i = 0; i < numberOfSteps; i++)
+  {
+    Pt = interpolated[i];
+    t = Pt.texturePoint;
+    //t = from.texturePoint + (i * tStep/numberOfSteps);
+    // window.setPixelColour(std::ceil(Pt.x), std::ceil(Pt.y), texture.at(std::round(t.y)).at(std::round(t.x)));
+    window.setPixelColour((Pt.x), (Pt.y), texture.at(t.y).at(t.x));
+  }
+}
+
+void texturedTriangle(DrawingWindow window, vector<vector<uint32_t>> image, CanvasPoint first, CanvasPoint second, CanvasPoint third, int triNo)
+{
+  if (first.y > second.y) std::swap(first,second);
+  if (first.y > third.y ) std::swap(first,third );
+  if (second.y > third.y) std::swap(second,third);
+  if (first.y == second.y && first.x > second.x) std::swap(first,second);
+  if (second.y == third.y && second.x > third.x) std::swap(second,third);
+
+  float scale = (second.y-first.y)/(third.y-first.y);
+  CanvasPoint extra = CanvasPoint(first + scale*(third-first));
+  extra = findTexture(first, third, extra);
+
+  vector<CanvasPoint> firstToExtra = interpolateT(first,extra,ceil(second.y - first.y)+1, triNo);
+  vector<CanvasPoint> firstToSecond = interpolateT(first,second,ceil(second.y - first.y)+1, triNo);
+  vector<CanvasPoint> thirdToExtra = interpolateT(third,extra,ceil(third.y - second.y)+1, triNo);
+  vector<CanvasPoint> thirdToSecond = interpolateT(third,second,ceil(third.y - second.y)+1, triNo);
+
+  for (int i = 0; i <= ceil(second.y - first.y) +1; i++){
     texturedLine(window,firstToExtra[i],firstToSecond[i],image);
   }
-  for (int i = 0; i <= ceil(second.y - third.y)+1; i++){
+  for (int i = 0; i <= ceil(third.y - second.y) +1; i++){
     texturedLine(window,thirdToExtra[i],thirdToSecond[i],image);
   }
+  guide(window, first, second, third, extra);
 }
 
+vector<float> interpolateF(float from, float to, int numberOfValues)
+{
+  vector<float> interpolated;
+  for (float i = 0.0f; i <= (float)numberOfValues; i++){
+      interpolated.push_back(round(from + i*((to-from)/(float)numberOfValues)));
+  }
+  return interpolated;
+}
+vector<double> interpolateDepth(double from, double to, int numberOfValues)
+{
+  vector<double> interpolated;
+  for (double i = 0.0; i <= (double)numberOfValues; i++){
+      interpolated.push_back((from + i*((to-from)/(double)numberOfValues)));
+  }
+  return interpolated;
+}
+vector<CanvasPoint> interpolateT(CanvasPoint from, CanvasPoint to, int numberOfValues,  int triNo)
+{
+  vector<CanvasPoint> interpolated;
+  vector<float> X         = interpolateF(from.x,      to.x,     numberOfValues);
+  vector<float> Y         = interpolateF(from.y,     to.y,     numberOfValues);
+  vector<double> depth    = interpolateDepth(from.depth, to.depth, numberOfValues);
+  CanvasPoint temp;
+  for (int i = 0; i <= numberOfValues; i++)
+  {
+      temp = CanvasPoint(X[i], Y[i], depth[i]);
+      temp = findTexture(from, to, temp);
+      interpolated.push_back(temp);
+  }
+  return interpolated;
+}
+
+CanvasPoint findTexture(CanvasPoint from, CanvasPoint to, CanvasPoint P)
+{
+  float z0, z1, c0, c1, currentDist, totalDist, q , cx, cy;
+  //if(from.depth < to.depth) std::swap(from, to);
+
+  currentDist = std::sqrt( std::pow((P .x - from.x), 2) + std::pow((P .y - from.y), 2) /*+ std::pow((P .depth - from.depth), 2) */);
+  totalDist   = std::sqrt( std::pow((to.x - from.x), 2) + std::pow((to.y - from.y), 2) /*+ std::pow((to .depth - from.depth), 2) */);
+  q =  (currentDist / totalDist);
+  z0 = from.depth;
+  z1 = to.depth;
+
+
+  c0 = from.texturePoint.x;
+  c1 = to.texturePoint.x;
+  cx = (  ((c0*(1-q))/z0)+((c1*q)/z1)  )  /  (  ((1-q)/z0)+(q/z1)  );
+  c0 = from.texturePoint.y;
+  c1 = to.texturePoint.y;
+  q = currentDist/totalDist ;
+  cy = (  ((c0*(1-q))/z0)+((c1*q)/z1)  )  /  (  ((1-q)/z0)+(q/z1)  );
+  cx = round(abs(cx)); cy = round(abs(cy));
+
+  if((from.x == to.x && from.y == to.y) || (from.x == P.x && from.y == P.y)){
+    P = from;
+    P.texturePoint = from.texturePoint;
+  }
+  else if(P.x == to.x && P.y == to.y ){
+    P = to;
+    P.texturePoint = to.texturePoint;
+  }
+  else{
+    P.texturePoint = TexturePoint(cx, cy);
+  }
+
+  cx = P.texturePoint.x;  cy =P.texturePoint.y;
+  if( cx < 0.0 || cy < 0.0 || cx > 501.0 || cy > 501.0 || std::isnan(cx) || std::isnan(cy)){
+    std::cout << std::endl << from << P << to ;
+    std::cout <<"("<< cx <<"\t, " << cy <<")" ;
+    std::cout << "Q = " << q;
+    std::cout << std::endl  ;
+  }
+
+  return P;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+//chekerboard
+vector<vector<uint32_t>> readPPM(const char * filename){
+  std::ifstream f;
+  std::string line;
+  vector<vector<uint32_t>> image;
+  f.open( filename, std::ios::binary);
+  if (!f.is_open()){
+    std::cout << "Failed to open ppm" << std::endl;
+    return image;
+  }
+
+  int width,height,maxval;
+  if (getline(f,line))
+  {
+    if(line[0] == 'P' and line[1] == '6'){
+      //line = line.substr(2);
+      std::cout << std::endl << "Read P6" << std::endl;
+    }
+    width  = stoi(line.substr(3,line.find(' ')));
+    std::cout << width << std::endl;
+    height = stoi(line.substr(7,line.find(' ')));
+    std::cout << height << std::endl;
+    maxval = stoi(line.substr(line.find(' ')));
+    std::cout << maxval << std::endl;
+  }
+  for(int y = 0; y < height; y++){
+    vector<uint32_t> row;
+    for (int x = 0; x < width; x++){
+
+      Colour c;
+      c.red   = f.get();
+      c.green = f.get();
+      c.blue  = f.get();
+      //std::cout << c << std::endl;
+      row.push_back(c.pack());
+    }
+    image.push_back(row);
+  }
+  f.close();
+  std::cout << "PPM read success" << std::endl << std::endl;
+  return image;
+}
+*/
+
+//texture
+//chekerboard2
 vector<vector<uint32_t>> readPPM(const char * filename){
   std::ifstream f;
   std::string line;

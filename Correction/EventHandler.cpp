@@ -1,33 +1,33 @@
 #include "EventHandler.h"
 
 
-void handleEvent(SDL_Event event, DrawingWindow window, Camera& camera, vector<vector<uint32_t>> image, int& renderer,int& SSMethod,int& fna,int& bounces)
+void handleEvent(SDL_Event event, DrawingWindow window, Camera& camera, vector<vector<uint32_t>> image, int& renderer,int& SSMethod,int& fna)
 {
   if(event.type == SDL_KEYDOWN) {
     if(event.key.keysym.sym == SDLK_LEFT){
       std::cout << "LEFT" << std::endl;
       camera.updateRotation(0,0.2,0);
-    }  
+    }
     else if(event.key.keysym.sym == SDLK_RIGHT) {
       std::cout << "Right" << std::endl;
       camera.updateRotation(0,-0.2,0);
-    }  
+    }
     else if(event.key.keysym.sym == SDLK_UP) {
       std::cout << "UP" << std::endl;
       camera.updateRotation(0.2,0,0);
-    }  
+    }
     else if(event.key.keysym.sym == SDLK_DOWN) {
       std::cout << "DOWN" << std::endl;
       camera.updateRotation(-0.2,0,0);
-    }  
+    }
 
     else if(event.key.keysym.sym == SDLK_q){
       std::cout << "Q" << std::endl;
-      camera.updateRotation(0,0,-0.2);    
+      camera.updateRotation(0,0,-0.2);
       }
     else if(event.key.keysym.sym == SDLK_e){
       std::cout << "E" << std::endl;
-      camera.updateRotation(0,0,0.2);    
+      camera.updateRotation(0,0,0.2);
       }
     else if(event.key.keysym.sym == SDLK_j) {
       stroked(window, CanvasPoint(rand()%window.width,rand()%window.height),
@@ -44,9 +44,9 @@ void handleEvent(SDL_Event event, DrawingWindow window, Camera& camera, vector<v
       std::cout << "f" << std::endl;
     }
     else if (event.key.keysym.sym == SDLK_t){
-      texturedTriangle(window,image,CanvasPoint(rand()%window.width,rand()%window.height),
-              CanvasPoint(rand()%window.width,rand()%window.height),
-              CanvasPoint(rand()%window.width,rand()%window.height));
+      //texturedTriangle(window,image,CanvasPoint(rand()%window.width,rand()%window.height),
+        //      CanvasPoint(rand()%window.width,rand()%window.height),
+          //    CanvasPoint(rand()%window.width,rand()%window.height));
       std::cout << "t" << std::endl;
 
     }
@@ -92,11 +92,6 @@ void handleEvent(SDL_Event event, DrawingWindow window, Camera& camera, vector<v
     else if(event.key.keysym.sym == SDLK_m){
       SSMethod = (SSMethod + 1) % 5;
       std::cout << "Switching supersampling method to " << SSMethod << std::endl;
-    }
-
-    else if(event.key.keysym.sym == SDLK_r){
-      bounces = (bounces + 1) % 5;
-      std::cout << "Switching bounces to " << bounces << std::endl;
     }
 
     else if(event.key.keysym.sym == SDLK_RETURN){

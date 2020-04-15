@@ -53,3 +53,25 @@ void drawRasterised(std::vector<ModelTriangle> model,DrawingWindow window, Camer
     }
   }
 }
+
+
+void drawTextured(std::vector<ModelTriangle> model,DrawingWindow window, Camera camera, vector<vector<uint32_t>> image){
+  //Image plane = 0,0,0
+  CanvasPoint first,second,third;
+  int width  = window.width;
+  int height = window.height;
+  for(unsigned int i = 0; i<model.size();i++){
+    first = project(model[i].vertices[0],camera,width,height);
+    second = project(model[i].vertices[1],camera,width,height);
+    third = project(model[i].vertices[2],camera,width,height);
+    CanvasPoint points[3] = {first, second, third};
+
+    first.texturePoint  = model[i].texture[0];
+    second.texturePoint = model[i].texture[1];
+    third.texturePoint  = model[i].texture[2];
+
+    if (inPlane(points,width,height)){
+      texturedTriangle(window,image,first,second,third,i);
+    }
+  }
+}

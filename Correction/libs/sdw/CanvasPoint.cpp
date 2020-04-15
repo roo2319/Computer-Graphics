@@ -66,7 +66,7 @@ CanvasPoint CanvasPoint::operator/(const float f){
 */
 std::ostream& operator<<(std::ostream& os, const CanvasPoint& point)
 {
-    os << "(" << point.x << ", " << point.y << ", " << point.depth << ") " << point.brightness << std::endl;
+    os << "(" << point.x << ", " << point.y << ", " << point.depth << ") " << " Texture(" << point.texturePoint.x << ", " << point.texturePoint.y << ")\n" /*<< point.brightness << std::endl*/;
     return os;
 }
 CanvasPoint operator*(float f, CanvasPoint c){
