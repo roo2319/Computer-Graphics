@@ -4,7 +4,7 @@ glm::vec3 pointLight = glm::vec3(0,3.5,2);
 glm::vec3 lightColour = 50.f * glm::vec3(1,1,1);
 glm::vec3 indirectLighting = 0.25f * glm::vec3(1,1,1);
 ModelTriangle nullT = ModelTriangle();
-bool lfancy = false;
+int lbounces = 0;
 float pi = 3.1415f; //Approximation
 
 glm::vec3 Lighting(const RayTriangleIntersection& i,std::vector<ModelTriangle> triangles);
@@ -121,20 +121,23 @@ bool calculateIntersectionWithBounces(DrawingWindow window,
                          std::vector<ModelTriangle> triangles,
                          RayTriangleIntersection& intersection){
   glm::vec3 n;
-  if (!lfancy) return closestIntersection(start,dir,triangles,intersection,nullT);
+
+  if (lbounces == 0) return closestIntersection(start,dir,triangles,intersection,nullT);
+  int llbounces = lbounces;
   if (closestIntersection(start,dir,triangles,intersection,nullT)){
-    if (intersection.intersectedTriangle.colour.name == "Blue"){
-      return mirror(dir,triangles,intersection);
+    while (llbounces > 0){
+      if (intersection.intersectedTriangle.colour.name == "Blue"){
+        if (!mirror(dir,triangles,intersection)) return false;
+      }
+      else if (intersection.intersectedTriangle.colour.name == "Red"){
+        if (!glass(dir,triangles,intersection,"Red")) return false;
+      }
+      else if (intersection.intersectedTriangle.colour.name.find("Portal") != std::string::npos ){
+        if (!portal(dir,triangles,intersection,intersection.intersectedTriangle.colour.name[6])) return false;
+      }
+      llbounces--;
     }
-    else if (intersection.intersectedTriangle.colour.name == "Red"){
-      return glass(dir,triangles,intersection,"Red");
-    }
-    else if (intersection.intersectedTriangle.colour.name.find("Portal") != std::string::npos ){
-      return portal(dir,triangles,intersection,intersection.intersectedTriangle.colour.name[6]);
-    }
-    else{
-      return true;
-    }
+    return true;
   }
   return false;
 }
@@ -221,8 +224,8 @@ void samplePixels(DrawingWindow window,std::vector<ModelTriangle> model,int x, i
   }
 }
 
-void drawRaytraced(std::vector<ModelTriangle> model, DrawingWindow window, Camera camera,int SSMethod, bool fancy){
-  lfancy = fancy;
+void drawRaytraced(std::vector<ModelTriangle> model, DrawingWindow window, Camera camera,int SSMethod, int bounces){
+  lbounces = bounces;
   #pragma omp parallel for
   for(int y=0; y<window.height ;y++) {
     for(int x=0; x<window.width ;x++) {

@@ -1,7 +1,7 @@
 #include "EventHandler.h"
 
 
-void handleEvent(SDL_Event event, DrawingWindow window, Camera& camera, vector<vector<uint32_t>> image, int& renderer,int& SSMethod,int& fna,bool& fancy)
+void handleEvent(SDL_Event event, DrawingWindow window, Camera& camera, vector<vector<uint32_t>> image, int& renderer,int& SSMethod,int& fna,int& bounces)
 {
   if(event.type == SDL_KEYDOWN) {
     if(event.key.keysym.sym == SDLK_LEFT){
@@ -95,8 +95,8 @@ void handleEvent(SDL_Event event, DrawingWindow window, Camera& camera, vector<v
     }
 
     else if(event.key.keysym.sym == SDLK_r){
-      fancy = !fancy;
-      std::cout << "Switching fancy to " << fancy << std::endl;
+      bounces = (bounces + 1) % 5;
+      std::cout << "Switching bounces to " << bounces << std::endl;
     }
 
     else if(event.key.keysym.sym == SDLK_RETURN){

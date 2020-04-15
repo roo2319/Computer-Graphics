@@ -37,7 +37,7 @@ Camera camera = Camera(vec3(0,2,-6),mat3(1.0f),HEIGHT/2);
 float orbitDist =  length(camera.position - vec3(0,2,1));
 int renderer = 0;
 int fna = 1;
-bool fancy = false;
+int bounces = 0;
 int SSMethod;
 
 int main(int argc, char* argv[])
@@ -45,7 +45,7 @@ int main(int argc, char* argv[])
   SDL_Event event;
   while(true){
     // We MUST poll for events - otherwise the window will freeze !
-    if(window.pollForInputEvents(&event)) handleEvent(event,window,camera,image,renderer,SSMethod,fna,fancy);
+    if(window.pollForInputEvents(&event)) handleEvent(event,window,camera,image,renderer,SSMethod,fna,bounces);
     update();
     window.clearPixels();
     window.clearDepth();
@@ -68,14 +68,14 @@ void draw()
       break;
 
     case 2:
-      drawRaytraced(model,window,camera,SSMethod,fancy);
+      drawRaytraced(model,window,camera,SSMethod,bounces);
       break;
 
   }
 }
 
 void orbit(){
-  drawRaytraced(model,window,camera,SSMethod,fancy);
+  drawRaytraced(model,window,camera,SSMethod,bounces);
   camera.lookat(glm::vec3(0,2,1));
   camera.right(0.1);
 

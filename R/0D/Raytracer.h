@@ -11,4 +11,4 @@
 
 
 
-void drawRaytraced(std::vector<ModelTriangle> model, DrawingWindow window, Camera camera,int SSMethod,bool fancy);
+void drawRaytraced(std::vector<ModelTriangle> model, DrawingWindow window, Camera camera,int SSMethod,int bounces);
