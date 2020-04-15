@@ -4,6 +4,7 @@ glm::vec3 pointLight = glm::vec3(0,3.5,2);
 glm::vec3 lightColour = 50.f * glm::vec3(1,1,1);
 glm::vec3 indirectLighting = 0.25f * glm::vec3(1,1,1);
 ModelTriangle nullT = ModelTriangle();
+bool lfancy = false;
 float pi = 3.1415f; //Approximation
 
 glm::vec3 Lighting(const RayTriangleIntersection& i,std::vector<ModelTriangle> triangles);
@@ -57,21 +58,6 @@ bool closestIntersection(glm::vec3 start, glm::vec3 dir,
   } 
     return bestT < 1000;
 }
-
-// bool closestIntersection(glm::vec3 start, glm::vec3 dir,
-//                          std::vector<ModelTriangle> triangles,
-//                          RayTriangleIntersection& intersection,
-//                          ModelTriangle self){
-//   //remove self from triangles
-//   for (unsigned int i = 0; i<triangles.size(); i++){
-//     if (triangles[i] == self){
-//       triangles[i] = triangles.back();
-//       triangles.pop_back();
-//       break;
-//     }
-//   }
-//   return closestIntersection(start,dir,triangles,intersection);
-// }
 
 
 glm::vec3 refract(glm::vec3 dir, glm::vec3 n, float n1, float n2){
@@ -135,6 +121,7 @@ bool calculateIntersectionWithBounces(DrawingWindow window,
                          std::vector<ModelTriangle> triangles,
                          RayTriangleIntersection& intersection){
   glm::vec3 n;
+  if (!lfancy) return closestIntersection(start,dir,triangles,intersection,nullT);
   if (closestIntersection(start,dir,triangles,intersection,nullT)){
     if (intersection.intersectedTriangle.colour.name == "Blue"){
       return mirror(dir,triangles,intersection);
@@ -234,7 +221,8 @@ void samplePixels(DrawingWindow window,std::vector<ModelTriangle> model,int x, i
   }
 }
 
-void drawRaytraced(std::vector<ModelTriangle> model, DrawingWindow window, Camera camera,int SSMethod){
+void drawRaytraced(std::vector<ModelTriangle> model, DrawingWindow window, Camera camera,int SSMethod, bool fancy){
+  lfancy = fancy;
   #pragma omp parallel for
   for(int y=0; y<window.height ;y++) {
     for(int x=0; x<window.width ;x++) {

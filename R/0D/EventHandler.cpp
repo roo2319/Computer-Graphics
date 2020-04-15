@@ -1,7 +1,7 @@
 #include "EventHandler.h"
 
 
-void handleEvent(SDL_Event event, DrawingWindow window, Camera& camera, vector<vector<uint32_t>> image, int& renderer,int& SSMethod,int& fna)
+void handleEvent(SDL_Event event, DrawingWindow window, Camera& camera, vector<vector<uint32_t>> image, int& renderer,int& SSMethod,int& fna,bool& fancy)
 {
   if(event.type == SDL_KEYDOWN) {
     if(event.key.keysym.sym == SDLK_LEFT){
@@ -92,6 +92,11 @@ void handleEvent(SDL_Event event, DrawingWindow window, Camera& camera, vector<v
     else if(event.key.keysym.sym == SDLK_m){
       SSMethod = (SSMethod + 1) % 5;
       std::cout << "Switching supersampling method to " << SSMethod << std::endl;
+    }
+
+    else if(event.key.keysym.sym == SDLK_r){
+      fancy = !fancy;
+      std::cout << "Switching fancy to " << fancy << std::endl;
     }
 
     else if(event.key.keysym.sym == SDLK_RETURN){
