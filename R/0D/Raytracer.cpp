@@ -108,8 +108,17 @@ bool portal(glm::vec3 dir,
   for (uint i=0; i<triangles.size(); i++){
     if (triangles[i].colour.name[6] == PortalNumber && triangles[i] != intersection.intersectedTriangle){
       //Assume a correspondence between points
-      glm::vec3 start = intersection.intersectionPoint + triangles[i].vertices[0] - intersection.intersectedTriangle.vertices[0];  
-      return closestIntersection(start,dir,triangles,intersection,triangles[i]);
+      float c = glm::dot(triangles[i].normal,intersection.intersectedTriangle.normal);
+      float s = glm::length(glm::cross(triangles[i].normal,intersection.intersectedTriangle.normal)); 
+      glm::mat3 R = glm::mat3(c,-s,0,s,c,0,0,0,1);
+      float u = glm::dot(intersection.intersectionPoint-intersection.intersectedTriangle.vertices[0],glm::normalize(intersection.intersectedTriangle.vertices[1] - intersection.intersectedTriangle.vertices[0]));
+      float v = glm::dot(intersection.intersectionPoint-intersection.intersectedTriangle.vertices[0],glm::normalize(intersection.intersectedTriangle.vertices[2] - intersection.intersectedTriangle.vertices[0]));
+      glm::vec3 nu = u * glm::normalize(triangles[i].vertices[1] - triangles[i].vertices[0]);
+      glm::vec3 nv = v * glm::normalize(triangles[i].vertices[2] - triangles[i].vertices[0]);
+      glm::vec3 start = triangles[i].vertices[0] + nu +nv;
+      // return closestIntersection(start,dir,triangles,intersection,triangles[i]);
+      return closestIntersection(start,dir,triangles,intersection,nullT);
+
     }
   }
   return false;
