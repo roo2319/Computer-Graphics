@@ -105,19 +105,34 @@ bool portal(glm::vec3 dir,
             std::vector<ModelTriangle>triangles,
             RayTriangleIntersection& intersection,
             char PortalNumber){
+
+  glm::vec3 cros;
+  glm::mat3 vx  ;
+  glm::mat3 r   ;
   for (uint i=0; i<triangles.size(); i++){
     if (triangles[i].colour.name[6] == PortalNumber && triangles[i] != intersection.intersectedTriangle){
       //Assume a correspondence between points
-      float c = glm::dot(triangles[i].normal,intersection.intersectedTriangle.normal);
-      float s = glm::length(glm::cross(triangles[i].normal,intersection.intersectedTriangle.normal)); 
-      glm::mat3 R = glm::mat3(c,-s,0,s,c,0,0,0,1);
+      float c = glm::dot(intersection.intersectedTriangle.normal,triangles[i].normal);
+      if (c != -1){
+        cros = glm::cross(-intersection.intersectedTriangle.normal,triangles[i].normal);
+        vx   = glm::mat3(0.f,-cros.z,cros.y,cros.z,0.f,-cros.x,-cros.y,cros.x,0.f);
+        r    = glm::mat3() + vx + (1/(1+c)) * vx * vx;
+      }
+      else{
+        r = glm::mat3();
+        std::cout << "PAR" << std::endl;
+      }
+      
       float u = glm::dot(intersection.intersectionPoint-intersection.intersectedTriangle.vertices[0],glm::normalize(intersection.intersectedTriangle.vertices[1] - intersection.intersectedTriangle.vertices[0]));
       float v = glm::dot(intersection.intersectionPoint-intersection.intersectedTriangle.vertices[0],glm::normalize(intersection.intersectedTriangle.vertices[2] - intersection.intersectedTriangle.vertices[0]));
       glm::vec3 nu = u * glm::normalize(triangles[i].vertices[1] - triangles[i].vertices[0]);
       glm::vec3 nv = v * glm::normalize(triangles[i].vertices[2] - triangles[i].vertices[0]);
-      glm::vec3 start = triangles[i].vertices[0] + nu +nv;
+      glm::vec3 start = triangles[i].vertices[0] +  nu + nv;
+      // dir = -triangles[i].normal;
+      // std::cout << u <<" " << v << std::endl;
+      // std::cout << glm::dot(start,glm::cross((triangles[i].vertices[1] - triangles[i].vertices[0]),(triangles[i].vertices[2] - triangles[i].vertices[0]))) << std::endl;
       // return closestIntersection(start,dir,triangles,intersection,triangles[i]);
-      return closestIntersection(start,dir,triangles,intersection,nullT);
+      return closestIntersection(start,r*dir,triangles,intersection,nullT);
 
     }
   }
