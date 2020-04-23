@@ -1,6 +1,6 @@
 #include "Raytracer.h"
 
-glm::vec3 pointLight = glm::vec3(0,3.5,2);
+std::vector<glm::vec3>Lights {glm::vec3(0,3.5,5), glm::vec3(-10,3.5,15)};
 glm::vec3 lightColour = 50.f * glm::vec3(1,1,1);
 glm::vec3 indirectLighting = 0.25f * glm::vec3(1,1,1);
 ModelTriangle nullT = ModelTriangle();
@@ -27,15 +27,25 @@ bool calculateIntersectionWithBounces(DrawingWindow window,
 
 glm::vec3 Lighting(const RayTriangleIntersection& i,std::vector<ModelTriangle> triangles){
   RayTriangleIntersection nearestSurface;
-  glm::vec3 r = pointLight - i.intersectionPoint;
-  bool found = closestIntersection(i.intersectionPoint,glm::normalize(r),triangles,nearestSurface,i.intersectedTriangle);
-  if ( found && nearestSurface.distance < glm::length(r) && !(nearestSurface.intersectedTriangle.colour.name == "Red")){
-    return 0.5f * indirectLighting; //Shadow
+  glm::vec3 lighting = indirectLighting;
+  bool found = false;
+  for(uint j = 0; j< Lights.size();j++){
+    glm::vec3 r = Lights[j] - i.intersectionPoint;
+    bool lfound = closestIntersection(i.intersectionPoint,glm::normalize(r),triangles,nearestSurface,i.intersectedTriangle);
+    if ( lfound && nearestSurface.distance < glm::length(r) && !(nearestSurface.intersectedTriangle.colour.name == "Red")){
+      continue; //Shadow
+    }
+    else{
+      glm::vec3 n = i.intersectedTriangle.normal;
+      float percent = std::max(glm::dot(glm::normalize(r),n),0.f);
+      lighting += (lightColour * (percent/(4*pi*glm::dot(r,r)))); 
+      found = true;
+    }
   }
-  
-  glm::vec3 n = i.intersectedTriangle.normal;
-  float percent = std::max(glm::dot(glm::normalize(r),n),0.f);
-  return indirectLighting + (lightColour * (percent/(4*pi*glm::dot(r,r)))); 
+  if (!found){
+    return 0.5f * indirectLighting;
+  }
+  return lighting;
 
 }
 

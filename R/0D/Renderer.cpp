@@ -25,9 +25,9 @@ using namespace glm;
 void draw();
 void update();
 
-unordered_map<string,Colour> materials = readMTL("cornell-box.mtl");
+unordered_map<string,Colour> materials = readMTL("scene.mtl");
 vector<vector<uint32_t>> image = readPPM("texture.ppm");
-vector<ModelTriangle> model = readOBJ("cornell-box.obj",materials,1);
+vector<ModelTriangle> model = readOBJ("scene.obj",materials,1);
 DrawingWindow window = DrawingWindow(WIDTH, HEIGHT, false);
 
 void orbit();
@@ -35,9 +35,11 @@ void orbit();
 Camera camera = Camera(vec3(0,2,-6),mat3(1.0f),HEIGHT/2);
 // Distance from centre of orbit
 float orbitDist =  length(camera.position - vec3(0,2,1));
-int renderer = 0;
+int renderer = 2;
 int fna = 1;
 int bounces = 0;
+int sequence = 0;
+int sloop = 0;
 int SSMethod;
 
 int main(int argc, char* argv[])
@@ -74,24 +76,73 @@ void draw()
   }
 }
 
-void orbit(){
-  drawRaytraced(model,window,camera,SSMethod,bounces);
-  camera.lookat(glm::vec3(0,2,1));
-  camera.right(0.1);
+// void orbit(){
+//   drawRaytraced(model,window,camera,SSMethod,bounces);
+//   camera.lookat(glm::vec3(0,2,1));
+//   camera.right(0.1);
 
-  // Ensures we have an orbit rather than spiral
-  float distfromcentre = length(camera.position - vec3(0,2,1));
-  float scale = distfromcentre/orbitDist;
-  camera.forward(scale - 1);
+//   // Ensures we have an   char filename[50];
+//   sprintf(filename,"captures/%d.ppm",fna);
+//   writePPM(filename, window);orbit rather than spiral
+//   float distfromcentre = length(camera.position - vec3(0,2,1));
+//   float scale = distfromcentre/orbitDist;
+//   camera.forward(scale - 1);
 
-  // Write output
-  char filename[50];
-  sprintf(filename,"captures/%d.ppm",fna);
-  writePPM(filename, window);
-  fna++;
-}
+//   // Write output
+//   char filename[50];
+//   sprintf(filename,"captures/%d.ppm",fna);
+//   writePPM(filename, window);
+//   fna++;
+// }
 
 void update()
 {
   // Function for performing animation (shifting artifacts or moving the camera)
+    // camera.right(0.1);
+  switch(sequence){
+    // Walk to portal, while taking turns
+    case 0: 
+      if (camera.position.z < 12){
+        camera.forward(0.1);
+      }
+      else sequence++;
+      break;
+
+    case 1:
+      if (sloop < 100){
+        camera.updateRotation(0,0.0157,0);
+        sloop++;
+      }
+      else {sequence++;sloop=0;}
+      break;
+
+    case 2: 
+      if (camera.position.x > -10){
+        camera.forward(0.1);
+      }
+      else sequence++;
+      break;
+
+    case 3:
+      if (sloop < 100){
+        camera.updateRotation(0,-0.0157,0);
+        sloop++;
+      }
+      else {sequence++;sloop=0;}
+      break;
+    
+    case 4: 
+      if (camera.position.z > -24){
+        camera.forward(0.1);
+      }
+      else sequence++;
+      break;
+
+
+  }
+
+  // char filename[50];
+  // sprintf(filename,"captures/%d.ppm",fna);
+  // writePPM(filename, window);
+  // fna++;
 }
