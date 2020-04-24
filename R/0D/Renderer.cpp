@@ -16,8 +16,8 @@
 using namespace std;
 using namespace glm;
 
-#define WIDTH 320
-#define HEIGHT 240
+#define WIDTH 640
+#define HEIGHT 480
 
 // #define WIDTH 960
 // #define HEIGHT 720
@@ -41,13 +41,14 @@ int bounces = 0;
 int sequence = 0;
 int sloop = 0;
 int SSMethod;
+bool animate = false;
 
 int main(int argc, char* argv[])
 {
   SDL_Event event;
   while(true){
     // We MUST poll for events - otherwise the window will freeze !
-    if(window.pollForInputEvents(&event)) handleEvent(event,window,camera,image,renderer,SSMethod,fna,bounces);
+    if(window.pollForInputEvents(&event)) handleEvent(event,window,camera,image,renderer,SSMethod,fna,bounces,animate);
     update();
     window.clearPixels();
     window.clearDepth();
@@ -97,52 +98,79 @@ void draw()
 
 void update()
 {
+  if (animate){
+    switch(sequence){
+      // Walk to portal, while taking turns
+      case 0: 
+        camera.position = glm::vec3(0,1,0);
+        sequence++;
+
+      case 1: 
+        if (camera.position.z < 12){
+          camera.forward(0.1);
+        }
+        else sequence++;
+        break;
+
+      case 2:
+        if (sloop < 50){
+          camera.updateRotation(0,0.0301,0);
+          sloop++;
+        }
+        else {sequence++;sloop=0;}
+        break;
+
+      case 3: 
+        if (camera.position.x > -10){
+          camera.forward(0.1);
+        }
+        else sequence++;
+        break;
+
+      case 4:
+        if (sloop < 50){
+          camera.updateRotation(0,-0.0301,0);
+          sloop++;
+        }
+        else {sequence++;sloop=0;}
+        break;
+      
+      case 5: 
+        if (camera.position.z < 23.5){
+          camera.forward(0.1);
+        }
+        else sequence++;
+        break;
+
+      case 6: 
+        camera.position = glm::vec3(0,101,0.1);
+        sequence++;
+        break;      
+
+      case 7: 
+        if (camera.position.z < 10){
+          camera.forward(0.3);
+        }
+        else{
+          sequence++;
+        }
+        break;
+
+      case 8:
+        if (sloop < 50){
+          camera.updateRotation(0,-0.0602,0);
+          sloop++;
+        }
+        else {sequence++;sloop=0;}
+        break;
+
+
+    }
+    char filename[50];
+    sprintf(filename,"captures/%d.ppm",fna);
+    writePPM(filename, window);
+    fna++;
+  }
   // Function for performing animation (shifting artifacts or moving the camera)
     // camera.right(0.1);
-  switch(sequence){
-    // Walk to portal, while taking turns
-    case 0: 
-      if (camera.position.z < 12){
-        camera.forward(0.1);
-      }
-      else sequence++;
-      break;
-
-    case 1:
-      if (sloop < 100){
-        camera.updateRotation(0,0.0157,0);
-        sloop++;
-      }
-      else {sequence++;sloop=0;}
-      break;
-
-    case 2: 
-      if (camera.position.x > -10){
-        camera.forward(0.1);
-      }
-      else sequence++;
-      break;
-
-    case 3:
-      if (sloop < 100){
-        camera.updateRotation(0,-0.0157,0);
-        sloop++;
-      }
-      else {sequence++;sloop=0;}
-      break;
-    
-    case 4: 
-      if (camera.position.z > -24){
-        camera.forward(0.1);
-      }
-      else sequence++;
-      break;
-
-
-  }
-
-  // char filename[50];
-  // sprintf(filename,"captures/%d.ppm",fna);
-  // writePPM(filename, window);
-  // fna++;
 }

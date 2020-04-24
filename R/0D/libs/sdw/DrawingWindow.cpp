@@ -77,7 +77,7 @@ void DrawingWindow::setPixelColour(int x, int y, uint32_t colour)
 }
 
 void DrawingWindow::setPixelColourDC(int x, int y, float depth, uint32_t colour){
-  if (depth < getDepth(x,y)){
+  if (depth < getDepth(x,y) && depth > 0){
     setPixelColour(x,y,colour);
     setDepth(x,y,depth);
   } 

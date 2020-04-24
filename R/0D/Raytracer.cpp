@@ -1,7 +1,7 @@
 #include "Raytracer.h"
 
-std::vector<glm::vec3>Lights {glm::vec3(0,3.5,5), glm::vec3(-10,3.5,15)};
-glm::vec3 lightColour = 50.f * glm::vec3(1,1,1);
+std::vector<glm::vec3>Lights {glm::vec3(0,3.5,5), glm::vec3(-10,3.5,15),glm::vec3(0,107.5,10)};
+std::vector<glm::vec3> lightColours = {50.f * glm::vec3(1,1,1),50.f * glm::vec3(1,1,1),200.f * glm::vec3(1,1,1)};
 glm::vec3 indirectLighting = 0.25f * glm::vec3(1,1,1);
 ModelTriangle nullT = ModelTriangle();
 int lbounces = 0;
@@ -38,7 +38,7 @@ glm::vec3 Lighting(const RayTriangleIntersection& i,std::vector<ModelTriangle> t
     else{
       glm::vec3 n = i.intersectedTriangle.normal;
       float percent = std::max(glm::dot(glm::normalize(r),n),0.f);
-      lighting += (lightColour * (percent/(4*pi*glm::dot(r,r)))); 
+      lighting += (lightColours[j] * (percent/(4*pi*glm::dot(r,r)))); 
       found = true;
     }
   }
@@ -129,8 +129,8 @@ bool portal(glm::vec3 dir,
         r    = glm::mat3() + vx + (1/(1+c)) * vx * vx;
       }
       else{
+        // If the direction is the opposite
         r = glm::mat3();
-        std::cout << "PAR" << std::endl;
       }
       
       float u = glm::dot(intersection.intersectionPoint-intersection.intersectedTriangle.vertices[0],glm::normalize(intersection.intersectedTriangle.vertices[1] - intersection.intersectedTriangle.vertices[0]));
