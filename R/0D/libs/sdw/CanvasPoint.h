@@ -15,7 +15,7 @@ class CanvasPoint
     CanvasPoint();
     CanvasPoint(float xPos, float yPos);
 
-    CanvasPoint(float xPos, float yPos, float pointDepth);
+    CanvasPoint(float xPos, float yPos, double pointDepth);
 
     //Undefined behaviour to add or subtract -1 point depth
     CanvasPoint operator-(const CanvasPoint& c);

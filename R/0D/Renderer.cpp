@@ -27,7 +27,7 @@ void update();
 
 unordered_map<string,Colour> materials = readMTL("scene.mtl");
 vector<vector<uint32_t>> image = readPPM("texture.ppm");
-vector<ModelTriangle> model = readOBJ("scene.obj",materials,1);
+vector<ModelTriangle> model = readOBJ("cornell-box.obj",materials,1);
 DrawingWindow window = DrawingWindow(WIDTH, HEIGHT, false);
 
 void orbit();

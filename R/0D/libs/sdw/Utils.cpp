@@ -1,5 +1,15 @@
 #include "Utils.h"
 
+int ComputeOutCode(CanvasPoint p,DrawingWindow w){
+  int code = 0;
+
+  if (p.x < 0) code |= 1;
+  else if (p.x > w.width-1) code |= 2;
+  if (p.y < 0) code |= 4;
+  else if (p.y > w.height-1) code |= 8;
+  return code;
+}
+
 std::string* split(std::string line, char delim)
 {
   int numberOfTokens = count(line.begin(), line.end(), delim) + 1;
@@ -54,8 +64,9 @@ vector<vector<glm::vec3>> interpolate2d(glm::vec3 top_left, glm::vec3 top_right,
 }
 
 // Bresenhams
-void line(DrawingWindow window, CanvasPoint to, CanvasPoint from, Colour c){
-  float x0, x1, y0, y1, d0, d1;
+void bresenham(DrawingWindow window, CanvasPoint to, CanvasPoint from, Colour c){
+  int x0, x1, y0, y1;
+  float d0, d1;
   x0 = from.x; y0 = from.y; x1 = to.x; y1 = to.y; d0 = from.depth; d1=to.depth;
   bool steep = abs(y1-y0) > abs(x1-x0);
   if (steep){
@@ -69,21 +80,21 @@ void line(DrawingWindow window, CanvasPoint to, CanvasPoint from, Colour c){
     std::swap(d0,d1);
   }
 
-  float dx = x1 - x0;
-  float dy = abs(y1 - y0);
+  int dx = x1 - x0;
+  int dy = abs(y1 - y0);
   // depth per step
-  float dps = (d1 - d0)/dx;
-  float d = d0;
+  double dps = (d1 - d0);
+  double d = d0*dx;
 
-  float error = dx/2.0f;
+  int error = dx/2;
   int ystep = (y0 < y1) ? 1 : -1;
   //Carefully consider rounding
   int y = floor(y0); 
   int maxX = ceil(x1);
 
   for (int x = floor(x0); x <= maxX; x++){
-    if (steep) window.setPixelColourDC(y,x,d,c.pack());
-    else window.setPixelColourDC(x,y,d,c.pack());
+    if (steep) window.setPixelColourDC(y,x,d/dx,c.pack());
+    else window.setPixelColourDC(x,y,d/dx,c.pack());
     d += dps;
     error -= dy;
     if (error<0){
@@ -97,6 +108,69 @@ void line(DrawingWindow window, CanvasPoint to, CanvasPoint from, Colour c){
 
 
 }
+void line(DrawingWindow window, CanvasPoint to, CanvasPoint from, Colour c){
+  // Cohen-Sutherland clip then bresenham
+  // std::cout <<"plotting line from " << to << " to " << from << std::endl; 
+  int outcode0 = ComputeOutCode(from,window);
+  int outcode1 = ComputeOutCode(to,window);
+  bool accept = false;
+
+  while (true){
+    if(!(outcode0|outcode1)){
+      accept = true; 
+      break;
+    }
+    else if (outcode0&outcode1) {
+      break;
+    }
+    else{
+      CanvasPoint p;
+      int outcodeOut = outcode1 > outcode0 ? outcode1:outcode0;
+      double dy = to.y - from.y;
+      double dx = to.x - from.x;
+      double dd = to.depth - from.depth;
+
+      // Watch out for overflows
+
+      if (outcodeOut&8){
+        p = CanvasPoint(from.x + (window.height-1-from.y)*(dx/dy),
+                        window.height-1,
+                        from.depth + (window.height-1-from.y)*(dd/dy));
+      }
+
+      else if(outcodeOut&4){
+        p = CanvasPoint(from.x +  (-from.y)*(dx/dy),
+                        0,
+                        from.depth + (-from.y)*(dd/dy));
+      }
+      else if(outcodeOut&2){
+        p = CanvasPoint(window.width-1,
+                       from.y+(window.width-1-from.x)*(dy/dx),
+                       from.depth +(window.width-1-from.x)*(dd/dx));
+      }
+      else if(outcodeOut&1){
+        p = CanvasPoint(0,
+                       from.y+(-from.x)*(dy/dx),
+                       from.depth +(-from.x)*(dd/dx));
+
+      }
+      if (outcodeOut==outcode0){
+        from = CanvasPoint(p.x,p.y,p.depth);
+        outcode0 = ComputeOutCode(from,window);
+      }
+      else{
+        to = CanvasPoint(p.x,p.y,p.depth);
+        outcode1 = ComputeOutCode(to,window);
+      }
+    }
+  }
+
+  if (accept){
+    // std::cout <<"Clipped to " << to << " to " << from << std::endl; 
+    bresenham(window,to,from,c);
+  }
+}
+
 
 void texturedLine(DrawingWindow window, CanvasPoint to, CanvasPoint from, vector<vector<uint32_t>> texture){
   float xDiff = to.x - from.x;

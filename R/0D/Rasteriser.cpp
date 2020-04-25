@@ -5,9 +5,8 @@ CanvasPoint project(glm::vec3 point, Camera camera, int width, int height){
   glm::vec3 d = camera.rotation * (point-camera.position);
   int x = round(camera.focal * (d.x/d.z));
   int y = round(camera.focal * (d.y/d.z));
-  CanvasPoint projected = CanvasPoint(x+width/2,height/2-y);
+  CanvasPoint projected = CanvasPoint(x+width/2,height/2-y,1/d.z);
   //passing depth of vertices
-  projected.depth = d.z;
   return projected;
 }
 
@@ -30,10 +29,10 @@ void drawWireframe(std::vector<ModelTriangle> model,DrawingWindow window, Camera
     first = project(model[i].vertices[0],camera,width,height);
     second = project(model[i].vertices[1],camera,width,height);
     third = project(model[i].vertices[2],camera,width,height);
-    CanvasPoint points[3] = {first, second, third};
-    if (inPlane(points,width,height)){
+    // CanvasPoint points[3] = {first, second, third};
+    // if (inPlane(points,width,height)){
       stroked(window, first, second, third, model[i].colour);
-    }
+    // }
   }
 }
 
@@ -48,8 +47,8 @@ void drawRasterised(std::vector<ModelTriangle> model,DrawingWindow window, Camer
     second = project(model[i].vertices[1],camera,width,height);
     third = project(model[i].vertices[2],camera,width,height);
     CanvasPoint points[3] = {first, second, third};
-    if (inPlane(points,width,height)){
+    // if (inPlane(points,width,height)){
       filled(window,first,second,third,model[i].colour);
-    }
+    // }
   }
 }
