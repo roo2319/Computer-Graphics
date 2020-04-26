@@ -34,7 +34,7 @@ vector<int> interpolate(float from, float to, int numberOfValues)
 
 vector<CanvasPoint> interpolate(CanvasPoint from, CanvasPoint to, int numberOfValues)
 {
-  vector<CanvasPoint> interpolated; 
+  vector<CanvasPoint> interpolated;
   for (int i = 0; i <= numberOfValues; i++){
       interpolated.push_back(from + (i * (to - from)/numberOfValues));
   }
@@ -67,14 +67,13 @@ vector<vector<glm::vec3>> interpolate2d(glm::vec3 top_left, glm::vec3 top_right,
 void bresenham(DrawingWindow window, CanvasPoint to, CanvasPoint from, Colour c){
   int x0, x1, y0, y1;
   float d0, d1;
-  x0 = from.x; y0 = from.y; x1 = to.x; y1 = to.y;
-  d0 = from.depth; d1=to.depth;
+  x0 = from.x; y0 = from.y; x1 = to.x; y1 = to.y; d0 = from.depth; d1=to.depth;
   bool steep = abs(y1-y0) > abs(x1-x0);
   if (steep){
     std::swap(x0,y0);
     std::swap(x1,y1);
   }
-
+  
   if (x0 > x1){
     std::swap(x0,x1);
     std::swap(y0,y1);
@@ -84,25 +83,25 @@ void bresenham(DrawingWindow window, CanvasPoint to, CanvasPoint from, Colour c)
   int dx = x1 - x0;
   int dy = abs(y1 - y0);
   // depth per step
-  double dps = ((1/d1) - (1/d0))/dx;
-  double d = d = (1/d0);
+  double dps = (d1 - d0);
+  double d = d0*dx;
 
   int error = dx/2;
   int ystep = (y0 < y1) ? 1 : -1;
   //Carefully consider rounding
-  int y = floor(y0);
+  int y = floor(y0); 
   int maxX = ceil(x1);
 
   for (int x = floor(x0); x <= maxX; x++){
-    if (steep) window.setPixelColourDC(y,x,1/d,c.pack());
-    else window.setPixelColourDC(x,y,1/d,c.pack());
+    if (steep) window.setPixelColourDC(y,x,d/dx,c.pack());
+    else window.setPixelColourDC(x,y,d/dx,c.pack());
     d += dps;
     error -= dy;
     if (error<0){
       y += ystep;
       error += dx;
     }
-  }
+  } 
 
 
 
@@ -111,14 +110,14 @@ void bresenham(DrawingWindow window, CanvasPoint to, CanvasPoint from, Colour c)
 }
 void line(DrawingWindow window, CanvasPoint to, CanvasPoint from, Colour c){
   // Cohen-Sutherland clip then bresenham
-  // std::cout <<"plotting line from " << to << " to " << from << std::endl;
+  // std::cout <<"plotting line from " << to << " to " << from << std::endl; 
   int outcode0 = ComputeOutCode(from,window);
   int outcode1 = ComputeOutCode(to,window);
   bool accept = false;
 
   while (true){
     if(!(outcode0|outcode1)){
-      accept = true;
+      accept = true; 
       break;
     }
     else if (outcode0&outcode1) {
@@ -129,35 +128,30 @@ void line(DrawingWindow window, CanvasPoint to, CanvasPoint from, Colour c){
       int outcodeOut = outcode1 > outcode0 ? outcode1:outcode0;
       double dy = to.y - from.y;
       double dx = to.x - from.x;
-      double dd = (1/to.depth) - (1/from.depth);
-      double depth;
+      double dd = to.depth - from.depth;
 
       // Watch out for overflows
 
       if (outcodeOut&8){
-        depth = (1/from.depth) + (window.height-1-from.y)*(dd/dy);
         p = CanvasPoint(from.x + (window.height-1-from.y)*(dx/dy),
                         window.height-1,
-                        1/depth);
+                        from.depth + (window.height-1-from.y)*(dd/dy));
       }
 
       else if(outcodeOut&4){
-        depth =(1/from.depth) + (-from.y)*(dd/dy);
         p = CanvasPoint(from.x +  (-from.y)*(dx/dy),
                         0,
-                        1/depth);
+                        from.depth + (-from.y)*(dd/dy));
       }
       else if(outcodeOut&2){
-        depth = (1/from.depth) +(window.width-1-from.x)*(dd/dx);
         p = CanvasPoint(window.width-1,
                        from.y+(window.width-1-from.x)*(dy/dx),
-                       1/depth);
+                       from.depth +(window.width-1-from.x)*(dd/dx));
       }
       else if(outcodeOut&1){
-        depth = (1/from.depth) +(-from.x)*(dd/dx);
         p = CanvasPoint(0,
                        from.y+(-from.x)*(dy/dx),
-                       1/depth);
+                       from.depth +(-from.x)*(dd/dx));
 
       }
       if (outcodeOut==outcode0){
@@ -172,7 +166,7 @@ void line(DrawingWindow window, CanvasPoint to, CanvasPoint from, Colour c){
   }
 
   if (accept){
-    // std::cout <<"Clipped to " << to << " to " << from << std::endl;
+    // std::cout <<"Clipped to " << to << " to " << from << std::endl; 
     bresenham(window,to,from,c);
   }
 }

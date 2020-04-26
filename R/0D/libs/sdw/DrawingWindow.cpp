@@ -77,10 +77,10 @@ void DrawingWindow::setPixelColour(int x, int y, uint32_t colour)
 }
 
 void DrawingWindow::setPixelColourDC(int x, int y, float depth, uint32_t colour){
-  if (depth < getDepth(x,y) && depth > 0){
+  if (depth > getDepth(x,y)){
     setPixelColour(x,y,colour);
     setDepth(x,y,depth);
-  }
+  } 
 }
 uint32_t DrawingWindow::getPixelColour(int x, int y)
 {
@@ -118,6 +118,6 @@ void DrawingWindow::clearDepth()
   //memset(depthBuffer, std::numeric_limits<float>::max(), width * height * sizeof(float));
   for (int i=0; i < width * height; i++)
   {
-      depthBuffer[i] = std::numeric_limits<float>::infinity();
+      depthBuffer[i] = 0;
   }
 }

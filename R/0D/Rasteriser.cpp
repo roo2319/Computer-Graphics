@@ -5,7 +5,7 @@ CanvasPoint project(glm::vec3 point, Camera camera, int width, int height){
   glm::vec3 d = camera.rotation * (point-camera.position);
   int x = round(camera.focal * (d.x/d.z));
   int y = round(camera.focal * (d.y/d.z));
-  CanvasPoint projected = CanvasPoint(x+width/2,height/2-y,d.z);
+  CanvasPoint projected = CanvasPoint(x+width/2,height/2-y,1/d.z);
   //passing depth of vertices
   return projected;
 }

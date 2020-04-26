@@ -25,15 +25,15 @@ CanvasPoint::CanvasPoint(float xPos, float yPos, double pointDepth)
 }
 
 CanvasPoint CanvasPoint::operator-(const CanvasPoint& c){
-  return CanvasPoint(x-c.x, y-c.y);
+  return CanvasPoint(x-c.x, y-c.y, depth-c.depth);
 }
 
 CanvasPoint CanvasPoint::operator+(const CanvasPoint& c){
-  return CanvasPoint(x+c.x, y+c.y);
+  return CanvasPoint(x+c.x, y+c.y, depth+c.depth);
 }
 
 CanvasPoint CanvasPoint::operator/(const float f){
-  return CanvasPoint(x/f, y/f);
+  return CanvasPoint(x/f, y/f, depth/f);
 }
 
 CanvasPoint::CanvasPoint(float xPos, float yPos, float pointDepth, float pointBrightness)
