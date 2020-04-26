@@ -40,48 +40,54 @@ void Camera::lookat(glm::vec3 point){
 
 void Camera::updateFrustum(int width,int height){
   std::vector<Plane> f;
-  glm::vec3 right = rotation * glm::vec3(1, 0, 0);
-  glm::vec3 up = rotation * glm::vec3(0, 1, 0);
-  glm::vec3 forward = rotation * glm::vec3(0, 0, 1);
+  glm::vec3 right =   glm::vec3(1,0,0) * rotation;
+  glm::vec3 up =      glm::vec3(0,1,0) * rotation;
+  glm::vec3 forward = glm::vec3(0,0,1) * rotation;
 
   glm::vec3 fc = position + forward * far;
 
   glm::vec3 nc = position + forward * near;
 
   glm::vec3 tmp;
+  float fovy = 2 * std::atan(height/(focal*2));
+  float aspect = (float)width/(float)height;
 
+  float hh = std::tan(fovy/2) * near;
+  float hw = hh * aspect;
+
+// Good
   glm::vec3 NEAR = forward;
   glm::vec3 NEARP = nc;
-  f.push_back(Plane(NEAR,NEARP));
-
+  f.push_back(Plane(NEAR,NEARP)); 
   glm::vec3 FAR = -forward;
   glm::vec3 FARP = fc;
   f.push_back(Plane(FAR,FARP));
 
+// Bad
+  tmp = (nc + (up * hh)) - position;
+  glm::vec3 TOP = -glm::normalize(glm::cross(tmp, right));
+  glm::vec3 TOPP = (nc + (up * hh));
+  std::cout << TOP.x << "," << TOP.y << "," << TOP.z << std::endl;
+  std::cout << TOPP.x << "," << TOPP.y << "," << TOPP.z << std::endl;
 
-  tmp = (nc + (up * (height * near / 2))) - position;
-  glm::vec3 TOP = glm::normalize(glm::cross(tmp, right));
-  glm::vec3 TOPP = (nc - (up * (height * near / 2)));
-  // glm::vec3 TOPP = (nc + (up * (height * near / 2)));
   f.push_back(Plane(TOP,TOPP));
 
 
-  tmp = (nc - (up * (height * near / 2))) - position;
-  glm::vec3 BOTTOM = glm::normalize(glm::cross(right, tmp));
-  glm::vec3 BOTTOMP = (nc + (up * (height * near / 2)));
-  // glm::vec3 BOTTOMP = (nc - (up * (height * near / 2)));
+  tmp = (nc - (up * hh)) - position;
+  glm::vec3 BOTTOM = -glm::normalize(glm::cross(right, tmp));
+  glm::vec3 BOTTOMP = (nc - (up * hh));
   f.push_back(Plane(BOTTOM,BOTTOMP));
 
 
-  tmp = (nc + (right * (width * near / 2))) - position;
+  tmp = (nc + (right * hw)) - position;
   glm::vec3 LEFT = glm::normalize(glm::cross(tmp, up));
-  glm::vec3 LEFTP = (nc + (right * (width * near / 2)));
+  glm::vec3 LEFTP = (nc + (right * hw));
   f.push_back(Plane(LEFT,LEFTP));
 
 
-  tmp = (nc - (right * (width * near / 2))) - position;
+  tmp = (nc - (right * hw)) - position;
   glm::vec3 RIGHT = glm::normalize(glm::cross(up, tmp));
-  glm::vec3 RIGHTP = (nc - (right * (width * near / 2)));
+  glm::vec3 RIGHTP = (nc - (right * hw));
   f.push_back(Plane(RIGHT,RIGHTP));
 
   frustum = f;

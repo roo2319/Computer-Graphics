@@ -2,6 +2,7 @@
 
 #include <glm/glm.hpp>
 #include <vector>
+#include <math.h>       /* tan */
 #include <iostream>
 
 class Plane

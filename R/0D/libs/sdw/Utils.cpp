@@ -111,6 +111,7 @@ void bresenham(DrawingWindow window, CanvasPoint to, CanvasPoint from, Colour c)
 void line(DrawingWindow window, CanvasPoint to, CanvasPoint from, Colour c){
   // Cohen-Sutherland clip then bresenham
   // std::cout <<"plotting line from " << to << " to " << from << std::endl; 
+  /* Commented due to world space culling
   int outcode0 = ComputeOutCode(from,window);
   int outcode1 = ComputeOutCode(to,window);
   bool accept = false;
@@ -167,8 +168,9 @@ void line(DrawingWindow window, CanvasPoint to, CanvasPoint from, Colour c){
 
   if (accept){
     // std::cout <<"Clipped to " << to << " to " << from << std::endl; 
+    */
+  // }
     bresenham(window,to,from,c);
-  }
 }
 
 

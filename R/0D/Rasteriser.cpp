@@ -19,13 +19,8 @@ std::vector<CanvasPoint> clip(DrawingWindow window, Camera camera, std::vector<g
     for (uint j=0; j < 3; j++)
     {
       glm::vec3 point = camera.rotation * (points[j] - camera.position);
-      // std::cout << point.y << std::endl;
-      // std::cout << "DOT: " <<  frustum[i].distance(point) << std::endl;
-      // if (i == 0){
-      //   std::cout <<  frustum[i].distance(point) << std::endl;
-      // }
-      if (frustum[i].distance(point) < 0){
-        std::cout << i << std::endl;
+      if (frustum[i].distance(points[j]) < 0){
+      std::cout << "Clipped at " << i << " DOT: " <<  frustum[i].distance(points[j]) << std::endl;
         return projected;
       }
     }
