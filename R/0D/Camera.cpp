@@ -9,7 +9,11 @@ Camera::Camera(glm::vec3 p, glm::mat3 r, float f)
     position = p; 
     rotation = r;
     focal    = f;
-}
+    near = 1;
+    far = 100;
+    frustum = {}; 
+}  
+
 
 void Camera::updateRotation(float X, float Y, float Z){
   glm::mat3 xrot = glm::mat3(1,0,0,0,cos(X),sin(X),0,-sin(X),cos(X));
@@ -34,6 +38,58 @@ void Camera::lookat(glm::vec3 point){
   rotation[2][2] = forward.z; 
 }
 
+void Camera::updateFrustum(int width,int height){
+  std::vector<Plane> f;
+  glm::vec3 right = rotation * glm::vec3(1, 0, 0);
+  glm::vec3 up = rotation * glm::vec3(0, 1, 0);
+  glm::vec3 forward = rotation * glm::vec3(0, 0, 1);
+
+  glm::vec3 fc = position + forward * far;
+
+  glm::vec3 nc = position + forward * near;
+
+  glm::vec3 tmp;
+
+  glm::vec3 NEAR = forward;
+  glm::vec3 NEARP = nc;
+  f.push_back(Plane(NEAR,NEARP));
+
+  glm::vec3 FAR = -forward;
+  glm::vec3 FARP = fc;
+  f.push_back(Plane(FAR,FARP));
+
+
+  tmp = (nc + (up * (height * near / 2))) - position;
+  glm::vec3 TOP = glm::normalize(glm::cross(tmp, right));
+  glm::vec3 TOPP = (nc - (up * (height * near / 2)));
+  // glm::vec3 TOPP = (nc + (up * (height * near / 2)));
+  f.push_back(Plane(TOP,TOPP));
+
+
+  tmp = (nc - (up * (height * near / 2))) - position;
+  glm::vec3 BOTTOM = glm::normalize(glm::cross(right, tmp));
+  glm::vec3 BOTTOMP = (nc + (up * (height * near / 2)));
+  // glm::vec3 BOTTOMP = (nc - (up * (height * near / 2)));
+  f.push_back(Plane(BOTTOM,BOTTOMP));
+
+
+  tmp = (nc + (right * (width * near / 2))) - position;
+  glm::vec3 LEFT = glm::normalize(glm::cross(tmp, up));
+  glm::vec3 LEFTP = (nc + (right * (width * near / 2)));
+  f.push_back(Plane(LEFT,LEFTP));
+
+
+  tmp = (nc - (right * (width * near / 2))) - position;
+  glm::vec3 RIGHT = glm::normalize(glm::cross(up, tmp));
+  glm::vec3 RIGHTP = (nc - (right * (width * near / 2)));
+  f.push_back(Plane(RIGHT,RIGHTP));
+
+  frustum = f;
+}
+
+std::vector<Plane> Camera::getFrustum(){
+  return frustum;
+}
 
 
 void Camera::forward(float amount){
@@ -44,4 +100,12 @@ void Camera::right(float amount){
 }
 void Camera::up(float amount){
   position += (glm::vec3(0,amount,0) * rotation);
+}
+
+Plane::Plane(glm::vec3 n, glm::vec3 p){
+  normal = n;
+  point = p;
+}
+float Plane::distance(glm::vec3 p){
+  return glm::dot(normal, p-point);
 }

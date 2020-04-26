@@ -1,54 +1,81 @@
 #include "Rasteriser.h"
 
-CanvasPoint project(glm::vec3 point, Camera camera, int width, int height){
-//   THIS SHOULD SUPPORT ROTATION
-  glm::vec3 d = camera.rotation * (point-camera.position);
-  int x = round(camera.focal * (d.x/d.z));
-  int y = round(camera.focal * (d.y/d.z));
-  CanvasPoint projected = CanvasPoint(x+width/2,height/2-y,1/d.z);
+CanvasPoint project(glm::vec3 point, Camera camera, int width, int height)
+{
+  glm::vec3 d = camera.rotation * (point - camera.position);
+  int x = round(camera.focal * (d.x / d.z));
+  int y = round(camera.focal * (d.y / d.z));
+  CanvasPoint projected = CanvasPoint(x + width / 2, height / 2 - y, 1 / d.z);
   //passing depth of vertices
   return projected;
 }
 
+std::vector<CanvasPoint> clip(DrawingWindow window, Camera camera, std::vector<glm::vec3> &points)
+{
+  std::vector<CanvasPoint> projected;
+  std::vector<Plane> frustum = camera.getFrustum();
+  for (uint i = 0; i < frustum.size(); i++)
+  {
+    for (uint j=0; j < 3; j++)
+    {
+      glm::vec3 point = camera.rotation * (points[j] - camera.position);
+      // std::cout << point.y << std::endl;
+      // std::cout << "DOT: " <<  frustum[i].distance(point) << std::endl;
+      // if (i == 0){
+      //   std::cout <<  frustum[i].distance(point) << std::endl;
+      // }
+      if (frustum[i].distance(point) < 0){
+        std::cout << i << std::endl;
+        return projected;
+      }
+    }
+  }
+  projected.push_back(project(points[0], camera, window.width, window.height));
+  projected.push_back(project(points[1], camera, window.width, window.height));
+  projected.push_back(project(points[2], camera, window.width, window.height));
+  return projected;
+}
 //just checks if point in inside image plane
-bool inPlane(CanvasPoint points[3],int width,int height){
-  for(int i = 0; i<3; i++){
-    if (points[i].x < 0 || points[i].x > width) return false;
-    if (points[i].y < 0 || points[i].y > height) return false;
+bool inPlane(CanvasPoint points[3], int width, int height)
+{
+  for (int i = 0; i < 3; i++)
+  {
+    if (points[i].x < 0 || points[i].x > width)
+      return false;
+    if (points[i].y < 0 || points[i].y > height)
+      return false;
   }
   return true;
 }
 
-void drawWireframe(std::vector<ModelTriangle> model,DrawingWindow window, Camera camera){
+void drawWireframe(std::vector<ModelTriangle> model, DrawingWindow window, Camera camera)
+{
   //Image plane = 0,0,0
-  CanvasPoint first,second,third;
-  Colour white = Colour(255,255,255);
-  int width  = window.width;
-  int height = window.height;
-  for(unsigned int i = 0; i<model.size();i++){
-    first = project(model[i].vertices[0],camera,width,height);
-    second = project(model[i].vertices[1],camera,width,height);
-    third = project(model[i].vertices[2],camera,width,height);
-    // CanvasPoint points[3] = {first, second, third};
-    // if (inPlane(points,width,height)){
-      stroked(window, first, second, third, model[i].colour);
-    // }
+  CanvasPoint first, second, third;
+  camera.updateFrustum(window.width,window.height);
+  for (unsigned int i = 0; i < model.size(); i++)
+  {
+    std::vector<glm::vec3> vertices = {model[i].vertices[0], model[i].vertices[1], model[i].vertices[2]};
+    std::vector<CanvasPoint> projections = clip(window, camera, vertices);
+    if (projections.size() != 0)
+    {
+      stroked(window, projections[0], projections[1], projections[2], model[i].colour);
+    }
   }
 }
 
-
-void drawRasterised(std::vector<ModelTriangle> model,DrawingWindow window, Camera camera){
+void drawRasterised(std::vector<ModelTriangle> model, DrawingWindow window, Camera camera)
+{
   //Image plane = 0,0,0
-  CanvasPoint first,second,third;
-  int width  = window.width;
-  int height = window.height;
-  for(unsigned int i = 0; i<model.size();i++){
-    first = project(model[i].vertices[0],camera,width,height);
-    second = project(model[i].vertices[1],camera,width,height);
-    third = project(model[i].vertices[2],camera,width,height);
-    CanvasPoint points[3] = {first, second, third};
-    // if (inPlane(points,width,height)){
-      filled(window,first,second,third,model[i].colour);
-    // }
+  CanvasPoint first, second, third;
+  camera.updateFrustum(window.width,window.height);
+  for (unsigned int i = 0; i < model.size(); i++)
+  {
+    std::vector<glm::vec3> vertices = {model[i].vertices[0], model[i].vertices[1], model[i].vertices[2]};
+    std::vector<CanvasPoint> projections = clip(window, camera, vertices);
+    if (projections.size() != 0)
+    {
+      filled(window, projections[0], projections[1], projections[2], model[i].colour);
+    }
   }
 }

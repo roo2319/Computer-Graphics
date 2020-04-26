@@ -83,8 +83,8 @@ void bresenham(DrawingWindow window, CanvasPoint to, CanvasPoint from, Colour c)
   int dx = x1 - x0;
   int dy = abs(y1 - y0);
   // depth per step
-  double dps = (d1 - d0);
-  double d = d0*dx;
+  double dps = (d1 - d0)/dx;
+  double d = d0;
 
   int error = dx/2;
   int ystep = (y0 < y1) ? 1 : -1;
@@ -93,8 +93,8 @@ void bresenham(DrawingWindow window, CanvasPoint to, CanvasPoint from, Colour c)
   int maxX = ceil(x1);
 
   for (int x = floor(x0); x <= maxX; x++){
-    if (steep) window.setPixelColourDC(y,x,d/dx,c.pack());
-    else window.setPixelColourDC(x,y,d/dx,c.pack());
+    if (steep) window.setPixelColourDC(y,x,d,c.pack());
+    else window.setPixelColourDC(x,y,d,c.pack());
     d += dps;
     error -= dy;
     if (error<0){
