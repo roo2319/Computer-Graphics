@@ -69,9 +69,8 @@ std::vector<CanvasPoint> clip(DrawingWindow window, Camera camera, std::vector<g
 
 void drawWireframe(std::vector<ModelTriangle> model, DrawingWindow window, Camera camera)
 {
-  //Image plane = 0,0,0
-  CanvasPoint first, second, third;
   camera.updateFrustum(window.width,window.height);
+  #pragma omp parallel for
   for (unsigned int i = 0; i < model.size(); i++)
   {
     std::vector<glm::vec3> vertices = {model[i].vertices[0], model[i].vertices[1], model[i].vertices[2]};
@@ -87,9 +86,8 @@ void drawWireframe(std::vector<ModelTriangle> model, DrawingWindow window, Camer
 
 void drawRasterised(std::vector<ModelTriangle> model, DrawingWindow window, Camera camera)
 {
-  //Image plane = 0,0,0
-  CanvasPoint first, second, third;
   camera.updateFrustum(window.width,window.height);
+  #pragma omp parallel for
   for (unsigned int i = 0; i < model.size(); i++)
   {
     std::vector<glm::vec3> vertices = {model[i].vertices[0], model[i].vertices[1], model[i].vertices[2]};
