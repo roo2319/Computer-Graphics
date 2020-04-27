@@ -16,13 +16,48 @@ std::vector<CanvasPoint> clip(DrawingWindow window, Camera camera, std::vector<g
   std::vector<Plane> frustum = camera.getFrustum();
   for (uint i = 0; i < frustum.size(); i++)
   {
+      // glm::vec3 point = camera.rotation * (points[j] - camera.position);
+    vector<glm::vec3> out;
+    vector<glm::vec3> in;
     for (uint j=0; j < 3; j++)
     {
-      glm::vec3 point = camera.rotation * (points[j] - camera.position);
-      if (frustum[i].distance(points[j]) < 0){
-      std::cout << "Clipped at " << i << " DOT: " <<  frustum[i].distance(points[j]) << std::endl;
-        return projected;
+      if (frustum[i].distance(points[j]) <  0){
+        out.push_back(points[j]);
+      // std::cout << "Clipped at " << i << " DOT: " <<  frustum[i].distance(points[j]) << std::endl;
       }
+      else{
+        in.push_back(points[j]);
+      }
+    }
+    // Completely out of range
+    if (out.size() == 3){
+      return projected;
+    }
+    if (out.size() == 2){
+      for( int k = 0; k<2; k++){
+        glm::vec3 np = glm::normalize(in[0] - out[k]);
+        float scale = frustum[i].distance(out[k])  / glm::dot(frustum[i].normal,np);
+        glm::vec3 new1 = out[k] - (scale * np);
+        // std::cout << "This should be 0: (" << frustum[i].distance(new1) << ")" << new1.x <<"," << new1.y <<","<< new1.z << std::endl;
+        std::replace(points.begin(),points.end(),out[k],new1);
+      }
+    }
+    if (out.size() == 1){
+      std::vector<glm::vec3> newPoints;
+      for( int k = 0; k<2; k++){
+        glm::vec3 np = glm::normalize(in[k] - out[0]);
+        float scale = frustum[i].distance(out[0])  / glm::dot(frustum[i].normal,np);
+        glm::vec3 new1 = out[0] - (scale * np);
+        newPoints.push_back(new1);
+      }
+      //Recursion time 
+      vector<glm::vec3> left = {in[0], in[1], newPoints[1]};
+      vector<glm::vec3> right = {newPoints[0],newPoints[1], in[0]};
+      vector<CanvasPoint> Pleft = clip(window,camera,left);
+      vector<CanvasPoint> Pright = clip(window,camera,right);
+      Pleft.insert(Pleft.end(),Pright.begin(),Pright.end());
+      return Pleft;
+
     }
   }
   projected.push_back(project(points[0], camera, window.width, window.height));
@@ -30,18 +65,7 @@ std::vector<CanvasPoint> clip(DrawingWindow window, Camera camera, std::vector<g
   projected.push_back(project(points[2], camera, window.width, window.height));
   return projected;
 }
-//just checks if point in inside image plane
-bool inPlane(CanvasPoint points[3], int width, int height)
-{
-  for (int i = 0; i < 3; i++)
-  {
-    if (points[i].x < 0 || points[i].x > width)
-      return false;
-    if (points[i].y < 0 || points[i].y > height)
-      return false;
-  }
-  return true;
-}
+
 
 void drawWireframe(std::vector<ModelTriangle> model, DrawingWindow window, Camera camera)
 {
@@ -54,7 +78,9 @@ void drawWireframe(std::vector<ModelTriangle> model, DrawingWindow window, Camer
     std::vector<CanvasPoint> projections = clip(window, camera, vertices);
     if (projections.size() != 0)
     {
-      stroked(window, projections[0], projections[1], projections[2], model[i].colour);
+      for(uint k=0; k<projections.size(); k+=3){
+        stroked(window, projections[k], projections[k+1], projections[k+2], model[i].colour);
+      }
     }
   }
 }
@@ -70,7 +96,8 @@ void drawRasterised(std::vector<ModelTriangle> model, DrawingWindow window, Came
     std::vector<CanvasPoint> projections = clip(window, camera, vertices);
     if (projections.size() != 0)
     {
-      filled(window, projections[0], projections[1], projections[2], model[i].colour);
-    }
+      for(uint k=0; k<projections.size(); k+=3){
+        filled(window, projections[k], projections[k+1], projections[k+2], model[i].colour);
+      }    }
   }
 }

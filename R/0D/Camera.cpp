@@ -67,8 +67,8 @@ void Camera::updateFrustum(int width,int height){
   tmp = (nc + (up * hh)) - position;
   glm::vec3 TOP = -glm::normalize(glm::cross(tmp, right));
   glm::vec3 TOPP = (nc + (up * hh));
-  std::cout << TOP.x << "," << TOP.y << "," << TOP.z << std::endl;
-  std::cout << TOPP.x << "," << TOPP.y << "," << TOPP.z << std::endl;
+  // std::cout << TOP.x << "," << TOP.y << "," << TOP.z << std::endl;
+  // std::cout << TOPP.x << "," << TOPP.y << "," << TOPP.z << std::endl;
 
   f.push_back(Plane(TOP,TOPP));
 
@@ -113,5 +113,7 @@ Plane::Plane(glm::vec3 n, glm::vec3 p){
   point = p;
 }
 float Plane::distance(glm::vec3 p){
-  return glm::dot(normal, p-point);
+  float dist = glm::dot(normal, p-point);
+  if (abs(dist) < 0.001) return 0;
+  return dist;
 }
