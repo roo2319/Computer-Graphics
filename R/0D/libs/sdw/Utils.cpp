@@ -259,7 +259,7 @@ void texturedLine(DrawingWindow window, CanvasPoint to, CanvasPoint from, vector
   float xDiff = to.x - from.x;
   float yDiff = to.y - from.y;
   int numberOfSteps =  ceil(std::max(abs(xDiff), abs(yDiff)));
-  vector<CanvasPoint> interpolated = interpolateT(from,to,numberOfSteps, 0);
+  vector<CanvasPoint> interpolated = interpolateT(from,to,numberOfSteps);
   CanvasPoint Pt ;TexturePoint t;
   for (int i = 0; i <= numberOfSteps; i++)
   {

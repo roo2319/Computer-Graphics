@@ -2,6 +2,7 @@
 
 #include "glm/glm.hpp"
 #include "Colour.h"
+#include "TexturePoint.h"
 #include <string>
 
 class ModelTriangle

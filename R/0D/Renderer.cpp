@@ -32,7 +32,7 @@ DrawingWindow window = DrawingWindow(WIDTH, HEIGHT, false);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 vector<vector<uint32_t>> tiger = readPPM("logo/texture.ppm");
-unordered_map<string,Colour> logomaterials = readMTL("logo/materials.mtl");
+unordered_map<string,Colour> logomaterials = readMTL2("logo/materials.mtl");
 vector<ModelTriangle> logo0 = readOBJwithTexture("logo/logo.obj",logomaterials,0.02,299);
 vector<ModelTriangle> logo = logo0;
 glm::mat3 rotationLogo = mat3(1.0f);
@@ -129,7 +129,7 @@ void logoRotate(){
 
   glm::mat3 yrot = glm::mat3(cos(0.02),0,-sin(0.02),0,1,0,sin(0.02),0,cos(0.02));
   rotationLogo =  yrot * rotationLogo;
-  glm::vec3 roomLogo = vec3(0,100,10);
+  glm::vec3 roomLogo = vec3(0,0,10);
 
   for(unsigned int i = 0; i<logo.size();i++){
     logo[i].vertices[0] =  roomLogo+(rotationLogo * logo0[i].vertices[0]) ;
