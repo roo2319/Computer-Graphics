@@ -31,12 +31,13 @@ vector<ModelTriangle> model = readOBJ("scene.obj",materials,1);
 DrawingWindow window = DrawingWindow(WIDTH, HEIGHT, false);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
+vector<vector<uint32_t>> back = readPPM("ppm/bluebelt.ppm");
 vector<vector<uint32_t>> tiger = readPPM("logo/texture.ppm");
 unordered_map<string,Colour> logomaterials = readMTL2("logo/materials.mtl");
 vector<ModelTriangle> logo0 = readOBJwithTexture("logo/logo.obj",logomaterials,0.02,299);
 vector<ModelTriangle> logo = logo0;
 glm::mat3 rotationLogo = mat3(1.0f);
-
+glm::vec3 startLogo = vec3(-5.6,0,0);
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void start();
@@ -49,7 +50,7 @@ Camera camera = Camera(vec3(0,2,-6),mat3(1.0f),HEIGHT/2);
 
 // Distance from centre of orbit
 float orbitDist =  length(camera.position - vec3(0,2,1));
-int renderer = 2;
+int renderer = 0;
 int fna = 1;
 int bounces = 0;
 int sequence = 0;
@@ -67,7 +68,8 @@ int main(int argc, char* argv[])
     update();
     window.clearPixels();
     window.clearDepth();
-    void logoRotate();
+    drawBack(window,WIDTH,HEIGHT,back);
+    logoRotate();
     draw();
     // Need to render the frame at the end, or nothing actually gets shown on the screen !
     window.renderFrame();
@@ -117,7 +119,7 @@ void draw()
 
 void start()
 {
-  glm::vec3 startLogo = vec3(-5.6,0,0);
+  // glm::vec3 startLogo = vec3(-5.6,0,0);
   //shifting the vertices so that the logo is centered at origin
   for(unsigned int i = 0; i<logo.size();i++){
     logo0[i].vertices[0] = startLogo + logo0[i].vertices[0] ;
@@ -129,7 +131,7 @@ void logoRotate(){
 
   glm::mat3 yrot = glm::mat3(cos(0.02),0,-sin(0.02),0,1,0,sin(0.02),0,cos(0.02));
   rotationLogo =  yrot * rotationLogo;
-  glm::vec3 roomLogo = vec3(0,0,10);
+  glm::vec3 roomLogo = vec3(0,0,0);
 
   for(unsigned int i = 0; i<logo.size();i++){
     logo[i].vertices[0] =  roomLogo+(rotationLogo * logo0[i].vertices[0]) ;
