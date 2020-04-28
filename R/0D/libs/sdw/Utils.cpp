@@ -111,14 +111,6 @@ void bresenham(DrawingWindow window, CanvasPoint to, CanvasPoint from, Colour c)
 }
 void line(DrawingWindow window, CanvasPoint to, CanvasPoint from, Colour c){
   // floating point error correction
-  if (to.x<0) to.x = 0;
-  else if (to.x>window.width-1) to.x = window.width-1;
-  if (to.y<0) to.y = 0;
-  else if (to.y>window.height-1) to.y = window.height-1;
-  if (from.x<0) from.x = 0;
-  else if (from.x>window.width-1) from.x = window.width-1;
-  if (from.y<0) from.y = 0;
-  else if (from.y>window.height-1) from.y = window.height-1;
   // Cohen-Sutherland clip then bresenham
   // std::cout <<"plotting line from " << to << " to " << from << std::endl;
   /* Commented due to world space culling
@@ -239,6 +231,9 @@ void texturedTriangle(DrawingWindow window, vector<vector<uint32_t>> image, Canv
   if (second.y == third.y && second.x > third.x) std::swap(second,third);
 
   float scale = (second.y-first.y)/(third.y-first.y);
+    if (isnan(scale)){
+    return;
+  }
   CanvasPoint extra = CanvasPoint(first + scale*(third-first));
   extra.depth = findDepth(first, third, extra);
   extra = findTexture(first, third, extra);

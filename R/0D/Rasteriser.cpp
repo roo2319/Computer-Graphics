@@ -7,6 +7,10 @@ CanvasPoint project(glm::vec3 point, Camera camera, int width, int height)
   int y = round(camera.focal * (d.y / d.z));
   CanvasPoint projected = CanvasPoint(x + width / 2, height / 2 - y, 1 / d.z);
   //passing depth of vertices
+  if (projected.x<0) projected.x = 0;
+  else if (projected.x>width-1) projected.x = width-1;
+  if (projected.y<0) projected.y = 0;
+  else if (projected.y>height-1) projected.y = height-1;
   return projected;
 }
 

@@ -29,7 +29,7 @@ RASTERISER_SOURCE = Rasteriser.cpp
 RASTERISER_OBJECT = build/Rasteriser.o
 
 # Build settings
-COMPILER = g++-7
+COMPILER = g++
 COMPILER_OPTIONS = -c -pipe -Wall -std=c++11
 DEBUG_OPTIONS = -ggdb -g3
 FUSSY_OPTIONS = -Werror -pedantic
