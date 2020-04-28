@@ -50,7 +50,7 @@ std::vector<CanvasPoint> clip(DrawingWindow window, Camera camera, std::vector<g
         glm::vec3 new1 = out[0] - (scale * np);
         newPoints.push_back(new1);
       }
-      //Recursion time 
+      //Recursion time
       vector<glm::vec3> left = {in[0], in[1], newPoints[1]};
       vector<glm::vec3> right = {newPoints[0],newPoints[1], in[0]};
       vector<CanvasPoint> Pleft = clip(window,camera,left);
@@ -84,7 +84,7 @@ void drawWireframe(std::vector<ModelTriangle> model, DrawingWindow window, Camer
   }
 }
 
-void drawRasterised(std::vector<ModelTriangle> model, DrawingWindow window, Camera camera)
+void drawRasterised(std::vector<ModelTriangle> model, DrawingWindow window, Camera camera, vector<vector<uint32_t>> image)
 {
   camera.updateFrustum(window.width,window.height);
   #pragma omp parallel for
@@ -94,8 +94,22 @@ void drawRasterised(std::vector<ModelTriangle> model, DrawingWindow window, Came
     std::vector<CanvasPoint> projections = clip(window, camera, vertices);
     if (projections.size() != 0)
     {
-      for(uint k=0; k<projections.size(); k+=3){
-        filled(window, projections[k], projections[k+1], projections[k+2], model[i].colour);
-      }    }
+      for(uint k=0; k<projections.size(); k+=3)
+      {
+
+        if(model[i].isTexture)
+        {
+          // std::cout << std::endl<< "nameTexture " << model[i].nameTexture <<std::endl<< std::endl;
+          projections[k].texturePoint  = model[i].texture[0];
+          projections[k+1].texturePoint = model[i].texture[1];
+          projections[k+2].texturePoint  = model[i].texture[2];
+          texturedTriangle(window,image,projections[k], projections[k+1], projections[k+2]);
+        }
+        else{
+          filled(window, projections[k], projections[k+1], projections[k+2], model[i].colour);
+
+        }
+      }
+    }
   }
 }

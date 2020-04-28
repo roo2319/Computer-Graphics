@@ -38,3 +38,18 @@ void redNoise(DrawingWindow window);
 void drawppm(DrawingWindow window);
 void greyscale(DrawingWindow window);
 void four_colour(DrawingWindow window);
+
+
+
+std::unordered_map<std::string,Colour> readMTL2(const char* filename);
+vector<ModelTriangle> readOBJwithTexture(const char* filename,std::unordered_map<std::string,Colour> mtls, float scale, float scaleTexture);
+void drawBack(DrawingWindow window,unsigned int wd ,unsigned int ht,vector<vector<uint32_t>> image);
+
+
+
+// Perspective Corrected Texture Mapping
+void texturedTriangle(DrawingWindow window, vector<vector<uint32_t>> image, CanvasPoint first, CanvasPoint second, CanvasPoint third);
+CanvasPoint findTexture(CanvasPoint far, CanvasPoint close, CanvasPoint P);
+double findDepth(CanvasPoint from, CanvasPoint to, CanvasPoint P);
+vector<CanvasPoint> interpolateT(CanvasPoint from, CanvasPoint to, int numberOfValues);
+vector<float> interpolateF(float from, float to, int numberOfValues);

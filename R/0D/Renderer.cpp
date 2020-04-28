@@ -30,9 +30,23 @@ vector<vector<uint32_t>> image = readPPM("texture.ppm");
 vector<ModelTriangle> model = readOBJ("scene.obj",materials,1);
 DrawingWindow window = DrawingWindow(WIDTH, HEIGHT, false);
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+vector<vector<uint32_t>> tiger = readPPM("logo/texture.ppm");
+unordered_map<string,Colour> logomaterials = readMTL("logo/materials.mtl");
+vector<ModelTriangle> logo0 = readOBJwithTexture("logo/logo.obj",logomaterials,0.02,299);
+vector<ModelTriangle> logo = logo0;
+glm::mat3 rotationLogo = mat3(1.0f);
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void start();
+void logoRotate();
 void orbit();
 
 Camera camera = Camera(vec3(0,2,-6),mat3(1.0f),HEIGHT/2);
+// Camera camera = Camera(vec3(0,106,-16),mat3(1.0f),HEIGHT/2);
+//this camera pos overlooks the room
+
 // Distance from centre of orbit
 float orbitDist =  length(camera.position - vec3(0,2,1));
 int renderer = 2;
@@ -45,6 +59,7 @@ bool animate = false;
 
 int main(int argc, char* argv[])
 {
+  start();
   SDL_Event event;
   while(true){
     // We MUST poll for events - otherwise the window will freeze !
@@ -52,6 +67,7 @@ int main(int argc, char* argv[])
     update();
     window.clearPixels();
     window.clearDepth();
+    void logoRotate();
     draw();
     // Need to render the frame at the end, or nothing actually gets shown on the screen !
     window.renderFrame();
@@ -64,13 +80,16 @@ void draw()
   switch (renderer){
     case 0:
       drawWireframe(model,window,camera);
+      drawWireframe(logo,window,camera);
       break;
 
     case 1:
-      drawRasterised(model,window,camera);
+      drawRasterised(logo,window,camera,tiger);
+      drawRasterised(model,window,camera,image);
       break;
 
     case 2:
+      drawRasterised(logo,window,camera,tiger);
       drawRaytraced(model,window,camera,SSMethod,bounces);
       break;
 
@@ -96,16 +115,38 @@ void draw()
 //   fna++;
 // }
 
+void start()
+{
+  glm::vec3 startLogo = vec3(-5.6,0,0);
+  //shifting the vertices so that the logo is centered at origin
+  for(unsigned int i = 0; i<logo.size();i++){
+    logo0[i].vertices[0] = startLogo + logo0[i].vertices[0] ;
+    logo0[i].vertices[1] = startLogo + logo0[i].vertices[1] ;
+    logo0[i].vertices[2] = startLogo + logo0[i].vertices[2] ;
+  }
+}
+void logoRotate(){
+
+  glm::mat3 yrot = glm::mat3(cos(0.02),0,-sin(0.02),0,1,0,sin(0.02),0,cos(0.02));
+  rotationLogo =  yrot * rotationLogo;
+  glm::vec3 roomLogo = vec3(0,100,10);
+
+  for(unsigned int i = 0; i<logo.size();i++){
+    logo[i].vertices[0] =  roomLogo+(rotationLogo * logo0[i].vertices[0]) ;
+    logo[i].vertices[1] =  roomLogo+(rotationLogo * logo0[i].vertices[1]) ;
+    logo[i].vertices[2] =  roomLogo+(rotationLogo * logo0[i].vertices[2]) ;
+  }
+}
 void update()
 {
   if (animate){
     switch(sequence){
       // Walk to portal, while taking turns
-      case 0: 
+      case 0:
         camera.position = glm::vec3(0,1,0);
         sequence++;
 
-      case 1: 
+      case 1:
         if (camera.position.z < 12){
           camera.forward(0.1);
         }
@@ -120,7 +161,7 @@ void update()
         else {sequence++;sloop=0;}
         break;
 
-      case 3: 
+      case 3:
         if (camera.position.x > -10){
           camera.forward(0.1);
         }
@@ -134,20 +175,20 @@ void update()
         }
         else {sequence++;sloop=0;}
         break;
-      
-      case 5: 
+
+      case 5:
         if (camera.position.z < 23.5){
           camera.forward(0.1);
         }
         else sequence++;
         break;
 
-      case 6: 
+      case 6:
         camera.position = glm::vec3(0,101,0.1);
         sequence++;
-        break;      
+        break;
 
-      case 7: 
+      case 7:
         if (camera.position.z < 10){
           camera.forward(0.3);
         }

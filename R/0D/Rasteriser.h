@@ -13,5 +13,5 @@
 void drawWireframe(std::vector<ModelTriangle> model,DrawingWindow window, Camera camera);
 
 
-void drawRasterised(std::vector<ModelTriangle> model,DrawingWindow window, Camera camera);
-
+// void drawRasterised(std::vector<ModelTriangle> model,DrawingWindow window, Camera camera);
+void drawRasterised(std::vector<ModelTriangle> model,DrawingWindow window, Camera camera, vector<vector<uint32_t>> image);
