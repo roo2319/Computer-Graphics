@@ -37,15 +37,14 @@ unordered_map<string,Colour> logomaterials = readMTL2("logo/materials.mtl");
 vector<ModelTriangle> logo0 = readOBJwithTexture("logo/logo.obj",logomaterials,0.02,299);
 vector<ModelTriangle> logo = logo0;
 glm::mat3 rotationLogo = mat3(1.0f);
-glm::vec3 startLogo = vec3(-5.6,0,0);
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void start();
 void logoRotate();
 void orbit();
 
-Camera camera = Camera(vec3(0,2,-6),mat3(1.0f),HEIGHT/2);
-// Camera camera = Camera(vec3(0,106,-16),mat3(1.0f),HEIGHT/2);
+// Camera camera = Camera(vec3(0,2,-6),mat3(1.0f),HEIGHT/2);
+Camera camera = Camera(vec3(0,106,-16),mat3(1.0f),HEIGHT/2);
 //this camera pos overlooks the room
 
 // Distance from centre of orbit
@@ -86,13 +85,15 @@ void draw()
       break;
 
     case 1:
-      drawRasterised(logo,window,camera,tiger);
+
       drawRasterised(model,window,camera,image);
+      drawRasterised(logo,window,camera,tiger);
       break;
 
     case 2:
-      drawRasterised(logo,window,camera,tiger);
+
       drawRaytraced(model,window,camera,SSMethod,bounces);
+      drawRasterised(logo,window,camera,tiger);
       break;
 
   }
@@ -119,7 +120,7 @@ void draw()
 
 void start()
 {
-  // glm::vec3 startLogo = vec3(-5.6,0,0);
+  glm::vec3 startLogo = vec3(-5.6,0,0);
   //shifting the vertices so that the logo is centered at origin
   for(unsigned int i = 0; i<logo.size();i++){
     logo0[i].vertices[0] = startLogo + logo0[i].vertices[0] ;
@@ -131,7 +132,7 @@ void logoRotate(){
 
   glm::mat3 yrot = glm::mat3(cos(0.02),0,-sin(0.02),0,1,0,sin(0.02),0,cos(0.02));
   rotationLogo =  yrot * rotationLogo;
-  glm::vec3 roomLogo = vec3(0,0,0);
+  glm::vec3 roomLogo = vec3(0,100,10);
 
   for(unsigned int i = 0; i<logo.size();i++){
     logo[i].vertices[0] =  roomLogo+(rotationLogo * logo0[i].vertices[0]) ;

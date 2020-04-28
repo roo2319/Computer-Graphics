@@ -103,6 +103,7 @@ void drawRasterised(std::vector<ModelTriangle> model, DrawingWindow window, Came
           projections[k].texturePoint  = model[i].texture[0];
           projections[k+1].texturePoint = model[i].texture[1];
           projections[k+2].texturePoint  = model[i].texture[2];
+          // filled(window, projections[k], projections[k+1], projections[k+2], model[i].colour);
           texturedTriangle(window,image,projections[k], projections[k+1], projections[k+2]);
         }
         else{

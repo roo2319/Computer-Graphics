@@ -265,7 +265,7 @@ void texturedLine(DrawingWindow window, CanvasPoint to, CanvasPoint from, vector
   {
     Pt = interpolated[i];
     t = Pt.texturePoint;
-    window.setPixelColour((Pt.x), (Pt.y), texture.at(t.y).at(t.x));
+    window.setPixelColourDC(Pt.x, Pt.y, Pt.depth, texture.at(t.y).at(t.x) );
   }
 }
 vector<float> interpolateF(float from, float to, int numberOfValues)
@@ -558,7 +558,7 @@ void drawBack(DrawingWindow window,unsigned int wd ,unsigned int ht,vector<vecto
   // vector<vector<uint32_t>> image = readPPM("ppm/bluebelt.ppm");
   for(unsigned int y = 0; y < ht; y++){
     for (unsigned int x = 0; x < wd; x++){
-      window.setPixelColour(x,y,image.at(y).at(x));
+      window.setPixelColour(x,y,image.at(y+100).at(x+100));
     }
   }
 }
