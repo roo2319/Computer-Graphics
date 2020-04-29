@@ -15,6 +15,7 @@ class ModelTriangle
     TexturePoint texture[3];
     bool isTexture;
     std::string nameTexture;
+    std::vector<vector<uint32_t>> image;
     //for performance make it just accept a packed colour or pack in the constructors
 
     ModelTriangle();
@@ -26,14 +27,14 @@ class Model
 {
   public:
     std::vector<ModelTriangle> faces;
+    std::vector<vector<uint32_t>> image;
     //for performance make it just accept a packed colour or pack in the constructors
 
     Model();
-    Model(std::vector<ModelTriangle> faces);
-    Model(std::vector<ModelTriangle> faces, glm::vec3 shift);
-
-
-    void update();
+    Model(std::vector<ModelTriangle> f);
+    Model(std::vector<ModelTriangle> f, vector<vector<uint32_t>> i);
+    void Model::shift( glm::vec3 dist);
+    void Model::rotate(float X, float Y, float Z);
 };
 
 std::ostream& operator<<(std::ostream& os, const ModelTriangle& triangle);
