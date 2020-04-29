@@ -22,3 +22,4 @@ class TexturePoint
 
 std::ostream& operator<<(std::ostream& os, const TexturePoint& point);
 TexturePoint operator*(float f, TexturePoint t);
+bool operator==(TexturePoint a, TexturePoint b);

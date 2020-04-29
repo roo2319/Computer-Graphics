@@ -31,3 +31,7 @@ std::ostream& operator<<(std::ostream& os, const TexturePoint& point)
 TexturePoint operator*(float f, TexturePoint t){
   return TexturePoint(t.x * f, t.y*f);
 }
+bool operator==(TexturePoint a, TexturePoint b){
+  return (a.x == b.x)
+      && (a.y == b.y);
+}
