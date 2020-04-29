@@ -1,7 +1,7 @@
 #include "Raytracer.h"
 
-std::vector<glm::vec3>Lights {glm::vec3(0,3.5,5), glm::vec3(-10,3.5,15),glm::vec3(0,107.5,10)};
-std::vector<glm::vec3> lightColours = {50.f * glm::vec3(1,1,1),50.f * glm::vec3(1,1,1),200.f * glm::vec3(1,1,1)};
+std::vector<glm::vec3>Lights {glm::vec3(0,3.5,5), glm::vec3(-10,3.5,15),glm::vec3(0,110,10)};
+std::vector<glm::vec3> lightColours = {50.f * glm::vec3(1,1,1),50.f * glm::vec3(1,1,1),400.f * glm::vec3(1,1,1)};
 glm::vec3 indirectLighting = 0.25f * glm::vec3(1,1,1);
 ModelTriangle nullT = ModelTriangle();
 int lbounces = 0;
@@ -33,13 +33,13 @@ glm::vec3 Lighting(const RayTriangleIntersection& i,std::vector<ModelTriangle> t
     glm::vec3 r = Lights[j] - i.intersectionPoint;
     bool lfound = closestIntersection(i.intersectionPoint,glm::normalize(r),triangles,nearestSurface,i.intersectedTriangle);
     if ( lfound && nearestSurface.distance < glm::length(r) && !(nearestSurface.intersectedTriangle.colour.name == "Red")){
-      continue; //Shadow
+      continue; //Shadow 
     }
     else{
       glm::vec3 n = i.intersectedTriangle.normal;
       float percent = std::max(glm::dot(glm::normalize(r),n),0.f);
       lighting += (lightColours[j] * (percent/(4*pi*glm::dot(r,r)))); 
-      found = true;
+      found = true; //Diffuse
     }
   }
   if (!found){
@@ -260,12 +260,12 @@ void samplePixels(DrawingWindow window,std::vector<ModelTriangle> model,int x, i
 
 void drawRaytraced(std::vector<Model> world, DrawingWindow window, Camera camera,int SSMethod, int bounces){
   lbounces = bounces;
-  camera.updateFrustum(window.width,window.height);
+  // camera.updateFrustum(window.width,window.height);
   std::vector<ModelTriangle> faces;
   for (uint i = 0; i<world.size(); i++){
     faces.insert(faces.end(),world[i].faces.begin(),world[i].faces.end());
   }
-  faces = camera.cull(faces);
+  // faces = camera.cull(faces);
   #pragma omp parallel for
   for(int y=0; y<window.height ;y++) {
     for(int x=0; x<window.width ;x++) {
