@@ -2,7 +2,7 @@
 
 std::vector<glm::vec3>Lights {glm::vec3(0,3.5,5), glm::vec3(-10,3.5,15),glm::vec3(0,110,10)};
 std::vector<glm::vec3> lightColours = {50.f * glm::vec3(1,1,1),50.f * glm::vec3(1,1,1),400.f * glm::vec3(1,1,1)};
-glm::vec3 indirectLighting = 0.25f * glm::vec3(1,1,1);
+glm::vec3 indirectLighting = 0.2f * glm::vec3(1,1,1);
 ModelTriangle nullT = ModelTriangle();
 int lbounces = 0;
 float pi = 3.1415f; //Approximation
@@ -25,7 +25,7 @@ bool calculateIntersectionWithBounces(DrawingWindow window,
                          RayTriangleIntersection& intersection,
                          ModelTriangle self);
 
-glm::vec3 Lighting(const RayTriangleIntersection& i,std::vector<ModelTriangle> triangles){
+glm::vec3 Lighting(const RayTriangleIntersection& i,std::vector<ModelTriangle> triangles,glm::vec3 viewdir){
   RayTriangleIntersection nearestSurface;
   glm::vec3 lighting = indirectLighting;
   bool found = false;
@@ -38,8 +38,12 @@ glm::vec3 Lighting(const RayTriangleIntersection& i,std::vector<ModelTriangle> t
     else{
       glm::vec3 n = i.intersectedTriangle.normal;
       float percent = std::max(glm::dot(glm::normalize(r),n),0.f);
-      lighting += (lightColours[j] * (percent/(4*pi*glm::dot(r,r)))); 
+      glm::vec3 diffuse = (lightColours[j] * (percent/(4*pi*glm::dot(r,r))));
+      glm::vec3 reflected = r - 2*(glm::dot(r,n))*n; 
+      glm::vec3 specular =i.intersectedTriangle.isSpecular * powf(std::max(glm::dot(glm::normalize(reflected),glm::normalize(viewdir)),0.f),64) * glm::vec3(1);
+      // std::cout << specular << std::endl;
       found = true; //Diffuse
+      lighting += specular  + diffuse;
     }
   }
   if (!found){
@@ -54,6 +58,7 @@ bool closestIntersection(glm::vec3 start, glm::vec3 dir,
                          RayTriangleIntersection& intersection,
                          ModelTriangle self){
   float bestT = 1000;
+  dir = glm::normalize(dir);
   for (unsigned int i = 0; i < triangles.size(); i++){
     ModelTriangle triangle = triangles[i];
     glm::vec3 e1 = triangle.vertices[1] - triangle.vertices[0];
@@ -61,6 +66,7 @@ bool closestIntersection(glm::vec3 start, glm::vec3 dir,
     glm::vec3  b = start - triangle.vertices[0];
     glm::mat3 A(-dir,e1,e2);
     glm::vec3 x = glm::inverse(A) * b; // distance , u , v
+    // std::cout << x.x << std::endl;
     if(x.x > 0 && x.x < bestT && x.y > 0 && x.z > 0 && x.y+x.z < 1 && triangle != self){
       bestT = x.x;
       intersection = RayTriangleIntersection(triangle.vertices[0] + e1 * x.y + e2 * x.z ,x.x,triangle);
@@ -196,7 +202,7 @@ void simple(DrawingWindow window,std::vector<ModelTriangle> model,int x, int y, 
   RayTriangleIntersection intersection;
   glm::vec3 dir = glm::vec3(x-window.width/2,window.height/2-y,camera.focal) * camera.rotation;
   if (calculateIntersectionWithBounces(window,camera.position,dir,model,intersection)){
-    window.setPixelColour(x,y,intersection.intersectedTriangle.colour.pack(Lighting(intersection,model))); 
+    window.setPixelColour(x,y,intersection.intersectedTriangle.colour.pack(Lighting(intersection,model,dir))); 
   }
 }
 
@@ -210,7 +216,7 @@ void NbyNGrid(DrawingWindow window,std::vector<ModelTriangle> model,int x, int y
     for (int j = 1; j<n; j++){
       dir = glm::vec3(x-window.width/2+(i * 1/n)-offset,window.height/2-y-(j*1/n)-offset,camera.focal) * camera.rotation;
       if (calculateIntersectionWithBounces(window,camera.position,dir,model,intersection)){
-        colour = colour + Lighting(intersection,model) * intersection.intersectedTriangle.colour;
+        colour = colour + Lighting(intersection,model,dir) * intersection.intersectedTriangle.colour;
         count++;
       }
     }
@@ -229,7 +235,7 @@ void NbyNChecker(DrawingWindow window,std::vector<ModelTriangle> model,int x, in
       if ((i+j)%2 == 0){
       dir = glm::vec3(x-window.width/2+(i * 1/n)-offset,window.height/2-y-(j*1/n)-offset,camera.focal) * camera.rotation;
         if (calculateIntersectionWithBounces(window,camera.position,dir,model,intersection)){
-          colour = colour + Lighting(intersection,model) * intersection.intersectedTriangle.colour;
+          colour = colour + Lighting(intersection,model,dir) * intersection.intersectedTriangle.colour;
           count++;
         }
       }

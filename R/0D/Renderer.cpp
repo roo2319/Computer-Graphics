@@ -152,14 +152,14 @@ void update()
 
       case 1:
         if (camera.position.z < 12){
-          camera.forward(0.1);
+          camera.forward(0.2);
         }
         else sequence++;
         break;
 
       case 2:
-        if (sloop < 50){
-          camera.updateRotation(0,0.0301,0);
+        if (sloop < 25){
+          camera.updateRotation(0,0.0602,0);
           sloop++;
         }
         else {sequence++;sloop=0;}
@@ -167,14 +167,14 @@ void update()
 
       case 3:
         if (camera.position.x > -10){
-          camera.forward(0.1);
+          camera.forward(0.2);
         }
         else sequence++;
         break;
 
       case 4:
-        if (sloop < 50){
-          camera.updateRotation(0,-0.0301,0);
+        if (sloop < 25){
+          camera.updateRotation(0,-0.0601,0);
           sloop++;
         }
         else {sequence++;sloop=0;}
@@ -182,7 +182,7 @@ void update()
 
       case 5:
         if (camera.position.z < 23.5){
-          camera.forward(0.1);
+          camera.forward(0.2);
         }
         else sequence++;
         break;
@@ -194,7 +194,7 @@ void update()
 
       case 7:
         if (camera.position.z < 10){
-          camera.forward(0.3);
+          camera.forward(0.2);
         }
         else{
           sequence++;
@@ -202,8 +202,8 @@ void update()
         break;
 
       case 8:
-        if (sloop < 50){
-          camera.updateRotation(0,-0.0602,0);
+        if (sloop < 25){
+          camera.updateRotation(0,-0.1204,0);
           sloop++;
         }
         else {sequence++;sloop=0;}

@@ -14,6 +14,7 @@ ModelTriangle::ModelTriangle(glm::vec3 v0, glm::vec3 v1, glm::vec3 v2, Colour tr
   texture[1]  = TexturePoint(-1,-1);
   texture[2]  = TexturePoint(-1,-1);
   isTexture = 0;
+  isSpecular = false;
   nameTexture = "";
   
   colour = trigColour;
