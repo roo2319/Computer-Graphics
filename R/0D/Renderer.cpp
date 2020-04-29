@@ -85,7 +85,7 @@ void draw()
 
     case 1:
 
-      drawRasterised(world,window,camera);
+      drawRasterised(world,window,camera,image);
       break;
 
     case 2:
