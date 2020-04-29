@@ -14,7 +14,6 @@ class ModelTriangle
     Colour colour;
     TexturePoint texture[3];
     bool isTexture;
-    bool isSpecular;
     std::string nameTexture;
     std::vector<vector<uint32_t>> image;
     //for performance make it just accept a packed colour or pack in the constructors
