@@ -30,14 +30,9 @@ class Model
 
     Model();
     Model(std::vector<ModelTriangle> faces);
+    Model(std::vector<ModelTriangle> faces, glm::vec3 shift);
 
-    void update();
-};
 
-class RotatableModel : public Model
-{ 
-  public:
-    RotatableModel(std::vector<ModelTriangle> f):Model{f} {}
     void update();
 };
 

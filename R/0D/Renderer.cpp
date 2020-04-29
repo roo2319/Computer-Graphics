@@ -34,7 +34,7 @@ DrawingWindow window = DrawingWindow(WIDTH, HEIGHT, false);
 vector<vector<uint32_t>> back = readPPM("ppm/bluebelt.ppm");
 vector<vector<uint32_t>> tiger = readPPM("logo/texture.ppm");
 unordered_map<string,Colour> logomaterials = readMTL2("logo/materials.mtl");
-RotatableModel logo = RotatableModel(readOBJwithTexture("logo/logo.obj",logomaterials,0.02,299));
+Model logo = Model(readOBJwithTexture("logo/logo.obj",logomaterials,0.02,299),vec3(0,100,10));
 vector<Model> world = {scene,logo};
 glm::mat3 rotationLogo = mat3(1.0f);
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -140,6 +140,9 @@ void draw()
 // }
 void update()
 {
+  for(uint i = 0; i<world.size(); i++){
+    world[i].update();
+  }
   if (animate){
     switch(sequence){
       // Walk to portal, while taking turns

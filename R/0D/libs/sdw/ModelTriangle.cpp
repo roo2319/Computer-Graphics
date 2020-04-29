@@ -25,13 +25,17 @@ Model::Model(std::vector<ModelTriangle> f){
   faces = f;
 }
 
-void Model::update(){
-  return;
+Model::Model(std::vector<ModelTriangle> f, glm::vec3 shift){
+  for(uint i = 0; i < f.size(); i++){
+    for(uint j = 0; j < 3;j++){
+      f[i].vertices[j] += shift;
+    }
+    faces.push_back(f[i]);
+  }
 }
 
-
-void RotatableModel::update(){
-  std::cout << "Rotation" << std::endl;
+void Model::update(){
+  std::cout << "Boring Update" << std::endl;
 }
 
 
