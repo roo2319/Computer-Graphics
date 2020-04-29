@@ -208,6 +208,8 @@ void update()
         }
         else {sequence++;sloop=0;}
         break;
+      case 9:
+        std::exit(0);
 
 
     }

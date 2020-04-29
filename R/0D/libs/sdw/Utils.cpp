@@ -201,10 +201,11 @@ void filled(DrawingWindow window, CanvasPoint first, CanvasPoint second, CanvasP
   if (second.y < third.y) std::swap(second,third);
   //First = top, Second = Middle, Third = Bottom;
   //Next find the intersection of first->third and y=second
+  if (first.y-third.y == 0) return;
   float scale = (first.y-second.y)/(first.y-third.y);
-  if (isnan(scale)){
-    return;
-  }
+  // if (isnan(scale)){
+  //   return;
+  // }
   CanvasPoint extra = CanvasPoint(first - scale*(first-third));
 
   //Interpolate X values for each Y value

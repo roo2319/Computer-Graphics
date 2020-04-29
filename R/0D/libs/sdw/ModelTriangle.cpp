@@ -35,7 +35,8 @@ Model::Model(std::vector<ModelTriangle> f, glm::vec3 shift){
 }
 
 void Model::update(){
-  std::cout << "Boring Update" << std::endl;
+  ;
+  // std::cout << "Boring Update" << std::endl;
 }
 
 
