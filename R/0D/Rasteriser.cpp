@@ -71,47 +71,53 @@ std::vector<CanvasPoint> clip(DrawingWindow window, Camera camera, std::vector<g
 }
 
 
-void drawWireframe(std::vector<ModelTriangle> model, DrawingWindow window, Camera camera)
+void drawWireframe(std::vector<Model> world, DrawingWindow window, Camera camera)
 {
   camera.updateFrustum(window.width,window.height);
+  std::vector<ModelTriangle> faces;
+  for (uint i = 0; i<world.size(); i++){
+    faces.insert(faces.end(),world[i].faces.begin(),world[i].faces.end());
+  }
   #pragma omp parallel for
-  for (unsigned int i = 0; i < model.size(); i++)
-  {
-    std::vector<glm::vec3> vertices = {model[i].vertices[0], model[i].vertices[1], model[i].vertices[2]};
+  for(uint j =0; j<faces.size(); j++){
+    std::vector<glm::vec3> vertices = {faces[j].vertices[0], faces[j].vertices[1], faces[j].vertices[2]};
     std::vector<CanvasPoint> projections = clip(window, camera, vertices);
     if (projections.size() != 0)
     {
       for(uint k=0; k<projections.size(); k+=3){
-        stroked(window, projections[k], projections[k+1], projections[k+2], model[i].colour);
+        stroked(window, projections[k], projections[k+1], projections[k+2], faces[j].colour);
       }
     }
   }
 }
 
-void drawRasterised(std::vector<ModelTriangle> model, DrawingWindow window, Camera camera, vector<vector<uint32_t>> image)
+void drawRasterised(std::vector<Model> world, DrawingWindow window, Camera camera, vector<vector<uint32_t>> image)
 {
   camera.updateFrustum(window.width,window.height);
+  std::vector<ModelTriangle> faces;
+  for (uint i = 0; i<world.size(); i++){
+    faces.insert(faces.end(),world[i].faces.begin(),world[i].faces.end());
+  }
   #pragma omp parallel for
-  for (unsigned int i = 0; i < model.size(); i++)
-  {
-    std::vector<glm::vec3> vertices = {model[i].vertices[0], model[i].vertices[1], model[i].vertices[2]};
+  for(uint j =0; j<faces.size(); j++){
+    std::vector<glm::vec3> vertices = {faces[j].vertices[0], faces[j].vertices[1], faces[j].vertices[2]};
     std::vector<CanvasPoint> projections = clip(window, camera, vertices);
     if (projections.size() != 0)
     {
       for(uint k=0; k<projections.size(); k+=3)
       {
 
-        if(model[i].isTexture)
+        if(faces[j].isTexture)
         {
           // std::cout << std::endl<< "nameTexture " << model[i].nameTexture <<std::endl<< std::endl;
-          projections[k].texturePoint  = model[i].texture[0];
-          projections[k+1].texturePoint = model[i].texture[1];
-          projections[k+2].texturePoint  = model[i].texture[2];
+          projections[k].texturePoint  = faces[j].texture[0];
+          projections[k+1].texturePoint = faces[j].texture[1];
+          projections[k+2].texturePoint  = faces[j].texture[2];
           // filled(window, projections[k], projections[k+1], projections[k+2], model[i].colour);
           texturedTriangle(window,image,projections[k], projections[k+1], projections[k+2]);
         }
         else{
-          filled(window, projections[k], projections[k+1], projections[k+2], model[i].colour);
+          filled(window, projections[k], projections[k+1], projections[k+2], faces[j].colour);
 
         }
       }

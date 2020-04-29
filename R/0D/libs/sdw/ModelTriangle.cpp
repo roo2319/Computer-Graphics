@@ -21,6 +21,19 @@ ModelTriangle::ModelTriangle(glm::vec3 v0, glm::vec3 v1, glm::vec3 v2, Colour tr
                            vertices[2] - vertices[0]));
 }
 
+Model::Model(std::vector<ModelTriangle> f){
+  faces = f;
+}
+
+void Model::update(){
+  return;
+}
+
+
+void RotatableModel::update(){
+  std::cout << "Rotation" << std::endl;
+}
+
 
 std::ostream& operator<<(std::ostream& os, const ModelTriangle& triangle)
 {

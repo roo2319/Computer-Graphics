@@ -27,15 +27,15 @@ void update();
 
 unordered_map<string,Colour> materials = readMTL("scene.mtl");
 vector<vector<uint32_t>> image = readPPM("texture.ppm");
-vector<ModelTriangle> model = readOBJ("scene.obj",materials,1);
+Model scene = Model(readOBJ("scene.obj",materials,1));
 DrawingWindow window = DrawingWindow(WIDTH, HEIGHT, false);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 vector<vector<uint32_t>> back = readPPM("ppm/bluebelt.ppm");
 vector<vector<uint32_t>> tiger = readPPM("logo/texture.ppm");
 unordered_map<string,Colour> logomaterials = readMTL2("logo/materials.mtl");
-vector<ModelTriangle> logo0 = readOBJwithTexture("logo/logo.obj",logomaterials,0.02,299);
-vector<ModelTriangle> logo = logo0;
+RotatableModel logo = RotatableModel(readOBJwithTexture("logo/logo.obj",logomaterials,0.02,299));
+vector<Model> world = {scene,logo};
 glm::mat3 rotationLogo = mat3(1.0f);
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -59,7 +59,7 @@ bool animate = false;
 
 int main(int argc, char* argv[])
 {
-  start();
+  // start();
   SDL_Event event;
   while(true){
     // We MUST poll for events - otherwise the window will freeze !
@@ -68,7 +68,7 @@ int main(int argc, char* argv[])
     window.clearPixels();
     window.clearDepth();
     drawBack(window,WIDTH,HEIGHT,back);
-    logoRotate();
+    // logoRotate();
     draw();
     // Need to render the frame at the end, or nothing actually gets shown on the screen !
     window.renderFrame();
@@ -80,20 +80,18 @@ void draw()
   // orbit();
   switch (renderer){
     case 0:
-      drawWireframe(model,window,camera);
-      drawWireframe(logo,window,camera);
+      drawWireframe(world,window,camera);
       break;
 
     case 1:
 
-      drawRasterised(model,window,camera,image);
-      drawRasterised(logo,window,camera,tiger);
+      drawRasterised(world,window,camera,image);
       break;
 
     case 2:
 
-      drawRaytraced(model,window,camera,SSMethod,bounces);
-      drawRasterised(logo,window,camera,tiger);
+      drawRaytraced(world,window,camera,SSMethod,bounces);
+      // drawRasterised(logo,window,camera,tiger);
       break;
 
   }
@@ -118,28 +116,28 @@ void draw()
 //   fna++;
 // }
 
-void start()
-{
-  glm::vec3 startLogo = vec3(-5.6,0,0);
-  //shifting the vertices so that the logo is centered at origin
-  for(unsigned int i = 0; i<logo.size();i++){
-    logo0[i].vertices[0] = startLogo + logo0[i].vertices[0] ;
-    logo0[i].vertices[1] = startLogo + logo0[i].vertices[1] ;
-    logo0[i].vertices[2] = startLogo + logo0[i].vertices[2] ;
-  }
-}
-void logoRotate(){
+// void start()
+// {
+//   glm::vec3 startLogo = vec3(-5.6,0,0);
+//   //shifting the vertices so that the logo is centered at origin
+//   for(unsigned int i = 0; i<logo.size();i++){
+//     logo0[i].vertices[0] = startLogo + logo0[i].vertices[0] ;
+//     logo0[i].vertices[1] = startLogo + logo0[i].vertices[1] ;
+//     logo0[i].vertices[2] = startLogo + logo0[i].vertices[2] ;
+//   }
+// }
+// void logoRotate(){
 
-  glm::mat3 yrot = glm::mat3(cos(0.02),0,-sin(0.02),0,1,0,sin(0.02),0,cos(0.02));
-  rotationLogo =  yrot * rotationLogo;
-  glm::vec3 roomLogo = vec3(0,100,10);
+//   glm::mat3 yrot = glm::mat3(cos(0.02),0,-sin(0.02),0,1,0,sin(0.02),0,cos(0.02));
+//   rotationLogo =  yrot * rotationLogo;
+//   glm::vec3 roomLogo = vec3(0,100,10);
 
-  for(unsigned int i = 0; i<logo.size();i++){
-    logo[i].vertices[0] =  roomLogo+(rotationLogo * logo0[i].vertices[0]) ;
-    logo[i].vertices[1] =  roomLogo+(rotationLogo * logo0[i].vertices[1]) ;
-    logo[i].vertices[2] =  roomLogo+(rotationLogo * logo0[i].vertices[2]) ;
-  }
-}
+//   for(unsigned int i = 0; i<logo.size();i++){
+//     logo[i].vertices[0] =  roomLogo+(rotationLogo * logo0[i].vertices[0]) ;
+//     logo[i].vertices[1] =  roomLogo+(rotationLogo * logo0[i].vertices[1]) ;
+//     logo[i].vertices[2] =  roomLogo+(rotationLogo * logo0[i].vertices[2]) ;
+//   }
+// }
 void update()
 {
   if (animate){

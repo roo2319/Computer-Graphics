@@ -3,6 +3,7 @@
 #include "glm/glm.hpp"
 #include "Colour.h"
 #include "TexturePoint.h"
+#include <vector>
 #include <string>
 
 class ModelTriangle
@@ -19,6 +20,25 @@ class ModelTriangle
     ModelTriangle();
     ModelTriangle(glm::vec3 v0, glm::vec3 v1, glm::vec3 v2, Colour trigColour);
 
+};
+
+class Model
+{
+  public:
+    std::vector<ModelTriangle> faces;
+    //for performance make it just accept a packed colour or pack in the constructors
+
+    Model();
+    Model(std::vector<ModelTriangle> faces);
+
+    void update();
+};
+
+class RotatableModel : public Model
+{ 
+  public:
+    RotatableModel(std::vector<ModelTriangle> f):Model{f} {}
+    void update();
 };
 
 std::ostream& operator<<(std::ostream& os, const ModelTriangle& triangle);
