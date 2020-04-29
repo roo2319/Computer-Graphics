@@ -2,6 +2,7 @@
 
 #include <glm/glm.hpp>
 #include <vector>
+#include "ModelTriangle.h"
 #include <math.h>       /* tan */
 #include <iostream>
 
@@ -25,6 +26,7 @@ class Camera
     glm::mat3 rotation;
     float focal;
     std::vector<Plane> frustum;
+    std::vector<ModelTriangle> cull(std::vector<ModelTriangle>);
   
     
   Camera();

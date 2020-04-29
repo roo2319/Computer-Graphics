@@ -260,10 +260,12 @@ void samplePixels(DrawingWindow window,std::vector<ModelTriangle> model,int x, i
 
 void drawRaytraced(std::vector<Model> world, DrawingWindow window, Camera camera,int SSMethod, int bounces){
   lbounces = bounces;
+  camera.updateFrustum();
   std::vector<ModelTriangle> faces;
   for (uint i = 0; i<world.size(); i++){
     faces.insert(faces.end(),world[i].faces.begin(),world[i].faces.end());
   }
+  faces = camera.cull(faces);
   #pragma omp parallel for
   for(int y=0; y<window.height ;y++) {
     for(int x=0; x<window.width ;x++) {

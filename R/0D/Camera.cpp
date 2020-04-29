@@ -93,6 +93,28 @@ void Camera::updateFrustum(int width,int height){
   frustum = f;
 }
 
+std::vector<ModelTriangle> Camera::cull(std::vector<ModelTriangle> faces){
+  std::vector<ModelTriangle> clippedFaces;
+  std::vector<Plane> frustum = getFrustum();
+  for (uint i = 0; i < faces.size(); i++){
+    std::vector<ModelTriangle> vertices = faces[i].vertices;
+    int out;
+    for (uint j = 0; j < frustum.size(); j++){
+      out = 0;
+      for(uint k = 0; k < vertices.size();k++){
+        if (frustum[i].distance(points[j]) <  0){
+          out++;
+        }
+      }
+      if (out == vertices.size()){
+        break;
+      }
+    }
+    clippedFaces.push_back(faces[i]);
+  }
+  return clippedFaces;
+}
+
 std::vector<Plane> Camera::getFrustum(){
   return frustum;
 }
