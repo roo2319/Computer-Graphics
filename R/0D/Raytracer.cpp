@@ -40,7 +40,7 @@ glm::vec3 Lighting(const RayTriangleIntersection& i,std::vector<ModelTriangle> t
       float percent = std::max(glm::dot(glm::normalize(r),n),0.f);
       glm::vec3 diffuse = (lightColours[j] * (percent/(4*pi*glm::dot(r,r))));
       glm::vec3 reflected = r - 2*(glm::dot(r,n))*n; 
-      glm::vec3 specular =i.intersectedTriangle.colour.isSpecular * powf(std::max(glm::dot(glm::normalize(reflected),glm::normalize(viewdir)),0.f),64) * glm::vec3(1);
+      glm::vec3 specular =i.intersectedTriangle.isSpecular * powf(std::max(glm::dot(glm::normalize(reflected),glm::normalize(viewdir)),0.f),64) * glm::vec3(1);
       // std::cout << specular << std::endl;
       found = true; //Diffuse
       lighting += specular  + diffuse;

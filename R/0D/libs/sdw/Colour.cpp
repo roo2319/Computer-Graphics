@@ -12,18 +12,6 @@ Colour::Colour(int r, int g, int b)
   red = r;
   green = g;
   blue = b;
-  isSpecular = false;
-
-}
-
-Colour::Colour(int r, int g, int b, bool s)
-{
-  name = "";
-  red = r;
-  green = g;
-  blue = b;
-  isSpecular = s;
-
 }
 
 Colour::Colour(std::string n, int r, int g, int b)
@@ -32,18 +20,6 @@ Colour::Colour(std::string n, int r, int g, int b)
   red = r;
   green = g;
   blue = b;
-  isSpecular = false;
-
-}
-
-Colour::Colour(std::string n, int r, int g, int b, bool s)
-{
-  name = n;
-  red = r;
-  green = g;
-  blue = b;
-  isSpecular = s;
-
 }
 
 Colour::Colour(uint32_t packed){
