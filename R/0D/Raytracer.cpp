@@ -260,7 +260,7 @@ void samplePixels(DrawingWindow window,std::vector<ModelTriangle> model,int x, i
 
 void drawRaytraced(std::vector<Model> world, DrawingWindow window, Camera camera,int SSMethod, int bounces){
   lbounces = bounces;
-  camera.updateFrustum();
+  camera.updateFrustum(window.width,window.height);
   std::vector<ModelTriangle> faces;
   for (uint i = 0; i<world.size(); i++){
     faces.insert(faces.end(),world[i].faces.begin(),world[i].faces.end());

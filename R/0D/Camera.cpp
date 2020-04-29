@@ -97,21 +97,26 @@ std::vector<ModelTriangle> Camera::cull(std::vector<ModelTriangle> faces){
   std::vector<ModelTriangle> clippedFaces;
   std::vector<Plane> frustum = getFrustum();
   for (uint i = 0; i < faces.size(); i++){
-    std::vector<ModelTriangle> vertices = faces[i].vertices;
-    int out;
+    std::vector<glm::vec3> vertices {faces[i].vertices[0], faces[i].vertices[1], faces[i].vertices[2]};
+    uint out;
+    bool store = true;
     for (uint j = 0; j < frustum.size(); j++){
       out = 0;
       for(uint k = 0; k < vertices.size();k++){
-        if (frustum[i].distance(points[j]) <  0){
+        if (frustum[j].distance(vertices[k]) <  0){
           out++;
         }
       }
-      if (out == vertices.size()){
+      if (out == 3){
+        store = false;
         break;
       }
     }
-    clippedFaces.push_back(faces[i]);
+    if (store){
+      clippedFaces.push_back(faces[i]);
+    }
   }
+
   return clippedFaces;
 }
 

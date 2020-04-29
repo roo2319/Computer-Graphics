@@ -2,7 +2,7 @@
 
 #include <glm/glm.hpp>
 #include <vector>
-#include "ModelTriangle.h"
+#include "libs/sdw/ModelTriangle.h"
 #include <math.h>       /* tan */
 #include <iostream>
 
