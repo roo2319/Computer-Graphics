@@ -12,15 +12,15 @@ class Colour
     int green;
     int blue;
 
-    bool isSpecular;
+    float specularIndex;
 
 
     Colour();
 
     Colour(int r, int g, int b);
-    Colour(int r, int g, int b, bool s);
+    Colour(int r, int g, int b, float s);
     Colour(std::string n, int r, int g, int b);
-    Colour(std::string n, int r, int g, int b, bool s);
+    Colour(std::string n, int r, int g, int b, float s);
 
     Colour(uint32_t packed);
     Colour operator+(const Colour& b);

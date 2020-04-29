@@ -12,17 +12,17 @@ Colour::Colour(int r, int g, int b)
   red = r;
   green = g;
   blue = b;
-  isSpecular = false;
+  specularIndex = 0;
 
 }
 
-Colour::Colour(int r, int g, int b, bool s)
+Colour::Colour(int r, int g, int b, float s)
 {
   name = "";
   red = r;
   green = g;
   blue = b;
-  isSpecular = s;
+  specularIndex = 0;
 
 }
 
@@ -32,17 +32,17 @@ Colour::Colour(std::string n, int r, int g, int b)
   red = r;
   green = g;
   blue = b;
-  isSpecular = false;
+  specularIndex = 0;
 
 }
 
-Colour::Colour(std::string n, int r, int g, int b, bool s)
+Colour::Colour(std::string n, int r, int g, int b, float s)
 {
   name = n;
   red = r;
   green = g;
   blue = b;
-  isSpecular = s;
+  specularIndex = s;
 
 }
 

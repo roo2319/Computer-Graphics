@@ -407,7 +407,10 @@ std::unordered_map<std::string,Colour> readMTL(const char* filename){
       int r = round(255 * stof(c[1]));
       int g = round(255 * stof(c[2]));
       int b = round(255 * stof(c[3]));
-      materials[name] = Colour(name,r,g,b,true);
+      getline(f,line);
+      c = split(line,' ');
+      float n = stof(c[1]);
+      materials[name] = Colour(name,r,g,b,n);
       }
     }
   return materials;
