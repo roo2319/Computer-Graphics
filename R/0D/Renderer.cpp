@@ -26,17 +26,17 @@ void draw();
 void update();
 
 unordered_map<string,Colour> materials = readMTL("scene.mtl");
-vector<vector<uint32_t>> image = readPPM("texture.ppm");
-Model scene = Model(readOBJ("scene.obj",materials,1));
+vector<vector<uint32_t>> check = readPPM("ppm/check.ppm");
+Model scene = Model( readOBJ("scene.obj",materials,1) , check);
 DrawingWindow window = DrawingWindow(WIDTH, HEIGHT, false);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 vector<vector<uint32_t>> back = readPPM("ppm/bluebelt.ppm");
 vector<vector<uint32_t>> tiger = readPPM("logo/texture.ppm");
 unordered_map<string,Colour> logomaterials = readMTL2("logo/materials.mtl");
-Model logo = Model(readOBJwithTexture("logo/logo.obj",logomaterials,0.02,299),vec3(0,100,10));
+Model logo = Model( readOBJwithTexture("logo/logo.obj",logomaterials,0.02,299), tiger );
 vector<Model> world = {scene,logo};
-glm::mat3 rotationLogo = mat3(1.0f);
+// glm::mat3 rotationLogo = mat3(1.0f);
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void start();
