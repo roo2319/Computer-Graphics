@@ -112,7 +112,7 @@ void drawWireframe(std::vector<Model>& world, DrawingWindow window, Camera camer
   for (uint i = 0; i<world.size(); i++){
     faces.insert(faces.end(),world[i].faces.begin(),world[i].faces.end());
   }
-  #pragma omp parallel for
+  // #pragma omp parallel for
   for(uint j =0; j<faces.size(); j++){
     std::vector<glm::vec3> vertices = {faces[j].vertices[0], faces[j].vertices[1], faces[j].vertices[2]};
     std::vector<TexturePoint> tp = {faces[j].texture[0], faces[j].texture[1], faces[j].texture[2]};
