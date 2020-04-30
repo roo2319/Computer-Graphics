@@ -35,8 +35,8 @@ vector<vector<uint32_t>> back = readPPM("ppm/bluebelt.ppm");
 vector<vector<uint32_t>> tiger = readPPM("logo/texture.ppm");
 vector<vector<glm::vec3>> swirl = readBump("swirl.ppm");
 unordered_map<string,Colour> logomaterials = readMTL("logo/materials.mtl");
-Model logo_ = Model(readOBJ("logo/logo.obj",logomaterials,0.02,299),vec3(-5.6,0,0));
-Model logo = logo_;
+// Centered on origin
+Model logo = Model(readOBJ("logo/logo.obj",logomaterials,0.02,299),vec3(-5.6,0,0));
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 vector<vector<uint32_t>> rockTexture = readPPM("blueStones/blue1.ppm");
 unordered_map<string,Colour> rockmaterials = readMTL("blueStones/blueStone16.mtl");
@@ -68,7 +68,7 @@ bool animate = false;
 
 int main(int argc, char* argv[])
 {
-
+  logo.transform(glm::vec3(-10,0,8),0,0,0);
   for(unsigned int i = 0; i<world[0].faces.size(); i++){
     if (world[0].faces[i].nameBump == "swirl.ppm"){
       std::cout << "Set BUMP" << std::endl;
@@ -135,21 +135,15 @@ void draw()
 // }*/
 
 void animation(){
-  world[1] = scene;
-
-  logo_.rotate(0,0.02,0);
-  logo = logo_;
-  logo.shift(vec3(0,100,10));
+  world[0] = scene;
+  logo.transform(vec3(0,0,0),0,0.02,0);
   world[1] = logo;
-
-
-  rock.rockUpdate(camera.position[2]);
+  world[2] = rock;
+    rock.rockUpdate(camera.position[2]);
   rock.rockstart = rock.rockstart - rock.rockdir ;
-  rock.rotate(rand()%2,rand()%2,rand()%2);
+  // rock.rotate(rand()%2,rand()%2,rand()%2);
   Model temp = rock;
-  temp.shift(rock.rockstart);
-  world[2] = temp;
-
+  // temp.shift(rock.rockstart);
 }
 void update()
 {

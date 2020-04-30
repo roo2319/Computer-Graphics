@@ -25,6 +25,7 @@ ModelTriangle::ModelTriangle(glm::vec3 v0, glm::vec3 v1, glm::vec3 v2, Colour tr
 }
 
 Model::Model(std::vector<ModelTriangle> f){
+  ofaces = f;
   faces = f;
   rockstart = glm::vec3(-10,-10,-10);
   rockdir   = glm::vec3(-10,-10,-10);
@@ -38,29 +39,24 @@ Model::Model(std::vector<ModelTriangle> f, glm::vec3 shift){
     for(int j = 0; j < 3;j++){
       f[i].vertices[j] += shift;
     }
-    faces.push_back(f[i]);
+    ofaces.push_back(f[i]);
+    faces = ofaces;
   }
 }
-void Model::shift( glm::vec3 dist){
 
-  for(unsigned int i = 0; i < faces.size(); i++){
-    for(int j = 0; j < 3;j++){
-      faces[i].vertices[j] += dist;
-    }
-  }
-}
-void Model::rotate(float X, float Y, float Z){
+void Model::transform(glm::vec3 s,float X, float Y, float Z){
+  shift += s;
   glm::mat3 xrot = glm::mat3(1,0,0,0,cos(X),sin(X),0,-sin(X),cos(X));
   glm::mat3 yrot = glm::mat3(cos(Y),0,-sin(Y),0,1,0,sin(Y),0,cos(Y));
   glm::mat3 zrot = glm::mat3(cos(Z),sin(Z),0,-sin(Z),cos(Z),0,0,0,1);
-  glm::mat3 rotation = xrot * yrot * zrot;
-
+  rotation = xrot * yrot * zrot * rotation;
   for(unsigned int i = 0; i < faces.size(); i++){
     for(int j = 0; j < 3;j++){
-      faces[i].vertices[j] = rotation * faces[i].vertices[j];
+      faces[i].vertices[j] = (rotation * ofaces[i].vertices[j]) + shift;
     }
   }
 }
+
 void Model::texture(std::vector<std::vector<uint32_t>> image){
   for(unsigned int i = 0; i < faces.size(); i++){
     faces[i].image = image;

@@ -29,7 +29,12 @@ class ModelTriangle
 class Model
 {
   public:
+    std::vector<ModelTriangle> ofaces;
     std::vector<ModelTriangle> faces;
+
+    glm::vec3 shift;
+    glm::mat3 rotation;
+
     glm::vec3 rockstart;
     glm::vec3 rockdir;
     //for performance make it just accept a packed colour or pack in the constructors
@@ -39,8 +44,7 @@ class Model
     Model(std::vector<ModelTriangle> faces, glm::vec3 shift);
 
 
-    void shift( glm::vec3 dist);
-    void rotate(float X, float Y, float Z);
+    void transform(glm::vec3 dist,float X, float Y, float Z);
     void texture(std::vector<std::vector<uint32_t>> image);
     void rockUpdate(int cameraDepth);
 };
