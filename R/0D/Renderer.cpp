@@ -40,12 +40,21 @@ Model logo = Model(readOBJ("logo/logo.obj",logomaterials,0.02,299),vec3(-5.6,0,0
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 vector<vector<uint32_t>> rockTexture = readPPM("blueStones/blue1.ppm");
 unordered_map<string,Colour> rockmaterials = readMTL("blueStones/blueStone16.mtl");
-Model rock = Model(readOBJ("blueStones/blueStone16.obj",rockmaterials,2,299),vec3(0,0,0));
-// Model rock = rock_;
-// glm::vec3 rockstart = vec3(rand()%20,rand()%20,30);
-// glm::vec3 rockdir = vec3( (rand()%20-10)/100, (rand()%20-10)/(100), (10+rand()%5)/10);
+Model rock = Model(readOBJ("blueStones/blueStone16.obj",rockmaterials,2,500),vec3(0,0,0));
 
-vector<Model> world = {scene,logo,rock};
+vector<vector<uint32_t>> rockTexture2 = readPPM("blueStones/blue2.ppm");
+unordered_map<string,Colour> rockmaterials2 = readMTL("blueStones/blueStone12.mtl");
+Model rock2 = Model(readOBJ("blueStones/blueStone12.obj",rockmaterials2,2,500),vec3(0,0,0));
+
+vector<vector<uint32_t>> rockTexture3 = readPPM("blueStones/blue3.ppm");
+unordered_map<string,Colour> rockmaterials3 = readMTL("blueStones/blueStone3.mtl");
+Model rock3 = Model(readOBJ("blueStones/blueStone3.obj",rockmaterials3,2,500),vec3(0,0,0));
+
+vector<vector<uint32_t>> rockTexture4 = readPPM("blueStones/blue4.ppm");
+unordered_map<string,Colour> rockmaterials4 = readMTL("blueStones/blueStone1.mtl");
+Model rock4 = Model(readOBJ("blueStones/blueStone1.obj",rockmaterials4,2,500),vec3(0,0,0));
+
+vector<Model> world = {scene,logo,rock,rock2,rock3,rock4};
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 void animation();
 void start();
@@ -87,7 +96,21 @@ int main(int argc, char* argv[])
       rock.faces[i].image = &rockTexture;
     }
   }
-
+  for(unsigned int i = 0; i<rock2.faces.size(); i++){
+    if( rock2.faces[i].isTexture){
+      rock2.faces[i].image = &rockTexture2;
+    }
+  }
+  for(unsigned int i = 0; i<rock3.faces.size(); i++){
+    if( rock3.faces[i].isTexture){
+      rock3.faces[i].image = &rockTexture3;
+    }
+  }
+  for(unsigned int i = 0; i<rock4.faces.size(); i++){
+    if( rock4.faces[i].isTexture){
+      rock4.faces[i].image = &rockTexture4;
+    }
+  }
 
   // start();
   // logo_.texture(tiger);
@@ -152,12 +175,31 @@ void animation(){
   world[0] = scene;
   logo.transform(vec3(0,0,0),0,0.02,0);
   world[1] = logo;
-  world[2] = rock;
-    rock.rockUpdate(camera.position[2]);
-  rock.rockstart = rock.rockstart - rock.rockdir ;
-  // rock.rotate(rand()%2,rand()%2,rand()%2);
+
+  // Model temp;
+  rock.rockUpdate(camera.position[2]);
+  rock.transform(vec3(0,0,0),(rand()%10)/100.0,(rand()%10)/100.0,(rand()%10)/100.0);
   Model temp = rock;
-  // temp.shift(rock.rockstart);
+  temp.transform(rock.rockstart,0,0,0);
+  world[2] = temp;;
+
+  rock2.rockUpdate(camera.position[2]);
+  rock2.transform(vec3(0,0,0),(rand()%10)/100.0,(rand()%10)/100.0,(rand()%10)/100.0);
+  Model temp2 = rock2;
+  temp.transform(rock2.rockstart,0,0,0);
+  world[3] = temp;;
+
+  rock3.rockUpdate(camera.position[2]);
+  rock3.transform(vec3(0,0,0),(rand()%10)/100.0,(rand()%10)/100.0,(rand()%10)/100.0);
+  Model temp3 = rock3;
+  temp.transform(rock3.rockstart,0,0,0);
+  world[4] = temp;;
+
+  rock4.rockUpdate(camera.position[2]);
+  rock4.transform(vec3(0,0,0),(rand()%10)/100.0,(rand()%10)/100.0,(rand()%10)/100.0);
+  Model temp4 = rock4;
+  temp.transform(rock4.rockstart,0,0,0);
+  world[5] = temp;;
 }
 void update()
 {

@@ -59,8 +59,9 @@ void Model::transform(glm::vec3 s,float X, float Y, float Z){
 void Model::rockUpdate(int cameraDepth){
   if(rockstart[2]-cameraDepth < 5){
     rockstart = glm::vec3( rand()%20-10,   rand()%20-10,  (cameraDepth+50+rand()%20) );
-    rockdir   = glm::vec3( (rand()%1-2)/10, (rand()%1-2)/(10), (1+rand()%1));
+    rockdir = glm::vec3( (rand()%1-2)/10, (rand()%1-2)/(10), 0.2+(rand()%20)/10);
   }
+  rockstart -= rockdir ;
 }
 
 
