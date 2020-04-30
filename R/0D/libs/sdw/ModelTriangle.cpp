@@ -27,14 +27,10 @@ ModelTriangle::ModelTriangle(glm::vec3 v0, glm::vec3 v1, glm::vec3 v2, Colour tr
 Model::Model(std::vector<ModelTriangle> f){
   ofaces = f;
   faces = f;
-  rockstart = glm::vec3(-10,-10,-10);
-  rockdir   = glm::vec3(-10,-10,-10);
-
+  velocity = glm::vec3(0);
 }
 
 Model::Model(std::vector<ModelTriangle> f, glm::vec3 shift){
-  rockstart = glm::vec3(-10,-10,-10);
-  rockdir   = glm::vec3(-10,-10,-10);
   for(unsigned int i = 0; i < f.size(); i++){
     for(int j = 0; j < 3;j++){
       f[i].vertices[j] += shift;
@@ -43,6 +39,15 @@ Model::Model(std::vector<ModelTriangle> f, glm::vec3 shift){
     faces = ofaces;
   }
 }
+
+Model::Model(std::vector<ModelTriangle> f, glm::vec3 s, glm::vec3 v){
+  ofaces = f;
+  faces = f;
+  shift = s;
+  velocity = v;
+
+}
+
 
 void Model::transform(glm::vec3 s,float X, float Y, float Z){
   shift += s;
@@ -56,12 +61,18 @@ void Model::transform(glm::vec3 s,float X, float Y, float Z){
     }
   }
 }
-void Model::rockUpdate(int cameraDepth){
-  if(rockstart[2]-cameraDepth < 5){
-    rockstart = glm::vec3( rand()%20-10,   rand()%20-10,  (cameraDepth+50+rand()%20) );
-    rockdir = glm::vec3( (rand()%1-2)/10, (rand()%1-2)/(10), 0.2+(rand()%20)/10);
+
+void Model::update(bool now){
+  if (velocity!=glm::vec3(0)){
+    shift+=velocity;
+    if (now){
+      for(unsigned int i = 0; i < faces.size(); i++){
+        for(int j = 0; j < 3;j++){
+          faces[i].vertices[j] += velocity;
+        }
+      }
+    }
   }
-  rockstart -= rockdir ;
 }
 
 

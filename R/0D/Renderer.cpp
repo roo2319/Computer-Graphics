@@ -80,7 +80,6 @@ int main(int argc, char* argv[])
   logo.transform(glm::vec3(-10,0,8),0,0,0);
   for(unsigned int i = 0; i<scene.faces.size(); i++){
     if (scene.faces[i].nameBump == "swirl.ppm"){
-      std::cout << "Set BUMP" << std::endl;
       scene.faces[i].bump = &swirl;
     }
   }
@@ -90,7 +89,6 @@ int main(int argc, char* argv[])
       logo.faces[i].image = &tiger;
     }
   }
-
   for(unsigned int i = 0; i<rock.faces.size(); i++){
     if( rock.faces[i].isTexture){
       rock.faces[i].image = &rockTexture;
@@ -172,34 +170,44 @@ void draw()
 // }*/
 
 void animation(){
+  scene.update(true);
   world[0] = scene;
   logo.transform(vec3(0,0,0),0,0.02,0);
+  logo.update(true);
   world[1] = logo;
 
   // Model temp;
-  rock.rockUpdate(camera.position[2]);
+  if (rock.shift.z < 5){
+    rock.shift = glm::vec3( rand()%20-10,   rand()%20-10,  (50+rand()%20));
+    rock.velocity = glm::vec3( (-2)/10, (-2)/(10), -(0.2+(rand()%20)/10));
+  }
+  rock.update(false);
   rock.transform(vec3(0,0,0),(rand()%10)/100.0,(rand()%10)/100.0,(rand()%10)/100.0);
-  Model temp = rock;
-  temp.transform(rock.rockstart,0,0,0);
-  world[2] = temp;;
+  world[2] = rock;
 
-  rock2.rockUpdate(camera.position[2]);
+  if (rock2.shift.z < 5){
+    rock2.shift = glm::vec3( rand()%20-10,   rand()%20-10,  (50+rand()%20));
+    rock2.velocity = glm::vec3( (-2)/10, (-2)/(10), -(0.2+(rand()%20)/10));
+  }
+  rock2.update(false);
   rock2.transform(vec3(0,0,0),(rand()%10)/100.0,(rand()%10)/100.0,(rand()%10)/100.0);
-  Model temp2 = rock2;
-  temp.transform(rock2.rockstart,0,0,0);
-  world[3] = temp;;
+  world[3] = rock2;
 
-  rock3.rockUpdate(camera.position[2]);
+  if (rock3.shift.z < 5){
+    rock3.shift = glm::vec3( rand()%20-10,   rand()%20-10,  (50+rand()%20));
+    rock3.velocity = glm::vec3( (-2)/10, (-2)/(10), -(0.2+(rand()%20)/10));
+  }
+  rock3.update(false);
   rock3.transform(vec3(0,0,0),(rand()%10)/100.0,(rand()%10)/100.0,(rand()%10)/100.0);
-  Model temp3 = rock3;
-  temp.transform(rock3.rockstart,0,0,0);
-  world[4] = temp;;
+  world[4] = rock3;
 
-  rock4.rockUpdate(camera.position[2]);
+  if (rock4.shift.z < 5){
+    rock4.shift = glm::vec3( rand()%20-10,   rand()%20-10,  (50+rand()%20));
+    rock4.velocity = glm::vec3( (-2)/10, (-2)/(10), -(0.2+(rand()%20)/10));
+  }
+  rock4.update(false);
   rock4.transform(vec3(0,0,0),(rand()%10)/100.0,(rand()%10)/100.0,(rand()%10)/100.0);
-  Model temp4 = rock4;
-  temp.transform(rock4.rockstart,0,0,0);
-  world[5] = temp;;
+  world[5] = rock4;
 }
 void update()
 {

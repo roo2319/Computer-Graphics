@@ -33,19 +33,19 @@ class Model
     std::vector<ModelTriangle> faces;
 
     glm::vec3 shift;
+    glm::vec3 velocity;
     glm::mat3 rotation;
 
-    glm::vec3 rockstart;
-    glm::vec3 rockdir;
     //for performance make it just accept a packed colour or pack in the constructors
 
     Model();
-    Model(std::vector<ModelTriangle> faces);
-    Model(std::vector<ModelTriangle> faces, glm::vec3 shift);
+    Model(std::vector<ModelTriangle> f);
+    Model(std::vector<ModelTriangle> f, glm::vec3 s);
+    Model(std::vector<ModelTriangle> f, glm::vec3 s, glm::vec3 v);
 
 
     void transform(glm::vec3 dist,float X, float Y, float Z);
-    void rockUpdate(int cameraDepth);
+    void update(bool now);
 };
 
 std::ostream& operator<<(std::ostream& os, const ModelTriangle& triangle);

@@ -272,15 +272,11 @@ vector<vector<uint32_t>> readPPM(const char * filename){
     return image;
   }
   while (getline(f,line)) if (line[0] == 'P' and line[1] == '6') break;
-  std::cout << "Read P6" << std::endl;
   while (getline(f,line)) if (line[0] != '#') break;
   int width  = stoi(line.substr(0,line.find(' ')));
   int height = stoi(line.substr(line.find(' ')));
-  std::cout << width << std::endl;
-  std::cout << height << std::endl;
   while (getline(f,line)) if (line[0] != '#') break;
   int maxval = stoi(line);
-  std::cout << maxval << std::endl;
   // int bytesPerPixel = maxval < 256 ? 1 : 2;
   for(int y = 0; y < height; y++){
     vector<uint32_t> row;
@@ -308,15 +304,11 @@ vector<vector<glm::vec3>> readBump(const char * filename){
     return bump;
   }
   while (getline(f,line)) if (line[0] == 'P' and line[1] == '6') break;
-  std::cout << "Read P6" << std::endl;
   while (getline(f,line)) if (line[0] != '#') break;
   int width  = stoi(line.substr(0,line.find(' ')));
   int height = stoi(line.substr(line.find(' ')));
-  std::cout << width << std::endl;
-  std::cout << height << std::endl;
   while (getline(f,line)) if (line[0] != '#') break;
   int maxval = stoi(line);
-  std::cout << maxval << std::endl;
   // int bytesPerPixel = maxval < 256 ? 1 : 2;
   for(int y = 0; y < height; y++){
     vector<glm::vec3> row;
@@ -438,7 +430,6 @@ vector<ModelTriangle> readOBJ(const char* filename,std::unordered_map<std::strin
 
         }
         else if (current_colour.isTex){
-          std::cout << current_colour.name << std::endl;
           triangle.isTexture = true;
           triangle.nameTexture = current_colour.name;
         }
