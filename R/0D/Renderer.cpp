@@ -153,7 +153,7 @@ void animation(){
 void update()
 {
   animation();
-  world = {scene,logo};
+  world[1] = logo;
   if (animate){
     switch(sequence){
       // Walk to portal, while taking turns
