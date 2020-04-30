@@ -1,7 +1,7 @@
 #include "Raytracer.h"
 
 std::vector<glm::vec3>Lights {glm::vec3(0,3.5,5), glm::vec3(-10,3.5,15),glm::vec3(0,110,10)};
-std::vector<glm::vec3> lightColours = {50.f * glm::vec3(1,1,1),50.f * glm::vec3(1,1,1),400.f * glm::vec3(1,1,1)};
+std::vector<glm::vec3> lightColours = {50.f * glm::vec3(1,1,1),50.f * glm::vec3(1,1,1),800.f * glm::vec3(1,1,1)};
 glm::vec3 indirectLighting = 0.2f * glm::vec3(1,1,1);
 ModelTriangle nullT = ModelTriangle();
 int lbounces = 0;
@@ -44,7 +44,7 @@ glm::vec3 interpolateNormal(const RayTriangleIntersection& i){
   if (Coord.y > (*BumpMap).size()-1) Coord.y = (*BumpMap).size()-1;
 
 
-  return (*BumpMap)[Coord.x][Coord.y];
+  return (*BumpMap)[Coord.y][Coord.x];
 }
 
 glm::vec3 Lighting(const RayTriangleIntersection& i,std::vector<ModelTriangle>& triangles,glm::vec3 viewdir){

@@ -34,6 +34,8 @@ DrawingWindow window = DrawingWindow(WIDTH, HEIGHT, false);
 vector<vector<uint32_t>> back = readPPM("ppm/bluebelt.ppm");
 vector<vector<uint32_t>> tiger = readPPM("logo/texture.ppm");
 vector<vector<glm::vec3>> swirl = readBump("swirl.ppm");
+vector<vector<glm::vec3>> wall = readBump("wall.ppm");
+
 unordered_map<string,Colour> logomaterials = readMTL("logo/materials.mtl");
 // Centered on origin
 Model logo = Model(readOBJ("logo/logo.obj",logomaterials,0.02,299),vec3(-5.6,0,0));
@@ -57,6 +59,7 @@ Model rock4 = Model(readOBJ("blueStones/blueStone1.obj",rockmaterials4,2,500),ve
 vector<Model> world = {scene,logo,rock,rock2,rock3,rock4};
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 void animation();
+void rockUpdate();
 void start();
 void logoRotate();
 void orbit();
@@ -78,9 +81,18 @@ bool animate = false;
 int main(int argc, char* argv[])
 {
   logo.transform(glm::vec3(-10,0,8),0,0,0);
+  rock.velocity = glm::vec3( (-2)/10, (-2)/(10), -(0.2+(rand()%20)/10));
+  rock2.velocity = glm::vec3( (-2)/10, (-2)/(10), -(0.2+(rand()%20)/10));
+  rock3.velocity = glm::vec3( (-2)/10, (-2)/(10), -(0.2+(rand()%20)/10));
+  rock4.velocity = glm::vec3( (-2)/10, (-2)/(10), -(0.2+(rand()%20)/10));
+
+
   for(unsigned int i = 0; i<scene.faces.size(); i++){
     if (scene.faces[i].nameBump == "swirl.ppm"){
       scene.faces[i].bump = &swirl;
+    }
+    else if (scene.faces[i].nameBump == "wall.ppm"){
+      scene.faces[i].bump = &wall;
     }
   }
 
@@ -169,6 +181,43 @@ void draw()
 //   fna++;
 // }*/
 
+
+void rockUpdate(){
+  if (rock.shift.z <= -10){
+    rock.shift = glm::vec3( rand()%20-10,   rand()%20-10,  (50+rand()%20));
+    rock.velocity = glm::vec3( (-2)/10, (-2)/(10), -(0.2+(rand()%20)/10));
+  }
+  rock.update(false);
+  rock.transform(vec3(0,0,0),(rand()%10)/100.0,(rand()%10)/100.0,(rand()%10)/100.0);
+  world[2] = rock;
+
+  if (rock2.shift.z <= -10){
+    rock2.shift = glm::vec3( rand()%20-10,   rand()%20-10,  (50+rand()%20));
+    rock2.velocity = glm::vec3( (-2)/10, (-2)/(10), -(0.2+(rand()%20)/10));
+  }
+  rock2.update(false);
+  rock2.transform(vec3(0,0,0),(rand()%10)/100.0,(rand()%10)/100.0,(rand()%10)/100.0);
+  world[3] = rock2;
+
+  if (rock3.shift.z <= -10){
+    rock3.shift = glm::vec3( rand()%20-10,   rand()%20-10,  (50+rand()%20));
+    rock3.velocity = glm::vec3( (-2)/10, (-2)/(10), -(0.2+(rand()%20)/10));
+  }
+  rock3.update(false);
+  rock3.transform(vec3(0,0,0),(rand()%10)/100.0,(rand()%10)/100.0,(rand()%10)/100.0);
+  world[4] = rock3;
+
+  if (rock4.shift.z <= -10){
+    rock4.shift = glm::vec3( rand()%20-10,   rand()%20-10,  (50+rand()%20));
+    rock4.velocity = glm::vec3( (-2)/10, (-2)/(10), -(0.2+(rand()%20)/10));
+  }
+  rock4.update(false);
+  rock4.transform(vec3(0,0,0),(rand()%10)/100.0,(rand()%10)/100.0,(rand()%10)/100.0);
+  world[5] = rock4;
+}
+
+
+
 void animation(){
   scene.update(true);
   world[0] = scene;
@@ -177,108 +226,126 @@ void animation(){
   world[1] = logo;
 
   // Model temp;
-  if (rock.shift.z < 5){
-    rock.shift = glm::vec3( rand()%20-10,   rand()%20-10,  (50+rand()%20));
-    rock.velocity = glm::vec3( (-2)/10, (-2)/(10), -(0.2+(rand()%20)/10));
-  }
-  rock.update(false);
-  rock.transform(vec3(0,0,0),(rand()%10)/100.0,(rand()%10)/100.0,(rand()%10)/100.0);
-  world[2] = rock;
-
-  if (rock2.shift.z < 5){
-    rock2.shift = glm::vec3( rand()%20-10,   rand()%20-10,  (50+rand()%20));
-    rock2.velocity = glm::vec3( (-2)/10, (-2)/(10), -(0.2+(rand()%20)/10));
-  }
-  rock2.update(false);
-  rock2.transform(vec3(0,0,0),(rand()%10)/100.0,(rand()%10)/100.0,(rand()%10)/100.0);
-  world[3] = rock2;
-
-  if (rock3.shift.z < 5){
-    rock3.shift = glm::vec3( rand()%20-10,   rand()%20-10,  (50+rand()%20));
-    rock3.velocity = glm::vec3( (-2)/10, (-2)/(10), -(0.2+(rand()%20)/10));
-  }
-  rock3.update(false);
-  rock3.transform(vec3(0,0,0),(rand()%10)/100.0,(rand()%10)/100.0,(rand()%10)/100.0);
-  world[4] = rock3;
-
-  if (rock4.shift.z < 5){
-    rock4.shift = glm::vec3( rand()%20-10,   rand()%20-10,  (50+rand()%20));
-    rock4.velocity = glm::vec3( (-2)/10, (-2)/(10), -(0.2+(rand()%20)/10));
-  }
-  rock4.update(false);
-  rock4.transform(vec3(0,0,0),(rand()%10)/100.0,(rand()%10)/100.0,(rand()%10)/100.0);
-  world[5] = rock4;
+  rockUpdate();
 }
 void update()
 {
   animation();
   if (animate){
     switch(sequence){
-      // Walk to portal, while taking turns
+      // Start in box
+      //   camera.position = glm::vec3(0,1,0);
       case 0:
-        camera.position = glm::vec3(0,1,0);
+        camera.position = glm::vec3(0,101,10);
         sequence++;
-
-      case 1:
-        if (camera.position.z < 12){
-          camera.forward(0.2);
-        }
-        else sequence++;
         break;
 
-      case 2:
+      case 1:
         if (sloop < 25){
-          camera.updateRotation(0,0.0602,0);
+          camera.updateRotation(0,0.0628,0);
           sloop++;
         }
         else {sequence++;sloop=0;}
         break;
 
+      case 2:
+        if (camera.position.x > -9.3){
+          camera.forward(0.2);
+        }
+        else sequence++;
+        break;
+
       case 3:
+        camera.position = glm::vec3(9.3,101,10);
+        sequence++;
+        break;
+
+      case 4:
         if (camera.position.x > -10){
           camera.forward(0.2);
         }
         else sequence++;
         break;
 
-      case 4:
-        if (sloop < 25){
-          camera.updateRotation(0,-0.0601,0);
-          sloop++;
-        }
-        else {sequence++;sloop=0;}
+      case 5:
+        camera.position = glm::vec3(9.3,101,10);
+        sequence++;
         break;
 
-      case 5:
-        if (camera.position.z < 23.5){
+      case 6:
+        if (camera.position.x >0){
           camera.forward(0.2);
         }
         else sequence++;
         break;
 
-      case 6:
-        camera.position = glm::vec3(0,101,0.1);
-        sequence++;
-        break;
-
       case 7:
-        if (camera.position.z < 10){
-          camera.forward(0.2);
-        }
-        else{
-          sequence++;
-        }
-        break;
-
-      case 8:
         if (sloop < 25){
-          camera.updateRotation(0,-0.1204,0);
+          camera.updateRotation(0,0.0628,0);
           sloop++;
         }
         else {sequence++;sloop=0;}
         break;
+      
+      case 8:
+        if (camera.position.z >0){
+          camera.forward(0.2);
+        }
+        else sequence++;
+        break;
+
       case 9:
+        camera.position = glm::vec3(-10,1,23.5);
+        sequence++;
+        break;
+
+      case 10:
+        sloop++;
+        if (sloop > 240){
+          sequence++;sloop=0;
+        }
+        break;
+
+      case 11:
         std::exit(0);
+
+
+      // case 4:
+      //   if (sloop < 25){
+      //     camera.updateRotation(0,-0.0601,0);
+      //     sloop++;
+      //   }
+      //   else {sequence++;sloop=0;}
+      //   break;
+
+      // case 5:
+      //   if (camera.position.z < 23.5){
+      //     camera.forward(0.2);
+      //   }
+      //   else sequence++;
+      //   break;
+
+      // case 6:
+      //   sequence++;
+      //   break;
+
+      // case 7:
+      //   if (camera.position.z < 10){
+      //     camera.forward(0.2);
+      //   }
+      //   else{
+      //     sequence++;
+      //   }
+      //   break;
+
+      // case 8:
+      //   if (sloop < 25){
+      //     camera.updateRotation(0,-0.1204,0);
+      //     sloop++;
+      //   }
+      //   else {sequence++;sloop=0;}
+      //   break;
+      // case 9:
 
 
     }

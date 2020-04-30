@@ -15,6 +15,10 @@ newmtl Swirl
 Kd 1.000000 1.000000 0.000000
 bump swirl.ppm
 
+newmtl Wall
+Kd 1.000000 0 0 
+bump wall.ppm
+
 newmtl Green
 Kd 0.000000 1.000000 0.000000
 
