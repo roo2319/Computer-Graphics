@@ -35,11 +35,11 @@ vector<vector<uint32_t>> back = readPPM("ppm/bluebelt.ppm");
 vector<vector<uint32_t>> tiger = readPPM("logo/texture.ppm");
 vector<vector<glm::vec3>> swirl = readBump("swirl.ppm");
 unordered_map<string,Colour> logomaterials = readMTL("logo/materials.mtl");
-Model logo = Model(readOBJ("logo/logo.obj",logomaterials,0.02,299),vec3(0,100,10));
+Model logo_ = Model(readOBJ("logo/logo.obj",logomaterials,0.02,299),vec3(-5.6,0,0));
+Model logo = logo_;
 vector<Model> world = {scene,logo};
-glm::mat3 rotationLogo = mat3(1.0f);
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+void animation();
 void start();
 void logoRotate();
 void orbit();
@@ -60,7 +60,7 @@ bool animate = false;
 
 int main(int argc, char* argv[])
 {
-  for(int i = 0; i<world[0].faces.size(); i++){
+  for(unsigned int i = 0; i<world[0].faces.size(); i++){
     if (world[0].faces[i].nameBump == "swirl.ppm"){
       std::cout << "Set BUMP" << std::endl;
       world[0].faces[i].bump = &swirl;
@@ -92,7 +92,7 @@ void draw()
 
     case 1:
 
-      drawRasterised(world,window,camera,image);
+      drawRasterised(world,window,camera,tiger);
       break;
 
     case 2:
@@ -145,11 +145,15 @@ void draw()
 //     logo[i].vertices[2] =  roomLogo+(rotationLogo * logo0[i].vertices[2]) ;
 //   }
 // }
+void animation(){
+  logo_.rotate(0,0.02,0);
+  logo = logo_;
+  logo.shift(vec3(0,100,10));
+}
 void update()
 {
-  for(uint i = 0; i<world.size(); i++){
-    world[i].update();
-  }
+  animation();
+  world = {scene,logo};
   if (animate){
     switch(sequence){
       // Walk to portal, while taking turns

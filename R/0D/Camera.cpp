@@ -6,13 +6,13 @@ Camera::Camera()
 
 Camera::Camera(glm::vec3 p, glm::mat3 r, float f)
 {
-    position = p; 
+    position = p;
     rotation = r;
     focal    = f;
     near = 1;
     far = 100;
-    frustum = {}; 
-}  
+    frustum = {};
+}
 
 
 void Camera::updateRotation(float X, float Y, float Z){
@@ -26,16 +26,16 @@ void Camera::lookat(glm::vec3 point){
   glm::vec3 forward = glm::normalize(point-position);
   glm::vec3 right   = glm::cross(glm::vec3(0,1,0),forward);
   glm::vec3 up      = glm::cross(forward,right);
-  
-  rotation[0][0] = right.x; 
-  rotation[1][0] = right.y; 
-  rotation[2][0] = right.z; 
-  rotation[0][1] = up.x; 
-  rotation[1][1] = up.y; 
-  rotation[2][1] = up.z; 
-  rotation[0][2] = forward.x; 
-  rotation[1][2] = forward.y; 
-  rotation[2][2] = forward.z; 
+
+  rotation[0][0] = right.x;
+  rotation[1][0] = right.y;
+  rotation[2][0] = right.z;
+  rotation[0][1] = up.x;
+  rotation[1][1] = up.y;
+  rotation[2][1] = up.z;
+  rotation[0][2] = forward.x;
+  rotation[1][2] = forward.y;
+  rotation[2][2] = forward.z;
 }
 
 void Camera::updateFrustum(int width,int height){
@@ -58,7 +58,7 @@ void Camera::updateFrustum(int width,int height){
 // Good
   glm::vec3 NEAR = forward;
   glm::vec3 NEARP = nc;
-  f.push_back(Plane(NEAR,NEARP)); 
+  f.push_back(Plane(NEAR,NEARP));
   glm::vec3 FAR = -forward;
   glm::vec3 FARP = fc;
   f.push_back(Plane(FAR,FARP));
@@ -96,13 +96,13 @@ void Camera::updateFrustum(int width,int height){
 std::vector<ModelTriangle> Camera::cull(std::vector<ModelTriangle> faces){
   std::vector<ModelTriangle> clippedFaces;
   std::vector<Plane> frustum = getFrustum();
-  for (uint i = 0; i < faces.size(); i++){
+  for (unsigned int i = 0; i < faces.size(); i++){
     std::vector<glm::vec3> vertices {faces[i].vertices[0], faces[i].vertices[1], faces[i].vertices[2]};
-    uint out;
+    unsigned int out;
     bool store = true;
-    for (uint j = 0; j < frustum.size(); j++){
+    for (unsigned int j = 0; j < frustum.size(); j++){
       out = 0;
-      for(uint k = 0; k < vertices.size();k++){
+      for(unsigned int k = 0; k < vertices.size();k++){
         if (frustum[j].distance(vertices[k]) <  0){
           out++;
         }
