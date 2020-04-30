@@ -57,7 +57,7 @@ glm::vec3 Lighting(const RayTriangleIntersection& i,std::vector<ModelTriangle>& 
     if ( lfound && nearestSurface.distance < glm::length(r) && !(nearestSurface.intersectedTriangle.colour.name == "Red")){
       continue; //Shadow 
     }
-    else if(lfound){
+    else{
       glm::vec3 n; 
       if (!i.intersectedTriangle.isBump){
         n = i.intersectedTriangle.normal;
@@ -78,12 +78,16 @@ glm::vec3 Lighting(const RayTriangleIntersection& i,std::vector<ModelTriangle>& 
       }
       // std::cout << specular << std::endl;
       found = true; //Diffuse
+      std::cout<<"Good1"<<std::endl;
       lighting += specular  + diffuse;
     }
   }
   if (!found){
+    std::cout << "BAD" << std::endl;
     return 0.5f * indirectLighting;
   }
+      std::cout << "good" << std::endl;
+
   return lighting;
 }
 
