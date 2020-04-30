@@ -26,9 +26,14 @@ ModelTriangle::ModelTriangle(glm::vec3 v0, glm::vec3 v1, glm::vec3 v2, Colour tr
 
 Model::Model(std::vector<ModelTriangle> f){
   faces = f;
+  rockstart = glm::vec3(-10,-10,-10);
+  rockdir   = glm::vec3(-10,-10,-10);
+
 }
 
 Model::Model(std::vector<ModelTriangle> f, glm::vec3 shift){
+  rockstart = glm::vec3(-10,-10,-10);
+  rockdir   = glm::vec3(-10,-10,-10);
   for(unsigned int i = 0; i < f.size(); i++){
     for(int j = 0; j < 3;j++){
       f[i].vertices[j] += shift;
@@ -61,9 +66,11 @@ void Model::texture(std::vector<std::vector<uint32_t>> image){
     faces[i].image = image;
   }
 }
-void Model::update(){
-  ;
-  // std::cout << "Boring Update" << std::endl;
+void Model::rockUpdate(int cameraDepth){
+  if(rockstart[2]-cameraDepth < 5){
+    rockstart = glm::vec3( rand()%20-10,   rand()%20-10,  (cameraDepth+50+rand()%20) );
+    rockdir   = glm::vec3( (rand()%1-2)/10, (rand()%1-2)/(10), (1+rand()%1));
+  }
 }
 
 

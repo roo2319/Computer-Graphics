@@ -30,6 +30,8 @@ class Model
 {
   public:
     std::vector<ModelTriangle> faces;
+    glm::vec3 rockstart;
+    glm::vec3 rockdir;
     //for performance make it just accept a packed colour or pack in the constructors
 
     Model();
@@ -40,7 +42,7 @@ class Model
     void shift( glm::vec3 dist);
     void rotate(float X, float Y, float Z);
     void texture(std::vector<std::vector<uint32_t>> image);
-    void update();
+    void rockUpdate(int cameraDepth);
 };
 
 std::ostream& operator<<(std::ostream& os, const ModelTriangle& triangle);
