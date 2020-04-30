@@ -59,8 +59,8 @@ vt 0 0
 vt 0 1
 vt 1 0 
 vt 1 1
-f 16/2 15/1 19/3
-f 16/2 19/3 20/4
+f 15/1 16/2 19/3
+f 20/4 19/3 16/2
 
 o right 
 usemtl RedButShiny

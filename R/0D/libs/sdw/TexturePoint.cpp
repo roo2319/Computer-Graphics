@@ -9,6 +9,13 @@ TexturePoint::TexturePoint(float xPos, float yPos)
 {
   x = xPos;
   y = yPos;
+  point = glm::vec2(xPos,yPos);
+}
+
+TexturePoint::TexturePoint(glm::vec2 p){
+  point = p;
+  x = p.x;
+  y = p.y;
 }
 
 

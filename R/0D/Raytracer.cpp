@@ -27,25 +27,28 @@ bool calculateIntersectionWithBounces(DrawingWindow window,
 
 glm::vec3 interpolateNormal(const RayTriangleIntersection& i){
   std::vector<std::vector<glm::vec3>>* BumpMap = i.intersectedTriangle.bump;
-  glm::vec3 vertices[3] {i.intersectedTriangle.vertices[0],i.intersectedTriangle.vertices[1],i.intersectedTriangle.vertices[2]};
   TexturePoint textures[3] {i.intersectedTriangle.texture[0],i.intersectedTriangle.texture[1],i.intersectedTriangle.texture[2]};
-  float e1Scale = i.e1/glm::length(vertices[1] - vertices[0]); //v0 to v1
-  float e2Scale = i.e2/glm::length(vertices[2] - vertices[0]); //v0 to v2
-
+  float e1Scale = i.e1; //v0 to v1
+  float e2Scale = i.e2; //v0 to v2
   // std::cout << textures[0] << " " << textures[1] << std::endl;
 
-  TexturePoint e1 = textures[0] + e1Scale * (textures[1] - textures[0]);
-  TexturePoint e2 = textures[1] + e2Scale * (textures[2] - textures[0]);
-  TexturePoint Coord = e1+e2;
+  glm::vec2 d1 = (textures[1].point - textures[0].point);
+  glm::vec2 d2 = (textures[2].point - textures[0].point);
+
+  glm::vec2 e1 = e1Scale * d1;
+  glm::vec2 e2 = e2Scale * d2;
+  // std::cout << e1  << "  "  << e2 << std::endl;
+  glm::vec2 Coord = textures[0].point +  e1+e2;
+
+  Coord *= (*BumpMap).size();
 
   if (Coord.x < 0) Coord.x = 0;
-  if (Coord.x > 1) Coord.x = 1;
+  if (Coord.x > (*BumpMap).size()-1) Coord.x = (*BumpMap).size()-1;
   if (Coord.y < 0) Coord.y = 0;
-  if (Coord.y > 1) Coord.y = 1;
+  if (Coord.y > (*BumpMap).size()-1) Coord.y = (*BumpMap).size()-1;
 
-  std::cout << Coord.x * (*BumpMap).size() << " " << Coord.y * (*BumpMap).size()
 
-  return (*BumpMap)[Coord.x * (*BumpMap).size()][Coord.y * (*BumpMap).size()];
+  return (*BumpMap)[Coord.x][Coord.y];
 }
 
 glm::vec3 Lighting(const RayTriangleIntersection& i,std::vector<ModelTriangle> triangles,glm::vec3 viewdir){
