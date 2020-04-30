@@ -19,9 +19,11 @@ class TexturePoint
     TexturePoint operator-(const TexturePoint& t);
 
     TexturePoint operator+(const TexturePoint& t);
+    bool operator==(const TexturePoint& t);
 
     TexturePoint operator/(const float f);
 };
 
 std::ostream& operator<<(std::ostream& os, const TexturePoint& point);
+
 TexturePoint operator*(float f, TexturePoint t);

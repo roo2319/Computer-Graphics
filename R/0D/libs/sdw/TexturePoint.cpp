@@ -26,6 +26,11 @@ TexturePoint TexturePoint::operator-(const TexturePoint& t){
 TexturePoint TexturePoint::operator+(const TexturePoint& t){
   return TexturePoint(this->x+t.x, this->y+t.y);
 }
+
+bool TexturePoint::operator==(const TexturePoint& t){
+  return t.x==x && t.y==y;
+}
+
 TexturePoint TexturePoint::operator/(const float f){
   return TexturePoint(this->x/f,this->y/f);
 }
