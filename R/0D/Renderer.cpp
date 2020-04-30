@@ -261,7 +261,7 @@ void update()
         break;
 
       case 4:
-        if (camera.position.x > -10){
+        if (camera.position.x > -9.3){
           camera.forward(0.2);
         }
         else sequence++;
@@ -288,7 +288,7 @@ void update()
         break;
       
       case 8:
-        if (camera.position.z >0){
+        if (camera.position.z >0.4){
           camera.forward(0.2);
         }
         else sequence++;
@@ -300,13 +300,20 @@ void update()
         break;
 
       case 10:
+        if (camera.position.z > 20){
+          camera.forward(0.2);
+        }
+        else sequence++;
+        break;
+
+      case 11:
         sloop++;
-        if (sloop > 240){
+        if (sloop > 120){
           sequence++;sloop=0;
         }
         break;
 
-      case 11:
+      case 12:
         std::exit(0);
 
 
