@@ -13,6 +13,7 @@ Colour::Colour(int r, int g, int b)
   green = g;
   blue = b;
   specularIndex = 0;
+  isBump = false;
 
 }
 
@@ -23,6 +24,7 @@ Colour::Colour(int r, int g, int b, float s)
   green = g;
   blue = b;
   specularIndex = 0;
+  isBump = false;
 
 }
 
@@ -33,6 +35,7 @@ Colour::Colour(std::string n, int r, int g, int b)
   green = g;
   blue = b;
   specularIndex = 0;
+  isBump = false;
 
 }
 
@@ -43,6 +46,7 @@ Colour::Colour(std::string n, int r, int g, int b, float s)
   green = g;
   blue = b;
   specularIndex = s;
+  isBump = false;
 
 }
 

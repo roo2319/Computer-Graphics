@@ -14,6 +14,8 @@ class ModelTriangle
     Colour colour;
     TexturePoint texture[3];
     bool isTexture;
+    bool isBump;
+    std::string nameBump;
     std::string nameTexture;
     //for performance make it just accept a packed colour or pack in the constructors
 

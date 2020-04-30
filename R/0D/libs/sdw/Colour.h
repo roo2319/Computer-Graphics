@@ -11,8 +11,8 @@ class Colour
     int red;
     int green;
     int blue;
-
     float specularIndex;
+    bool isBump;
 
 
     Colour();

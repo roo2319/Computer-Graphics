@@ -32,6 +32,8 @@ vector<vector<uint32_t>> readPPM(const char * filename);
 void writePPM(const char * filename,DrawingWindow window);
 std::unordered_map<std::string,Colour> readMTL(const char* filename);
 vector<ModelTriangle> readOBJ(const char* filename,std::unordered_map<std::string,Colour> mtls, float scale);
+vector<ModelTriangle> readOBJ(const char* filename,std::unordered_map<std::string,Colour> mtls, float scale,float scaleTexture);
+
 
 // Test images
 void redNoise(DrawingWindow window);
@@ -42,7 +44,7 @@ void four_colour(DrawingWindow window);
 
 
 std::unordered_map<std::string,Colour> readMTL2(const char* filename);
-vector<ModelTriangle> readOBJwithTexture(const char* filename,std::unordered_map<std::string,Colour> mtls, float scale, float scaleTexture);
+// vector<ModelTriangle> readOBJwithTexture(const char* filename,std::unordered_map<std::string,Colour> mtls, float scale, float scaleTexture);
 void drawBack(DrawingWindow window,unsigned int wd ,unsigned int ht,vector<vector<uint32_t>> image);
 
 

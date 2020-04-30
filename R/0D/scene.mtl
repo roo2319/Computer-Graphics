@@ -11,6 +11,9 @@ newmtl RedButShiny
 Ks 1.000000 0.000000 0.000000
 Ns 64.00000
 
+newmtl Swirl
+bump swirl.ppm
+
 newmtl Green
 Kd 0.000000 1.000000 0.000000
 

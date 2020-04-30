@@ -395,14 +395,18 @@ std::unordered_map<std::string,Colour> readMTL(const char* filename){
     if (line.find("newmtl") != std::string::npos) {
       name = line.substr(line.find(' ')+1);
     }
-    if (line.find("Kd") != std::string::npos){
+    else if (line.find("map_Kd") != std::string::npos){
+      std::string nameTexture = line.substr(line.find(' ')+1);
+      materials[name] = Colour(nameTexture,1,1,1);
+    }
+    else if (line.find("Kd") != std::string::npos){
       std::string* c = split(line,' ');
       int r = round(255 * stof(c[1]));
       int g = round(255 * stof(c[2]));
       int b = round(255 * stof(c[3]));
       materials[name] = Colour(name,r,g,b);
       }
-    if (line.find("Ks") != std::string::npos){
+    else if (line.find("Ks") != std::string::npos){
       std::string* c = split(line,' ');
       int r = round(255 * stof(c[1]));
       int g = round(255 * stof(c[2]));
@@ -412,64 +416,22 @@ std::unordered_map<std::string,Colour> readMTL(const char* filename){
       float n = stof(c[1]);
       materials[name] = Colour(name,r,g,b,n);
       }
+    else if (line.find("bump") != std::string::npos){
+      std::string nameBump = line.substr(line.find(' ')+1);
+      materials[name] = Colour(nameBump,1,1,1);
+      materials[name].isBump = true;
+      std::cout << "Read Bump" << std::endl;
+    }
     }
   return materials;
 }
-std::unordered_map<std::string,Colour> readMTL2(const char* filename){
-  std::ifstream f;
-  std::string line;
-  std::string name;
-  std::string nameTexture;
-  std::unordered_map<std::string,Colour> materials;
-  f.open( filename, std::ios::in);
-  while (getline(f,line)) {
-    if (line.find("newmtl") != std::string::npos) {
-      name = line.substr(line.find(' ')+1);
-    }
-    if (line.find("map_Kd") != std::string::npos){
-      nameTexture = line.substr(line.find(' ')+1);
-      materials[name] = Colour(nameTexture,1,1,1);
-    }
-    else if (line.find("Kd") != std::string::npos){
-      std::string* c = split(line,' ');
-      int r = round(255 * stof(c[1]));
-      int g = round(255 * stof(c[2]));
-      int b = round(255 * stof(c[3]));
-      materials[name] = Colour(name,r,g,b);
-    }
-  }
-  std::cout << std::endl<< "readMTL" << std::endl<< std::endl;
-  return materials;
-}
-vector<ModelTriangle> readOBJ(const char* filename,std::unordered_map<std::string,Colour> mtls, float scale){
-  vector<ModelTriangle> triangles;
-  vector<glm::vec3> points;
-  std::ifstream f;
-  std::string line;
-  Colour current_colour = Colour(255,255,255);
-  f.open(filename, std::ios::in);
-  while (getline(f,line)) {
-    if (line.find("usemtl") != std::string::npos){
-      std::string material = split(line, ' ')[1];
-      if (!(mtls.find(material) == mtls.end())) current_colour =  mtls[material];
-    }
-    else if (line[0] == 'v') {
-      std::string* toks = split(line,' ');
-      points.push_back(glm::vec3(stof(toks[1])*scale,stof(toks[2])*scale,stof(toks[3])*-scale));
-    }
-    else if (line[0] == 'f') {
-      std::string* toks = split(line,' ');
-      glm::vec3 first = points.at(abs(stoi(split(toks[1],'/')[0])-1));
-      glm::vec3 second = points.at(abs(stoi(split(toks[2],'/')[0])-1));
-      glm::vec3 third = points.at(abs(stoi(split(toks[3],'/')[0])-1));
-      ModelTriangle triangle = ModelTriangle(first,second,third,current_colour);
-      triangles.push_back(triangle);
-    }
-  }
 
-  return triangles;
+vector<ModelTriangle> readOBJ(const char* filename,std::unordered_map<std::string,Colour> mtls, float scale){
+  return readOBJ(filename, mtls, scale,0);
 }
-vector<ModelTriangle> readOBJwithTexture(const char* filename,std::unordered_map<std::string,Colour> mtls, float scale, float scaleTexture){
+
+
+vector<ModelTriangle> readOBJ(const char* filename,std::unordered_map<std::string,Colour> mtls, float scale,float scaleTexture){
   vector<ModelTriangle> triangles;
   vector<glm::vec3> points;
   vector<TexturePoint> Texpoints;
@@ -477,14 +439,12 @@ vector<ModelTriangle> readOBJwithTexture(const char* filename,std::unordered_map
   std::string line;
   Colour current_colour = Colour(255,255,255);
   f.open(filename, std::ios::in);
-
-  while (getline(f,line))
-  {
+  while (getline(f,line)) {
     if (line.find("usemtl") != std::string::npos){
       std::string material = split(line, ' ')[1];
       if (!(mtls.find(material) == mtls.end())) current_colour =  mtls[material];
     }
-    else if (line[0] == 'v' && line[1] == ' ') {
+    else if (line[0] == 'v' && line[1] != 't') {
       std::string* toks = split(line,' ');
       points.push_back(glm::vec3(stof(toks[1])*scale,stof(toks[2])*scale,stof(toks[3])*-scale));
     }
@@ -510,9 +470,20 @@ vector<ModelTriangle> readOBJwithTexture(const char* filename,std::unordered_map
       }
       triangles.push_back(triangle);
     }
-  }std::cout << std::endl<< "readOBJwithTexture " << filename << std::endl<< std::endl;
+
+    else if (line[0] == 'f' && current_colour.isBump){
+      std::string* toks = split(line,' ');
+      glm::vec3 first = points.at(abs(stoi(split(toks[1],'/')[0])-1));
+      glm::vec3 second = points.at(abs(stoi(split(toks[2],'/')[0])-1));
+      glm::vec3 third = points.at(abs(stoi(split(toks[3],'/')[0])-1));
+      ModelTriangle triangle = ModelTriangle(first,second,third,current_colour);
+      // triangle.texture[0] = 
+      triangles.push_back(triangle);
+    }
+  }
   return triangles;
 }
+
 void redNoise(DrawingWindow window){
   for(int y=0; y<window.height ;y++) {
     for(int x=0; x<window.width ;x++) {
