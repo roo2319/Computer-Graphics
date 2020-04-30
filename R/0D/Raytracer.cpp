@@ -25,6 +25,29 @@ bool calculateIntersectionWithBounces(DrawingWindow window,
                          RayTriangleIntersection& intersection,
                          ModelTriangle self);
 
+glm::vec3 interpolateNormal(const RayTriangleIntersection& i){
+  std::vector<std::vector<glm::vec3>>* BumpMap = i.intersectedTriangle.bump;
+  glm::vec3 vertices[3] {i.intersectedTriangle.vertices[0],i.intersectedTriangle.vertices[1],i.intersectedTriangle.vertices[2]};
+  TexturePoint textures[3] {i.intersectedTriangle.texture[0],i.intersectedTriangle.texture[1],i.intersectedTriangle.texture[2]};
+  float e1Scale = i.e1/glm::length(vertices[1] - vertices[0]); //v0 to v1
+  float e2Scale = i.e2/glm::length(vertices[2] - vertices[0]); //v0 to v2
+
+  // std::cout << textures[0] << " " << textures[1] << std::endl;
+
+  TexturePoint e1 = textures[0] + e1Scale * (textures[1] - textures[0]);
+  TexturePoint e2 = textures[1] + e2Scale * (textures[2] - textures[0]);
+  TexturePoint Coord = e1+e2;
+
+  if (Coord.x < 0) Coord.x = 0;
+  if (Coord.x > 1) Coord.x = 1;
+  if (Coord.y < 0) Coord.y = 0;
+  if (Coord.y > 1) Coord.y = 1;
+
+  std::cout << Coord.x * (*BumpMap).size() << " " << Coord.y * (*BumpMap).size()
+
+  return (*BumpMap)[Coord.x * (*BumpMap).size()][Coord.y * (*BumpMap).size()];
+}
+
 glm::vec3 Lighting(const RayTriangleIntersection& i,std::vector<ModelTriangle> triangles,glm::vec3 viewdir){
   RayTriangleIntersection nearestSurface;
   glm::vec3 lighting = indirectLighting;
@@ -35,8 +58,14 @@ glm::vec3 Lighting(const RayTriangleIntersection& i,std::vector<ModelTriangle> t
     if ( lfound && nearestSurface.distance < glm::length(r) && !(nearestSurface.intersectedTriangle.colour.name == "Red")){
       continue; //Shadow 
     }
-    else{
-      glm::vec3 n = i.intersectedTriangle.normal;
+    else if(lfound){
+      glm::vec3 n; 
+      if (!i.intersectedTriangle.isBump){
+        n = i.intersectedTriangle.normal;
+      }
+      else{
+        n = interpolateNormal(i);
+      }
       float percent = std::max(glm::dot(glm::normalize(r),n),0.f);
       glm::vec3 diffuse = (lightColours[j] * (percent/(4*pi*glm::dot(r,r))));
       glm::vec3 reflected = r - 2*(glm::dot(r,n))*n; 
@@ -57,7 +86,6 @@ glm::vec3 Lighting(const RayTriangleIntersection& i,std::vector<ModelTriangle> t
     return 0.5f * indirectLighting;
   }
   return lighting;
-
 }
 
 bool closestIntersection(glm::vec3 start, glm::vec3 dir,
@@ -76,7 +104,7 @@ bool closestIntersection(glm::vec3 start, glm::vec3 dir,
     // std::cout << x.x << std::endl;
     if(x.x > 0 && x.x < bestT && x.y > 0 && x.z > 0 && x.y+x.z < 1 && triangle != self){
       bestT = x.x;
-      intersection = RayTriangleIntersection(triangle.vertices[0] + e1 * x.y + e2 * x.z ,x.x,triangle);
+      intersection = RayTriangleIntersection(triangle.vertices[0] + e1 * x.y + e2 * x.z ,x.x,x.y,x.z,triangle);
     }
   } 
     return bestT < 1000;

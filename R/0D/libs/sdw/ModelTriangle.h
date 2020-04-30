@@ -17,6 +17,7 @@ class ModelTriangle
     bool isBump;
     std::string nameBump;
     std::string nameTexture;
+    std::vector<std::vector<glm::vec3>>* bump;
     //for performance make it just accept a packed colour or pack in the constructors
 
     ModelTriangle();

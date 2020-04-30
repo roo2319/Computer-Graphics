@@ -54,9 +54,13 @@ f 15/ 17/ 19/
 f 19/ 17/ 21/
 
 o left 
-usemtl Yellow
-f 16/ 15/ 19/
-f 16/ 19/ 20/
+usemtl Swirl
+vt 0 0 
+vt 0 1
+vt 1 0 
+vt 1 1
+f 16/2 15/1 19/3
+f 16/2 19/3 20/4
 
 o right 
 usemtl RedButShiny

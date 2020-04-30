@@ -27,12 +27,13 @@ void update();
 
 unordered_map<string,Colour> materials = readMTL("scene.mtl");
 vector<vector<uint32_t>> image = readPPM("texture.ppm");
-Model scene = Model(readOBJ("scene.obj",materials,1));
+Model scene = Model(readOBJ("scene.obj",materials,1,1));
 DrawingWindow window = DrawingWindow(WIDTH, HEIGHT, false);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 vector<vector<uint32_t>> back = readPPM("ppm/bluebelt.ppm");
 vector<vector<uint32_t>> tiger = readPPM("logo/texture.ppm");
+vector<vector<glm::vec3>> swirl = readBump("swirl.ppm");
 unordered_map<string,Colour> logomaterials = readMTL("logo/materials.mtl");
 Model logo = Model(readOBJ("logo/logo.obj",logomaterials,0.02,299),vec3(0,100,10));
 vector<Model> world = {scene,logo};
@@ -59,6 +60,12 @@ bool animate = false;
 
 int main(int argc, char* argv[])
 {
+  for(int i = 0; i<world[0].faces.size(); i++){
+    if (world[0].faces[i].nameBump == "swirl.ppm"){
+      std::cout << "Set BUMP" << std::endl;
+      world[0].faces[i].bump = &swirl;
+    }
+  }
   // start();
   SDL_Event event;
   while(true){

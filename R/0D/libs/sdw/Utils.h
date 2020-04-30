@@ -29,6 +29,7 @@ void texturedTriangle(DrawingWindow window, vector<vector<uint32_t>> image, Canv
 
 // Parsing
 vector<vector<uint32_t>> readPPM(const char * filename);
+vector<vector<glm::vec3>> readBump(const char * filename);
 void writePPM(const char * filename,DrawingWindow window);
 std::unordered_map<std::string,Colour> readMTL(const char* filename);
 vector<ModelTriangle> readOBJ(const char* filename,std::unordered_map<std::string,Colour> mtls, float scale);

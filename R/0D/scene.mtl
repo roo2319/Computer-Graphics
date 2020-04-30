@@ -12,6 +12,7 @@ Ks 1.000000 0.000000 0.000000
 Ns 64.00000
 
 newmtl Swirl
+Kd 1.000000 1.000000 0.000000
 bump swirl.ppm
 
 newmtl Green

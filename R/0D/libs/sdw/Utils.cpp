@@ -364,6 +364,38 @@ vector<vector<uint32_t>> readPPM(const char * filename){
   return image;
 }
 
+vector<vector<glm::vec3>> readBump(const char * filename){
+  std::ifstream f;
+  std::string line;
+  vector<vector<glm::vec3>> bump;
+  f.open( filename, std::ios::binary);
+  if (!f.is_open()){
+    std::cout << "Failed to open ppm" << std::endl;
+    return bump;
+  }
+  while (getline(f,line)) if (line[0] == 'P' and line[1] == '6') break;
+  std::cout << "Read P6" << std::endl;
+  while (getline(f,line)) if (line[0] != '#') break;
+  int width  = stoi(line.substr(0,line.find(' ')));
+  int height = stoi(line.substr(line.find(' ')));
+  std::cout << width << std::endl;
+  std::cout << height << std::endl;
+  while (getline(f,line)) if (line[0] != '#') break;
+  int maxval = stoi(line);
+  std::cout << maxval << std::endl;
+  // int bytesPerPixel = maxval < 256 ? 1 : 2;
+  for(int y = 0; y < height; y++){
+    vector<glm::vec3> row;
+    for (int x = 0; x < width; x++){
+
+      row.push_back(glm::normalize(glm::vec3(f.get(),f.get(),f.get())));
+    }
+    bump.push_back(row);
+  }
+  f.close();
+  return bump;
+}
+
 void writePPM(const char * filename,DrawingWindow window){
   std::ofstream f;
   std::string line;
@@ -418,7 +450,7 @@ std::unordered_map<std::string,Colour> readMTL(const char* filename){
       }
     else if (line.find("bump") != std::string::npos){
       std::string nameBump = line.substr(line.find(' ')+1);
-      materials[name] = Colour(nameBump,1,1,1);
+      materials[name].name = nameBump;
       materials[name].isBump = true;
       std::cout << "Read Bump" << std::endl;
     }
@@ -465,8 +497,15 @@ vector<ModelTriangle> readOBJ(const char* filename,std::unordered_map<std::strin
         triangle.texture[0] = Texpoints.at(abs(stoi(split(toks[1],'/')[1])-1));
         triangle.texture[1] = Texpoints.at(abs(stoi(split(toks[2],'/')[1])-1));
         triangle.texture[2] = Texpoints.at(abs(stoi(split(toks[3],'/')[1])-1));
-        triangle.nameTexture = current_colour.name;
-        triangle.isTexture = 1;
+        if (current_colour.isBump){
+          triangle.isBump = true;
+          triangle.nameBump = current_colour.name;
+
+        }
+        else{
+          triangle.isTexture = 1;
+          triangle.nameTexture = current_colour.name;
+        }
       }
       triangles.push_back(triangle);
     }

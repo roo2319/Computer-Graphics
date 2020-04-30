@@ -7,6 +7,8 @@ class RayTriangleIntersection
 {
   public:
     glm::vec3 intersectionPoint;
+    float e1;
+    float e2;
     float distance;
     ModelTriangle intersectedTriangle;
 
@@ -19,6 +21,16 @@ class RayTriangleIntersection
         intersectionPoint = point;
         distance = d;
         intersectedTriangle = triangle;
+    }
+
+        RayTriangleIntersection(glm::vec3 point, float d,float eone, float etwo, ModelTriangle triangle)
+    {
+        intersectionPoint = point;
+        distance = d;
+        intersectedTriangle = triangle;
+        e1 = eone;
+        e2 = etwo;
+
     }
 };
 
