@@ -154,7 +154,7 @@ void filled(DrawingWindow window, CanvasPoint first, CanvasPoint second, CanvasP
   stroked(window,first,second,third,c);
 }
 
-void texturedTriangle(DrawingWindow window, vector<vector<uint32_t>>& image, CanvasPoint first, CanvasPoint second, CanvasPoint third)
+void texturedTriangle(DrawingWindow window, vector<vector<uint32_t>>* image, CanvasPoint first, CanvasPoint second, CanvasPoint third)
 {
   if (first.y > second.y) std::swap(first,second);
   if (first.y > third.y ) std::swap(first,third );
@@ -182,7 +182,7 @@ void texturedTriangle(DrawingWindow window, vector<vector<uint32_t>>& image, Can
     texturedLine(window,thirdToExtra[i],thirdToSecond[i],image);
   }
 }
-void texturedLine(DrawingWindow window, CanvasPoint to, CanvasPoint from, vector<vector<uint32_t>>& texture){
+void texturedLine(DrawingWindow window, CanvasPoint to, CanvasPoint from, vector<vector<uint32_t>>* texture){
   float xDiff = to.x - from.x;
   float yDiff = to.y - from.y;
   int numberOfSteps =  ceil(std::max(abs(xDiff), abs(yDiff)));
@@ -192,7 +192,7 @@ void texturedLine(DrawingWindow window, CanvasPoint to, CanvasPoint from, vector
   {
     Pt = interpolated[i];
     t = Pt.texturePoint;
-    window.setPixelColourDC(Pt.x, Pt.y, Pt.depth, texture.at(t.y).at(t.x) );
+    window.setPixelColourDC(Pt.x, Pt.y, Pt.depth, (*texture).at(t.y).at(t.x) );
   }
 }
 vector<float> interpolateF(float from, float to, int numberOfValues)
@@ -364,6 +364,7 @@ std::unordered_map<std::string,Colour> readMTL(const char* filename){
     else if (line.find("map_Kd") != std::string::npos){
       std::string nameTexture = line.substr(line.find(' ')+1);
       materials[name] = Colour(nameTexture,1,1,1);
+      materials[name].isTex = true;
     }
     else if (line.find("Kd") != std::string::npos){
       std::string* c = split(line,' ');
@@ -436,8 +437,9 @@ vector<ModelTriangle> readOBJ(const char* filename,std::unordered_map<std::strin
           triangle.nameBump = current_colour.name;
 
         }
-        else{
-          triangle.isTexture = 1;
+        else if (current_colour.isTex){
+          std::cout << current_colour.name << std::endl;
+          triangle.isTexture = true;
           triangle.nameTexture = current_colour.name;
         }
       }

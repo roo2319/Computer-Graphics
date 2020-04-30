@@ -56,12 +56,6 @@ void Model::transform(glm::vec3 s,float X, float Y, float Z){
     }
   }
 }
-
-void Model::texture(std::vector<std::vector<uint32_t>> image){
-  for(unsigned int i = 0; i < faces.size(); i++){
-    faces[i].image = image;
-  }
-}
 void Model::rockUpdate(int cameraDepth){
   if(rockstart[2]-cameraDepth < 5){
     rockstart = glm::vec3( rand()%20-10,   rand()%20-10,  (cameraDepth+50+rand()%20) );

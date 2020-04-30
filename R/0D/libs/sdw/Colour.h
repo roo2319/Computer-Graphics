@@ -13,6 +13,7 @@ class Colour
     int blue;
     float specularIndex;
     bool isBump;
+    bool isTex;
 
 
     Colour();

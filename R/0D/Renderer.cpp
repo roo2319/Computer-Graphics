@@ -69,12 +69,28 @@ bool animate = false;
 int main(int argc, char* argv[])
 {
   logo.transform(glm::vec3(-10,0,8),0,0,0);
-  for(unsigned int i = 0; i<world[0].faces.size(); i++){
-    if (world[0].faces[i].nameBump == "swirl.ppm"){
+  for(unsigned int i = 0; i<scene.faces.size(); i++){
+    if (scene.faces[i].nameBump == "swirl.ppm"){
       std::cout << "Set BUMP" << std::endl;
-      world[0].faces[i].bump = &swirl;
+      scene.faces[i].bump = &swirl;
     }
   }
+
+  for(unsigned int i = 0; i<logo.faces.size(); i++){
+    if( logo.faces[i].isTexture){
+      logo.faces[i].image = &tiger;
+      std::cout << "Set TEX" << std::endl;
+    }
+  }
+
+  for(unsigned int i = 0; i<rock.faces.size(); i++){
+    if( rock.faces[i].isTexture){
+      rock.faces[i].image = &rockTexture;
+      std::cout << "Set TEX2" << std::endl;
+    }
+  }
+
+
   // start();
   // logo_.texture(tiger);
   // rock.texture(rockTexture);
@@ -103,7 +119,7 @@ void draw()
 
     case 1:
 
-      drawRasterised(world,window,camera,tiger);
+      drawRasterised(world,window,camera);
       break;
 
     case 2:

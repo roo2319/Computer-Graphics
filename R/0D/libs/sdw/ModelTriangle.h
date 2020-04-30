@@ -18,7 +18,7 @@ class ModelTriangle
     std::string nameBump;
     std::string nameTexture;
     std::vector<std::vector<glm::vec3>>* bump;
-    std::vector<std::vector<uint32_t>> image;
+    std::vector<std::vector<uint32_t>>* image;
     //for performance make it just accept a packed colour or pack in the constructors
 
     ModelTriangle();
@@ -45,7 +45,6 @@ class Model
 
 
     void transform(glm::vec3 dist,float X, float Y, float Z);
-    void texture(std::vector<std::vector<uint32_t>> image);
     void rockUpdate(int cameraDepth);
 };
 

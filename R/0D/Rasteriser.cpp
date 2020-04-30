@@ -127,7 +127,7 @@ void drawWireframe(std::vector<Model>& world, DrawingWindow window, Camera camer
   }
 }
 
-void drawRasterised(std::vector<Model>& world, DrawingWindow window, Camera camera, vector<vector<uint32_t>>& image)
+void drawRasterised(std::vector<Model>& world, DrawingWindow window, Camera camera)
 {
   camera.updateFrustum(window.width,window.height);
   std::vector<ModelTriangle> faces;
@@ -147,9 +147,8 @@ void drawRasterised(std::vector<Model>& world, DrawingWindow window, Camera came
 
         if(faces[j].isTexture)
         {
-          // std::cout << std::endl<< "nameTexture " << model[i].nameTexture <<std::endl<< std::endl;
           // filled(window, projections[k], projections[k+1], projections[k+2], model[i].colour);
-          texturedTriangle(window,image,projections[k], projections[k+1], projections[k+2]);
+          texturedTriangle(window,faces[j].image,projections[k], projections[k+1], projections[k+2]);
         }
         else{
           filled(window, projections[k], projections[k+1], projections[k+2], faces[j].colour);

@@ -43,13 +43,6 @@ void handleEvent(SDL_Event event, DrawingWindow window, Camera& camera, vector<v
               Colour(rand()%255,rand()%255,rand()%255));
       std::cout << "f" << std::endl;
     }
-    else if (event.key.keysym.sym == SDLK_t){
-      texturedTriangle(window,image,CanvasPoint(rand()%window.width,rand()%window.height),
-              CanvasPoint(rand()%window.width,rand()%window.height),
-              CanvasPoint(rand()%window.width,rand()%window.height));
-      std::cout << "t" << std::endl;
-
-    }
     else if(event.key.keysym.sym == SDLK_c){
         window.clearPixels();
     }
