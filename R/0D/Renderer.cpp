@@ -79,14 +79,12 @@ int main(int argc, char* argv[])
   for(unsigned int i = 0; i<logo.faces.size(); i++){
     if( logo.faces[i].isTexture){
       logo.faces[i].image = &tiger;
-      std::cout << "Set TEX" << std::endl;
     }
   }
 
   for(unsigned int i = 0; i<rock.faces.size(); i++){
     if( rock.faces[i].isTexture){
       rock.faces[i].image = &rockTexture;
-      std::cout << "Set TEX2" << std::endl;
     }
   }
 

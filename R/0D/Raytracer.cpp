@@ -148,7 +148,6 @@ bool glass(glm::vec3 dir,
             std::vector<ModelTriangle>& triangles,
             RayTriangleIntersection& intersection,
             std::string name){
-  // Hmm, maybe needs work?
   float r = 1.52f;
   glm::vec3 n = intersection.intersectedTriangle.normal;
   dir = glm::normalize(dir);
