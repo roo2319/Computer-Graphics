@@ -7,19 +7,23 @@ ModelTriangle nullT = ModelTriangle();
 int lbounces = 0;
 float pi = 3.1415f; //Approximation
 
-glm::vec3 Lighting(const RayTriangleIntersection& i,std::vector<ModelTriangle>& triangles);
-// bool closestIntersection(glm::vec3 start, glm::vec3 dir,
-//                          std::vector<ModelTriangle>& triangles,
-//                          RayTriangleIntersection& intersection);
+glm::vec3 Lighting(const RayTriangleIntersection& i,std::vector<ModelTriangle> triangles);
 bool closestIntersection(glm::vec3 start, glm::vec3 dir,
-                         std::vector<ModelTriangle>& triangles,
+                         std::vector<ModelTriangle> triangles,
+                         RayTriangleIntersection& intersection);
+bool closestIntersection(glm::vec3 start, glm::vec3 dir,
+                         std::vector<ModelTriangle> triangles,
                          RayTriangleIntersection& intersection,
                          ModelTriangle self);
 bool calculateIntersectionWithBounces(DrawingWindow window,
                          glm::vec3 start, glm::vec3 dir,
-                         std::vector<ModelTriangle>& triangles,
+                         std::vector<ModelTriangle> triangles,
                          RayTriangleIntersection& intersection);
-
+bool calculateIntersectionWithBounces(DrawingWindow window,
+                         glm::vec3 start, glm::vec3 dir,
+                         std::vector<ModelTriangle> triangles,
+                         RayTriangleIntersection& intersection,
+                         ModelTriangle self);
 
 glm::vec3 interpolateNormal(const RayTriangleIntersection& i){
   std::vector<std::vector<glm::vec3>>* BumpMap = i.intersectedTriangle.bump;
@@ -47,7 +51,7 @@ glm::vec3 interpolateNormal(const RayTriangleIntersection& i){
   return (*BumpMap)[Coord.x][Coord.y];
 }
 
-glm::vec3 Lighting(const RayTriangleIntersection& i,std::vector<ModelTriangle>& triangles,glm::vec3 viewdir){
+glm::vec3 Lighting(const RayTriangleIntersection& i,std::vector<ModelTriangle> triangles,glm::vec3 viewdir){
   RayTriangleIntersection nearestSurface;
   glm::vec3 lighting = indirectLighting;
   bool found = false;
@@ -87,38 +91,25 @@ glm::vec3 Lighting(const RayTriangleIntersection& i,std::vector<ModelTriangle>& 
   return lighting;
 }
 
-// Möller–Trumbore intersection
 bool closestIntersection(glm::vec3 start, glm::vec3 dir,
-                         std::vector<ModelTriangle>& triangles,
+                         std::vector<ModelTriangle> triangles,
                          RayTriangleIntersection& intersection,
                          ModelTriangle self){
   float bestT = 1000;
   dir = glm::normalize(dir);
   for (unsigned int i = 0; i < triangles.size(); i++){
-    glm::vec3 e1 = triangles[i].vertices[1] - triangles[i].vertices[0];
-    glm::vec3 e2 = triangles[i].vertices[2] - triangles[i].vertices[0];
-    // glm::vec3  b = start - triangle.vertices[0];
-    glm::vec3 pvec = glm::cross(dir,e2);
-    float det = glm::dot(e1,pvec);
-    if (abs(det)<=0.01){
-      continue;
+    ModelTriangle triangle = triangles[i];
+    glm::vec3 e1 = triangle.vertices[1] - triangle.vertices[0];
+    glm::vec3 e2 = triangle.vertices[2] - triangle.vertices[0];
+    glm::vec3  b = start - triangle.vertices[0];
+    glm::mat3 A(-dir,e1,e2);
+    glm::vec3 x = glm::inverse(A) * b; // distance , u , v
+    // std::cout << x.x << std::endl;
+    if(x.x > 0 && x.x < bestT && x.y > 0 && x.z > 0 && x.y+x.z < 1 && triangle != self){
+      bestT = x.x;
+      intersection = RayTriangleIntersection(triangle.vertices[0] + e1 * x.y + e2 * x.z ,x.x,x.y,x.z,triangle);
     }
-    float invDet = 1 / det; 
-
-
-    // std::cout << u << std::endl;
-    glm::vec3 tvec = start - triangles[i].vertices[0]; 
-    float u = glm::dot(tvec,pvec) * invDet;
-    if (u < 0 || u > 1) continue; 
-    glm::vec3 qvec = glm::cross(tvec,e1);
-    float v = glm::dot(dir,qvec) * invDet;
-    if (v < 0 || u + v > 1) continue; 
-    float t = glm::dot(e2,qvec) * invDet;
-    if (t < bestT && t > 0 && triangles[i] != self){
-      bestT = t;
-      intersection = RayTriangleIntersection(start + t * dir,t,u,v,triangles[i]);
-    }
-  }
+  } 
     return bestT < 1000;
 }
 
@@ -130,7 +121,7 @@ glm::vec3 refract(glm::vec3 dir, glm::vec3 n, float n1, float n2){
 }
 
 bool mirror(glm::vec3 dir,
-            std::vector<ModelTriangle>& triangles,
+            std::vector<ModelTriangle> triangles,
             RayTriangleIntersection& intersection){
   glm::vec3 n = intersection.intersectedTriangle.normal;
   dir = glm::normalize(dir);                     
@@ -144,7 +135,7 @@ bool mirror(glm::vec3 dir,
 }
 
 bool glass(glm::vec3 dir,
-            std::vector<ModelTriangle>& triangles,
+            std::vector<ModelTriangle> triangles,
             RayTriangleIntersection& intersection,
             std::string name){
   // Hmm, maybe needs work?
@@ -165,7 +156,7 @@ bool glass(glm::vec3 dir,
 }
 
 bool portal(glm::vec3 dir,
-            std::vector<ModelTriangle>& triangles,
+            std::vector<ModelTriangle>triangles,
             RayTriangleIntersection& intersection,
             char PortalNumber){
 
@@ -205,7 +196,7 @@ bool portal(glm::vec3 dir,
 
 bool calculateIntersectionWithBounces(DrawingWindow window,
                          glm::vec3 start, glm::vec3 dir,
-                         std::vector<ModelTriangle>& triangles,
+                         std::vector<ModelTriangle> triangles,
                          RayTriangleIntersection& intersection){
   glm::vec3 n;
 
@@ -231,7 +222,7 @@ bool calculateIntersectionWithBounces(DrawingWindow window,
 
 bool calculateIntersectionWithBounces(DrawingWindow window,
                          glm::vec3 start, glm::vec3 dir,
-                         std::vector<ModelTriangle>& triangles,
+                         std::vector<ModelTriangle> triangles,
                          RayTriangleIntersection& intersection,
                          ModelTriangle self){
 
@@ -245,7 +236,7 @@ bool calculateIntersectionWithBounces(DrawingWindow window,
   return calculateIntersectionWithBounces(window,start,dir,triangles,intersection);
 }
 
-void simple(DrawingWindow window,std::vector<ModelTriangle>& model,int x, int y, Camera camera){
+void simple(DrawingWindow window,std::vector<ModelTriangle> model,int x, int y, Camera camera){
   RayTriangleIntersection intersection;
   glm::vec3 dir = glm::vec3(x-window.width/2,window.height/2-y,camera.focal) * camera.rotation;
   if (calculateIntersectionWithBounces(window,camera.position,dir,model,intersection)){
@@ -253,7 +244,7 @@ void simple(DrawingWindow window,std::vector<ModelTriangle>& model,int x, int y,
   }
 }
 
-void NbyNGrid(DrawingWindow window,std::vector<ModelTriangle>& model,int x, int y, float n, Camera camera){
+void NbyNGrid(DrawingWindow window,std::vector<ModelTriangle> model,int x, int y, float n, Camera camera){
   RayTriangleIntersection intersection;
   float offset = 1 / (2*n);
   glm::vec3 dir;
@@ -271,7 +262,7 @@ void NbyNGrid(DrawingWindow window,std::vector<ModelTriangle>& model,int x, int 
   if (count != 0) window.setPixelColour(x,y,(colour/count).pack());
 }
 
-void NbyNChecker(DrawingWindow window,std::vector<ModelTriangle>& model,int x, int y, float n, Camera camera){
+void NbyNChecker(DrawingWindow window,std::vector<ModelTriangle> model,int x, int y, float n, Camera camera){
   RayTriangleIntersection intersection;
   float offset = 1 / (2*n);
   glm::vec3 dir;
@@ -291,7 +282,7 @@ void NbyNChecker(DrawingWindow window,std::vector<ModelTriangle>& model,int x, i
   if (count != 0) window.setPixelColour(x,y,(colour/count).pack());
 }
 
-void samplePixels(DrawingWindow window,std::vector<ModelTriangle>& model,int x, int y, Camera camera, int SSMethod){
+void samplePixels(DrawingWindow window,std::vector<ModelTriangle> model,int x, int y, Camera camera, int SSMethod){
   switch (SSMethod){
     case 0: //Simple
       simple(window,model,x,y,camera);
@@ -311,7 +302,7 @@ void samplePixels(DrawingWindow window,std::vector<ModelTriangle>& model,int x, 
   }
 }
 
-void drawRaytraced(std::vector<Model>& world, DrawingWindow window, Camera camera,int SSMethod, int bounces){
+void drawRaytraced(std::vector<Model> world, DrawingWindow window, Camera camera,int SSMethod, int bounces){
   lbounces = bounces;
   // camera.updateFrustum(window.width,window.height);
   std::vector<ModelTriangle> faces;
