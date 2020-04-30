@@ -64,7 +64,7 @@ vector<vector<glm::vec3>> interpolate2d(glm::vec3 top_left, glm::vec3 top_right,
 }
 
 // Bresenhams
-void bresenham(DrawingWindow window, CanvasPoint to, CanvasPoint from, Colour c){
+void line(DrawingWindow window, CanvasPoint to, CanvasPoint from, Colour c){
   int x0, x1, y0, y1;
   float d0, d1;
   x0 = from.x; y0 = from.y; x1 = to.x; y1 = to.y; d0 = from.depth; d1=to.depth;
@@ -83,8 +83,8 @@ void bresenham(DrawingWindow window, CanvasPoint to, CanvasPoint from, Colour c)
   int dx = x1 - x0;
   int dy = abs(y1 - y0);
   // depth per step
-  double dps = (d1 - d0)/dx;
-  double d = d0;
+  float dps = (d1 - d0)/dx;
+  float d = d0;
 
   int error = dx/2;
   int ystep = (y0 < y1) ? 1 : -1;
@@ -103,77 +103,8 @@ void bresenham(DrawingWindow window, CanvasPoint to, CanvasPoint from, Colour c)
       error += dx;
     }
   }
-
-
-
-
-
 }
-void line(DrawingWindow window, CanvasPoint to, CanvasPoint from, Colour c){
-  // floating point error correction
-  // Cohen-Sutherland clip then bresenham
-  // std::cout <<"plotting line from " << to << " to " << from << std::endl;
-  /* Commented due to world space culling
-  int outcode0 = ComputeOutCode(from,window);
-  int outcode1 = ComputeOutCode(to,window);
-  bool accept = false;
 
-  while (true){
-    if(!(outcode0|outcode1)){
-      accept = true;
-      break;
-    }
-    else if (outcode0&outcode1) {
-      break;
-    }
-    else{
-      CanvasPoint p;
-      int outcodeOut = outcode1 > outcode0 ? outcode1:outcode0;
-      double dy = to.y - from.y;
-      double dx = to.x - from.x;
-      double dd = to.depth - from.depth;
-
-      // Watch out for overflows
-
-      if (outcodeOut&8){
-        p = CanvasPoint(from.x + (window.height-1-from.y)*(dx/dy),
-                        window.height-1,
-                        from.depth + (window.height-1-from.y)*(dd/dy));
-      }
-
-      else if(outcodeOut&4){
-        p = CanvasPoint(from.x +  (-from.y)*(dx/dy),
-                        0,
-                        from.depth + (-from.y)*(dd/dy));
-      }
-      else if(outcodeOut&2){
-        p = CanvasPoint(window.width-1,
-                       from.y+(window.width-1-from.x)*(dy/dx),
-                       from.depth +(window.width-1-from.x)*(dd/dx));
-      }
-      else if(outcodeOut&1){
-        p = CanvasPoint(0,
-                       from.y+(-from.x)*(dy/dx),
-                       from.depth +(-from.x)*(dd/dx));
-
-      }
-      if (outcodeOut==outcode0){
-        from = CanvasPoint(p.x,p.y,p.depth);
-        outcode0 = ComputeOutCode(from,window);
-      }
-      else{
-        to = CanvasPoint(p.x,p.y,p.depth);
-        outcode1 = ComputeOutCode(to,window);
-      }
-    }
-  }
-
-  if (accept){
-    // std::cout <<"Clipped to " << to << " to " << from << std::endl;
-    */
-  // }
-    bresenham(window,to,from,c);
-}
 
 /*
 void texturedLine(DrawingWindow window, CanvasPoint to, CanvasPoint from, vector<vector<uint32_t>> texture){
@@ -223,7 +154,7 @@ void filled(DrawingWindow window, CanvasPoint first, CanvasPoint second, CanvasP
   stroked(window,first,second,third,c);
 }
 
-void texturedTriangle(DrawingWindow window, vector<vector<uint32_t>> image, CanvasPoint first, CanvasPoint second, CanvasPoint third)
+void texturedTriangle(DrawingWindow window, vector<vector<uint32_t>>& image, CanvasPoint first, CanvasPoint second, CanvasPoint third)
 {
   if (first.y > second.y) std::swap(first,second);
   if (first.y > third.y ) std::swap(first,third );
@@ -251,7 +182,7 @@ void texturedTriangle(DrawingWindow window, vector<vector<uint32_t>> image, Canv
     texturedLine(window,thirdToExtra[i],thirdToSecond[i],image);
   }
 }
-void texturedLine(DrawingWindow window, CanvasPoint to, CanvasPoint from, vector<vector<uint32_t>> texture){
+void texturedLine(DrawingWindow window, CanvasPoint to, CanvasPoint from, vector<vector<uint32_t>>& texture){
   float xDiff = to.x - from.x;
   float yDiff = to.y - from.y;
   int numberOfSteps =  ceil(std::max(abs(xDiff), abs(yDiff)));
@@ -275,15 +206,18 @@ vector<float> interpolateF(float from, float to, int numberOfValues)
 vector<CanvasPoint> interpolateT(CanvasPoint from, CanvasPoint to, int numberOfValues)
 {
   vector<CanvasPoint> interpolated;
-  vector<float> X         = interpolateF(from.x,     to.x,     numberOfValues);
-  vector<float> Y         = interpolateF(from.y,     to.y,     numberOfValues);
-  vector<float> depth     = interpolateF(from.depth, to.depth, numberOfValues);
+  for (int i = 0; i<=numberOfValues; i++){
+    interpolated.push_back(CanvasPoint(from.x + i*((to.x-from.x)/(float)numberOfValues),
+                                       from.y + i*((to.y-from.y)/(float)numberOfValues),
+                                       from.depth + i*((to.depth-from.depth)/(float)numberOfValues)));
+  }
   CanvasPoint temp;
   for (int i = 0; i <= numberOfValues; i++)
   {
-      temp = CanvasPoint(X[i], Y[i], depth[i]);
+      // temp = CanvasPoint(X[i], Y[i], depth[i]);
+      temp = interpolated[i];
       temp = findTexture(from, to, temp);
-      interpolated.push_back(temp);
+      interpolated[i] = temp;
   }
   return interpolated;
 }

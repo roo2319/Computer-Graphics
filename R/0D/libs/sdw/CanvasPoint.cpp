@@ -15,7 +15,7 @@ CanvasPoint::CanvasPoint(float xPos, float yPos)
   texturePoint = TexturePoint(-1,-1);
 }
 
-CanvasPoint::CanvasPoint(float xPos, float yPos, double pointDepth)
+CanvasPoint::CanvasPoint(float xPos, float yPos, float pointDepth)
 {
   x = xPos;
   y = yPos;

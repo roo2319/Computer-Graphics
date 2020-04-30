@@ -105,7 +105,7 @@ std::vector<CanvasPoint> clip(DrawingWindow window, Camera camera, std::vector<g
 }
 
 
-void drawWireframe(std::vector<Model> world, DrawingWindow window, Camera camera)
+void drawWireframe(std::vector<Model>& world, DrawingWindow window, Camera camera)
 {
   camera.updateFrustum(window.width,window.height);
   std::vector<ModelTriangle> faces;
@@ -127,7 +127,7 @@ void drawWireframe(std::vector<Model> world, DrawingWindow window, Camera camera
   }
 }
 
-void drawRasterised(std::vector<Model> world, DrawingWindow window, Camera camera, vector<vector<uint32_t>> image)
+void drawRasterised(std::vector<Model>& world, DrawingWindow window, Camera camera, vector<vector<uint32_t>>& image)
 {
   camera.updateFrustum(window.width,window.height);
   std::vector<ModelTriangle> faces;

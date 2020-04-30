@@ -10,8 +10,8 @@
 #include <glm/glm.hpp>
 
 
-void drawWireframe(std::vector<Model> model,DrawingWindow window, Camera camera);
+void drawWireframe(std::vector<Model>& model,DrawingWindow window, Camera camera);
 
 
 // void drawRasterised(std::vector<ModelTriangle> model,DrawingWindow window, Camera camera);
-void drawRasterised(std::vector<Model> model,DrawingWindow window, Camera camera, vector<vector<uint32_t>> image);
+void drawRasterised(std::vector<Model>& model,DrawingWindow window, Camera camera, vector<vector<uint32_t>>& image);

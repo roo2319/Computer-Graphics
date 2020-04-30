@@ -22,10 +22,9 @@ vector<vector<glm::vec3>> interpolate2d(glm::vec3 top_left, glm::vec3 top_right,
 // Drawing
 void edge(DrawingWindow window, CanvasPoint to, CanvasPoint from, Colour c);
 void fillLine(DrawingWindow window, CanvasPoint to, CanvasPoint from, Colour c);
-void texturedLine(DrawingWindow window, CanvasPoint to, CanvasPoint from, vector<vector<uint32_t>> texture);
+void texturedLine(DrawingWindow window, CanvasPoint to, CanvasPoint from, vector<vector<uint32_t>>& texture);
 void stroked(DrawingWindow window, CanvasPoint first, CanvasPoint second, CanvasPoint third, Colour c);
 void filled(DrawingWindow window, CanvasPoint first, CanvasPoint second, CanvasPoint third, Colour c);
-void texturedTriangle(DrawingWindow window, vector<vector<uint32_t>> image, CanvasPoint first, CanvasPoint second, CanvasPoint third);
 
 // Parsing
 vector<vector<uint32_t>> readPPM(const char * filename);
@@ -51,7 +50,7 @@ void drawBack(DrawingWindow window,unsigned int wd ,unsigned int ht,vector<vecto
 
 
 // Perspective Corrected Texture Mapping
-void texturedTriangle(DrawingWindow window, vector<vector<uint32_t>> image, CanvasPoint first, CanvasPoint second, CanvasPoint third);
+void texturedTriangle(DrawingWindow window, vector<vector<uint32_t>>& image, CanvasPoint first, CanvasPoint second, CanvasPoint third);
 CanvasPoint findTexture(CanvasPoint far, CanvasPoint close, CanvasPoint P);
 double findDepth(CanvasPoint from, CanvasPoint to, CanvasPoint P);
 vector<CanvasPoint> interpolateT(CanvasPoint from, CanvasPoint to, int numberOfValues);
