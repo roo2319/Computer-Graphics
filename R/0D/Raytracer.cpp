@@ -78,15 +78,12 @@ glm::vec3 Lighting(const RayTriangleIntersection& i,std::vector<ModelTriangle>& 
       }
       // std::cout << specular << std::endl;
       found = true; //Diffuse
-      std::cout<<"Good1"<<std::endl;
       lighting += specular  + diffuse;
     }
   }
   if (!found){
-    std::cout << "BAD" << std::endl;
     return 0.5f * indirectLighting;
   }
-      std::cout << "good" << std::endl;
 
   return lighting;
 }
