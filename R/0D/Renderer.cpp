@@ -37,15 +37,24 @@ vector<vector<glm::vec3>> swirl = readBump("swirl.ppm");
 unordered_map<string,Colour> logomaterials = readMTL("logo/materials.mtl");
 Model logo_ = Model(readOBJ("logo/logo.obj",logomaterials,0.02,299),vec3(-5.6,0,0));
 Model logo = logo_;
-vector<Model> world = {scene,logo};
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+vector<vector<uint32_t>> rockTexture = readPPM("blueStones/blue1.ppm");
+unordered_map<string,Colour> rockmaterials = readMTL("blueStones/blueStone16.mtl");
+Model rock_ = Model(readOBJ("blueStones/blueStone16.obj",rockmaterials,1,299),vec3(0,0,0));
+Model rock = rock_;
+glm::mat3 Rotation = mat3(1.0f);
+glm::vec3 rockstart = vec3(rand()%20,rand()%20,30);
+glm::vec3 rockdir = vec3( (rand()%20-10)/100, (rand()%20-10)/(100), (10+rand()%5)/10);
+
+vector<Model> world = {scene,logo,rock};
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 void animation();
 void start();
 void logoRotate();
 void orbit();
 
-// Camera camera = Camera(vec3(0,2,-6),mat3(1.0f),HEIGHT/2);
-Camera camera = Camera(vec3(0,106,-16),mat3(1.0f),HEIGHT/2);
+Camera camera = Camera(vec3(0,2,-6),mat3(1.0f),HEIGHT/2);
+// Camera camera = Camera(vec3(0,106,-16),mat3(1.0f),HEIGHT/2);
 //this camera pos overlooks the room
 
 // Distance from centre of orbit
@@ -67,6 +76,8 @@ int main(int argc, char* argv[])
     }
   }
   // start();
+  logo_.texture(tiger);
+  rock_.texture(rockTexture);
   SDL_Event event;
   while(true){
     // We MUST poll for events - otherwise the window will freeze !
@@ -123,37 +134,27 @@ void draw()
 //   fna++;
 // }
 
-// void start()
-// {
-//   glm::vec3 startLogo = vec3(-5.6,0,0);
-//   //shifting the vertices so that the logo is centered at origin
-//   for(unsigned int i = 0; i<logo.size();i++){
-//     logo0[i].vertices[0] = startLogo + logo0[i].vertices[0] ;
-//     logo0[i].vertices[1] = startLogo + logo0[i].vertices[1] ;
-//     logo0[i].vertices[2] = startLogo + logo0[i].vertices[2] ;
-//   }
-// }
-// void logoRotate(){
-
-//   glm::mat3 yrot = glm::mat3(cos(0.02),0,-sin(0.02),0,1,0,sin(0.02),0,cos(0.02));
-//   rotationLogo =  yrot * rotationLogo;
-//   glm::vec3 roomLogo = vec3(0,100,10);
-
-//   for(unsigned int i = 0; i<logo.size();i++){
-//     logo[i].vertices[0] =  roomLogo+(rotationLogo * logo0[i].vertices[0]) ;
-//     logo[i].vertices[1] =  roomLogo+(rotationLogo * logo0[i].vertices[1]) ;
-//     logo[i].vertices[2] =  roomLogo+(rotationLogo * logo0[i].vertices[2]) ;
-//   }
-// }
 void animation(){
   logo_.rotate(0,0.02,0);
   logo = logo_;
   logo.shift(vec3(0,100,10));
+  world[1] = logo;
+
+  if(rockstart[2]-camera.position[2] < 5){
+    rockstart = vec3( rand()%20-10,   rand()%20-10,  (camera.position[2]+50+rand()%20) );
+    rockdir = vec3( (rand()%1-2)/10, (rand()%1-2)/(10), (1+rand()%1));
+  }
+  rockstart -= rockdir ;
+  rock_.rotate(rand()%2,rand()%2,rand()%2);
+  rock = rock_;
+  rock.shift(rockstart);
+  world[2] = rock;
+
 }
 void update()
 {
   animation();
-  world[1] = logo;
+
   if (animate){
     switch(sequence){
       // Walk to portal, while taking turns
